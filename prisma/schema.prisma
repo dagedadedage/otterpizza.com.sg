@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  sortOrder Int       @default(0)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id           Int            @id @default(autoincrement())
+  sku          String         @unique
+  name         String
+  slug         String         @unique
+  description  String?
+  price        Float
+  salePrice    Float?
+  imageUrl     String?
+  categoryId   Int
+  category     Category       @relation(fields: [categoryId], references: [id])
+  inStock      Boolean        @default(true)
+  isFeatured   Boolean        @default(false)
+  tags         String         @default("")  // JSON array stored as string for SQLite
+  sortOrder    Int            @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  orderItems   OrderItem[]
+  priceHistory PriceHistory[]
+}
+
+model Store {
+  id           Int     @id @default(autoincrement())
+  name         String
+  address      String
+  unit         String
+  building     String
+  postalCode   String
+  grabUrl      String?
+  foodpandaUrl String?
+  deliverooUrl String?
+  latitude     Float?
+  longitude    Float?
+  isActive     Boolean @default(true)
+  sortOrder    Int     @default(0)
+  orders       Order[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Order {
+  id            Int              @id @default(autoincrement())
+  orderNumber   String           @unique
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  storeId       Int?
+  store         Store?           @relation(fields: [storeId], references: [id])
+  subtotal      Float
+  discount      Float            @default(0)
+  deliveryFee   Float            @default(0)
+  total         Float
+  status        String           @default("PENDING")
+  paymentMethod String?
+  paymentId     String?
+  paymentStatus String?
+  items         OrderItem[]
+  notes         String?
+  statusLogs    OrderStatusLog[]
+  adminNotes    OrderNote[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+model OrderItem {
+  id         Int     @id @default(autoincrement())
+  orderId    Int
+  order      Order   @relation(fields: [orderId], references: [id])
+  productId  Int
+  product    Product @relation(fields: [productId], references: [id])
+  quantity   Int
+  unitPrice  Float
+  totalPrice Float
+}
+
+model OrderStatusLog {
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  order      Order    @relation(fields: [orderId], references: [id])
+  fromStatus String?
+  toStatus   String
+  changedBy  Int
+  note       String?
+  createdAt  DateTime @default(now())
+}
+
+model OrderNote {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  content   String
+  createdBy Int
+  createdAt DateTime @default(now())
+}
+
+model ContactSubmission {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model Promotion {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  minAmount   Float
+  type        String    // FREE_DELIVERY, PERCENTAGE_DISCOUNT, FIXED_DISCOUNT
+  value       Float
+  isActive    Boolean   @default(true)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model PriceHistory {
+  id           Int      @id @default(autoincrement())
+  productId    Int
+  product      Product  @relation(fields: [productId], references: [id])
+  oldPrice     Float
+  newPrice     Float
+  oldSalePrice Float?
+  newSalePrice Float?
+  changedBy    Int
+  changedAt    DateTime @default(now())
+}
+
+model AdminUser {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         String    @default("STAFF")
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
