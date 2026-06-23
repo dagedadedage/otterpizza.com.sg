@@ -108,6 +108,17 @@ export default function AdminOrdersPage() {
     } catch { alert("Failed to cancel order"); }
   };
 
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, {
+        method: "DELETE",
+        headers: { "x-admin-key": ADMIN_KEY },
+      });
+      if (!res.ok) throw new Error("Failed");
+      fetchOrders();
+    } catch { alert("Failed to delete order"); }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -182,6 +193,7 @@ export default function AdminOrdersPage() {
           onPageChange={handlePageChange}
           onConfirm={handleConfirm}
           onCancel={handleCancel}
+          onDelete={handleDelete}
         />
       )}
     </div>

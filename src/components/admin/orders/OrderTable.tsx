@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { OrderStatusBadge } from "./OrderStatusBadge";
-import { Eye, ChevronLeft, ChevronRight, Check, X } from "lucide-react";
+import { Eye, ChevronLeft, ChevronRight, Check, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Order {
@@ -26,6 +26,7 @@ interface OrderTableProps {
   onPageChange: (page: number) => void;
   onConfirm?: (id: number) => void;
   onCancel?: (id: number) => void;
+  onDelete?: (id: number) => void;
   showStore?: boolean;
 }
 
@@ -37,6 +38,7 @@ export function OrderTable({
   onPageChange,
   onConfirm,
   onCancel,
+  onDelete,
   showStore = true,
 }: OrderTableProps) {
   if (orders.length === 0) {
@@ -142,6 +144,15 @@ export function OrderTable({
                         </Button>
                       </>
                     )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => { if (confirm("Delete this order permanently?")) onDelete?.(order.id); }}
+                      className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 </td>
               </tr>

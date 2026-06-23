@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { OrderService } from "@/lib/services/order-service";
 import { checkAdminAuth } from "@/lib/admin-auth";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
@@ -84,6 +85,26 @@ export async function PATCH(
     console.error("Failed to update order:", error);
     return NextResponse.json(
       { error: "Failed to update order" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const authError = checkAdminAuth(request);
+  if (authError) return authError;
+
+  try {
+    const { id } = await params;
+    await prisma.order.delete({ where: { id: Number(id) } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Failed to delete order:", error);
+    return NextResponse.json(
+      { error: "Failed to delete order" },
       { status: 500 }
     );
   }

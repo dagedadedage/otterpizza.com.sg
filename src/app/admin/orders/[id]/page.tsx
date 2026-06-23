@@ -27,6 +27,7 @@ import {
   Clock,
   Link2,
   Save,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -248,6 +249,19 @@ export default function AdminOrderDetailPage() {
     window.open(`/api/admin/orders/${params.id}/invoice`, "_blank");
   };
 
+  const handleDelete = async () => {
+    if (!confirm("Permanently delete this order? This cannot be undone.")) return;
+    try {
+      const res = await fetch(`/api/admin/orders/${params.id}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed");
+      router.push("/admin/orders");
+    } catch { alert("Failed to delete order"); }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -308,6 +322,9 @@ export default function AdminOrderDetailPage() {
           <Button variant="outline" size="sm" onClick={handlePrintInvoice}>
             <Printer className="w-4 h-4" />
             Invoice
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleDelete} className="text-red-500 hover:text-red-700 hover:bg-red-50">
+            <Trash2 className="w-4 h-4" />
           </Button>
           <OrderStatusBadge status={order.status} className="text-sm px-3 py-1" />
         </div>
