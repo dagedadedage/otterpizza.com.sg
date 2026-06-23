@@ -55,7 +55,7 @@ export default function OrderSummary({ items }: OrderSummaryProps) {
           return (
             <li key={item.productId} className="flex items-center gap-3 py-3">
               {/* Mini thumbnail */}
-              <div className="relative aspect-[15/10] h-10 flex-shrink-0 overflow-hidden rounded-md bg-cream">
+              <div className="relative w-[3.75rem] h-10 flex-shrink-0 overflow-hidden rounded-md bg-cream">
                 {item.imageUrl ? (
                   <Image
                     src={item.imageUrl}
