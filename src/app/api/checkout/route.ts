@@ -83,6 +83,16 @@ export async function POST(request: Request) {
     }));
 
     const promo = calculatePromotions(cartItems);
+
+    // Override delivery fee from DB setting if not free
+    let deliveryFee = promo.deliveryFee;
+    try {
+      const deliverySetting = await prisma.deliverySetting.findFirst();
+      if (deliverySetting && promo.deliveryFee > 0) {
+        deliveryFee = deliverySetting.fee;
+      }
+    } catch { /* use default */ }
+
     const baseAmount = subtotal - promo.discountAmount;
 
     // --- Calculate GST ---
@@ -107,7 +117,7 @@ export async function POST(request: Request) {
 
     // INCLUSIVE: GST already in prices, don't add. EXCLUSIVE: add GST on top.
     const gstAddon = gstMode === "EXCLUSIVE" ? gstAmount : 0;
-    const total = baseAmount + promo.deliveryFee + gstAddon;
+    const total = baseAmount + deliveryFee + gstAddon;
 
     if (total < 0) {
       return NextResponse.json(
@@ -136,7 +146,7 @@ export async function POST(request: Request) {
         notes: body.notes?.trim() || null,
         subtotal,
         discount: promo.discountAmount,
-        deliveryFee: promo.deliveryFee,
+        deliveryFee: deliveryFee,
         gstAmount,
         gstRate,
         total,

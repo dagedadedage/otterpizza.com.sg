@@ -19,6 +19,7 @@ export default function OrderSummary({ items }: OrderSummaryProps) {
 
   const [gstRate, setGstRate] = useState(GST_DEFAULTS.rate);
   const [gstMode, setGstMode] = useState<"INCLUSIVE" | "EXCLUSIVE">(GST_DEFAULTS.mode);
+  const [deliveryFee, setDeliveryFee] = useState(promo.deliveryFee);
 
   useEffect(() => {
     fetch("/api/gst")
@@ -28,12 +29,18 @@ export default function OrderSummary({ items }: OrderSummaryProps) {
         if (data.mode) setGstMode(data.mode);
       })
       .catch(() => {});
+    fetch("/api/delivery")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.fee !== undefined && promo.deliveryFee > 0) setDeliveryFee(data.fee);
+      })
+      .catch(() => {});
   }, []);
 
   const gstAmount = calculateGst(baseAmount, gstRate, gstMode);
   // INCLUSIVE: GST already in prices, don't add to total. EXCLUSIVE: add GST on top.
   const gstAddon = gstMode === "EXCLUSIVE" ? gstAmount : 0;
-  const finalTotal = baseAmount + promo.deliveryFee + gstAddon;
+  const finalTotal = baseAmount + deliveryFee + gstAddon;
 
   if (items.length === 0) {
     return (
@@ -106,10 +113,10 @@ export default function OrderSummary({ items }: OrderSummaryProps) {
         <div className="flex items-center justify-between text-muted">
           <span>Delivery Fee</span>
           <span>
-            {promo.deliveryFee === 0 && promo.type !== "none" ? (
+            {deliveryFee === 0 && promo.type !== "none" ? (
               <span className="text-green-700">FREE</span>
             ) : (
-              formatPrice(promo.deliveryFee)
+              formatPrice(deliveryFee)
             )}
           </span>
         </div>

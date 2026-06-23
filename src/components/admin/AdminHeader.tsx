@@ -12,6 +12,7 @@ const pageTitles: Record<string, string> = {
   "/admin/orders": "Orders",
   "/admin/menu": "Menu Management",
   "/admin/menu/gst": "GST Settings",
+  "/admin/delivery": "Delivery Settings",
   "/admin/promotions": "Promotions",
   "/admin/stores": "Stores",
   "/admin/contacts": "Contact Submissions",

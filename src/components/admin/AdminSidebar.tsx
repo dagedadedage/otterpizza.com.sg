@@ -15,6 +15,7 @@ import {
   Pizza,
   Percent,
   Shield,
+  Truck,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,11 @@ function getNavItems(isAdmin: boolean) {
       href: "/admin/menu/gst",
       label: "GST",
       icon: Percent,
+    },
+    {
+      href: "/admin/delivery",
+      label: "Delivery",
+      icon: Truck,
     },
     {
       href: "/admin/promotions",
