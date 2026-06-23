@@ -117,7 +117,7 @@ export default function StoreMap({ stores }: StoreMapProps) {
     <div
       ref={mapContainerRef}
       className="w-full rounded-xl overflow-hidden border-2 border-primary/15 shadow-md ring-1 ring-gold/20"
-      style={{ height: "640px" }}
+      style={{ height: "320px" }}
     />
   );
 }

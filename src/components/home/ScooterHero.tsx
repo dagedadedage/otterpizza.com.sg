@@ -19,7 +19,7 @@ function MovingSet({ delay }: { delay?: string }) {
         alt=""
         width={440}
         height={390}
-        className="w-80 sm:w-96 h-auto drop-shadow-xl shrink-0"
+        className="w-40 sm:w-48 h-auto drop-shadow-xl shrink-0"
         priority={!delay}
       />
 
@@ -81,8 +81,6 @@ export function ScooterHero() {
         {/* Scooter animation track */}
         <div className="relative w-full overflow-hidden h-80 sm:h-96">
           <MovingSet delay="0s" />
-          <MovingSet delay="-7s" />
-          <MovingSet delay="-14s" />
         </div>
 
         {/* Text + buttons */}
@@ -96,7 +94,7 @@ export function ScooterHero() {
             Order online for delivery or pickup across the island.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="flex flex-row items-center justify-center gap-3">
             <Button variant="primary" size="lg" asChild>
               <Link href="/menu">View Menu</Link>
             </Button>

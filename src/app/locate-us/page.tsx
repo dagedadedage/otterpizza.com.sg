@@ -78,31 +78,30 @@ export default async function LocateUsPage() {
             {stores.map((store) => (
               <div
                 key={store.id}
-                className="rounded-lg border border-border bg-white p-4 shadow-sm hover:shadow-md transition-shadow hover:border-primary/30"
+                className="rounded-lg border border-border bg-white p-3 shadow-sm hover:shadow-md transition-shadow hover:border-primary/30 flex items-center justify-between gap-3"
               >
-                <h3 className="text-sm font-bold text-dark truncate">
-                  {store.name}
-                </h3>
-                <p className="mt-1 text-xs text-muted leading-relaxed">
-                  {store.address}
-                  {store.unit && <>, {store.unit}</>}
-                  <br />
-                  {store.building}
-                  <br />
-                  S{store.postalCode}
-                </p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-bold text-dark truncate">
+                    {store.name}
+                  </h3>
+                  <p className="mt-0.5 text-xs text-muted leading-relaxed truncate">
+                    {store.address}
+                    {store.unit && <>, {store.unit}</>}
+                    , {store.building}, S{store.postalCode}
+                  </p>
+                </div>
 
-                {/* Delivery platform buttons */}
-                <div className="mt-3 pt-3 border-t border-border flex items-center gap-2">
+                {/* Delivery platform buttons — right side */}
+                <div className="flex items-center gap-1.5 shrink-0">
                   {store.grabUrl ? (
                     <a
                       href={store.grabUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full bg-[#00B14F] px-3 py-1 text-xs font-semibold text-white hover:bg-[#009A3F] transition-colors"
+                      className="inline-flex items-center gap-1 rounded-full bg-[#00B14F] px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-[#009A3F] transition-colors"
                       aria-label={`Order ${store.name} on Grab`}
                     >
-                      <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.5 7H14v4h-2V9h-1.5l2.5-2.5L15.5 9zM10 15H8.5l-2.5-2.5L8.5 10H10v5z" />
                       </svg>
                       Grab
@@ -113,17 +112,17 @@ export default async function LocateUsPage() {
                       href={store.foodpandaUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full bg-[#FF2B85] px-3 py-1 text-xs font-semibold text-white hover:bg-[#E51A70] transition-colors"
+                      className="inline-flex items-center gap-1 rounded-full bg-[#FF2B85] px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-[#E51A70] transition-colors"
                       aria-label={`Order ${store.name} on Foodpanda`}
                     >
-                      <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z" />
                       </svg>
                       Foodpanda
                     </a>
                   ) : null}
                   {!store.grabUrl && !store.foodpandaUrl && (
-                    <span className="text-[10px] text-muted/50 italic">
+                    <span className="text-[10px] text-muted/50 italic shrink-0">
                       Coming soon
                     </span>
                   )}

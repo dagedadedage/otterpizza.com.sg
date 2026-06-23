@@ -28,42 +28,27 @@ export function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Mobile: hamburger */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="lg:hidden -ml-2"
-                aria-label="Open menu"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left">
-              <MobileMenu />
-            </SheetContent>
-          </Sheet>
+        <div className="flex h-16 items-center">
+          {/* Logo — centered on mobile, left on desktop */}
+          <div className="flex-1 flex justify-center lg:flex-none lg:justify-start">
+            <Link
+              href="/"
+              className="flex items-center shrink-0"
+              aria-label="Otter Pizza Home"
+            >
+              <Image
+                src="/images/logo.png"
+                alt="Otter Pizza"
+                width={138}
+                height={64}
+                className="h-12 w-auto"
+                priority
+              />
+            </Link>
+          </div>
 
-          {/* Brand logo — left */}
-          <Link
-            href="/"
-            className="flex items-center shrink-0"
-            aria-label="Otter Pizza Home"
-          >
-            <Image
-              src="/images/logo.png"
-              alt="Otter Pizza"
-              width={138}
-              height={64}
-              className="h-12 w-auto"
-              priority
-            />
-          </Link>
-
-          {/* Right side: nav links + cart + login */}
-          <div className="hidden lg:flex items-center gap-1 ml-auto">
+          {/* Right side: nav links + cart + login (desktop only) */}
+          <div className="hidden lg:flex items-center gap-1">
             <nav aria-label="Main navigation" className="flex items-center gap-0.5">
               {navLinks.map((link) => {
                 const isActive =
@@ -120,6 +105,23 @@ export function Navbar() {
               </Link>
             </Button>
           </div>
+
+          {/* Mobile: hamburger — right side */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden -mr-2"
+                aria-label="Open menu"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <MobileMenu />
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
