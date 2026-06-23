@@ -13,13 +13,13 @@ function MovingSet({ delay, className }: { delay?: string; className?: string })
         animationDelay: delay,
       }}
     >
-      {/* Scooter — 50% size on mobile */}
+      {/* Scooter — 65% of original on mobile (50% + 30% boost) */}
       <Image
         src="/images/otter-scooter.png"
         alt=""
         width={440}
         height={390}
-        className="w-40 sm:w-48 lg:w-80 lg:min-[640px]:w-96 h-auto drop-shadow-xl shrink-0"
+        className="w-52 sm:w-64 lg:w-80 lg:min-[640px]:w-96 h-auto drop-shadow-xl shrink-0"
         priority={!delay}
       />
 
@@ -27,24 +27,24 @@ function MovingSet({ delay, className }: { delay?: string; className?: string })
       <div className="relative shrink-0 flex items-center justify-center">
         {/* Outer pulsing ring */}
         <div
-          className="absolute w-40 h-40 rounded-full border-2 border-gold/30"
+          className="absolute w-28 h-28 lg:w-40 lg:h-40 rounded-full border-2 border-gold/30"
           style={{ animation: "pulse-ring 2s ease-out infinite" }}
         />
         <div
-          className="absolute w-36 h-36 rounded-full border border-gold/20"
+          className="absolute w-[6.5rem] h-[6.5rem] lg:w-36 lg:h-36 rounded-full border border-gold/20"
           style={{ animation: "pulse-ring 2s ease-out 0.3s infinite" }}
         />
 
         {/* Sparkle dots around ring */}
-        <div className="absolute w-40 h-40 rounded-full" style={{ animation: "fairy-ring-spin 10s linear infinite" }}>
-          <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gold text-lg">✦</span>
-          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 text-gold text-sm">✦</span>
-          <span className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary text-sm">✦</span>
-          <span className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 text-primary text-lg">✦</span>
+        <div className="absolute w-28 h-28 lg:w-40 lg:h-40 rounded-full" style={{ animation: "fairy-ring-spin 10s linear infinite" }}>
+          <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gold text-sm lg:text-lg">✦</span>
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 text-gold text-xs lg:text-sm">✦</span>
+          <span className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary text-xs lg:text-sm">✦</span>
+          <span className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 text-primary text-sm lg:text-lg">✦</span>
         </div>
 
-        {/* Large Order Now button */}
-        <Button variant="primary" size="lg" asChild className="relative z-10 text-base w-32 h-32 rounded-full shadow-xl flex-col">
+        {/* Large Order Now button — 30% smaller on mobile */}
+        <Button variant="primary" size="lg" asChild className="relative z-10 text-xs lg:text-base w-24 h-24 lg:w-32 lg:h-32 rounded-full shadow-xl flex-col">
           <Link href="/order">
             <span className="leading-tight text-center">Order<br/>Now</span>
           </Link>
@@ -81,6 +81,7 @@ export function ScooterHero() {
         {/* Scooter animation track */}
         <div className="relative w-full overflow-hidden h-80 sm:h-96">
           <MovingSet delay="0s" />
+          <MovingSet delay="-10s" />
           <MovingSet delay="-7s" className="hidden lg:flex" />
           <MovingSet delay="-14s" className="hidden lg:flex" />
         </div>
@@ -91,7 +92,7 @@ export function ScooterHero() {
             Otter Pizza — Singapore&apos;s Neighbourhood Pizzeria
           </h1>
 
-          <p className="text-base text-muted max-w-md mx-auto leading-relaxed mb-8">
+          <p className="text-sm lg:text-base text-muted max-w-xs lg:max-w-md mx-auto leading-relaxed mb-8">
             Fresh, handcrafted pizzas made with quality ingredients.
             Order online for delivery or pickup across the island.
           </p>
