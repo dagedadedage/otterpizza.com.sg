@@ -24,7 +24,7 @@ export default function CartItem({
   return (
     <div className="flex items-start gap-4 rounded-lg border border-border bg-white p-4">
       {/* Thumbnail */}
-      <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-cream">
+      <div className="relative aspect-[15/10] h-20 flex-shrink-0 overflow-hidden rounded-md bg-cream">
         {item.imageUrl ? (
           <Image
             src={item.imageUrl}
