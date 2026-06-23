@@ -52,13 +52,32 @@ export function PromoBanner() {
           .join(" 🙃 ")
       : DEFAULT_PROMOS.map((p) => `${p.label}`).join(" 🙃 ");
 
+  // Repeat text for seamless marquee
+  const marqueeText = `${displayText} 🙃 ${displayText} 🙃 ${displayText}`;
+
   return (
-    <div className="bg-gold">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-        <p className="text-center text-sm sm:text-base font-bold text-dark tracking-wide leading-relaxed">
-          {displayText}
-        </p>
+    <div className="bg-gold overflow-hidden">
+      <div className="py-2 sm:py-3 whitespace-nowrap">
+        <div className="animate-marquee inline-block">
+          <p className="inline text-sm sm:text-base font-bold text-dark tracking-wide">
+            {marqueeText}
+          </p>
+        </div>
+        <div className="animate-marquee inline-block">
+          <p className="inline text-sm sm:text-base font-bold text-dark tracking-wide">
+            {marqueeText}
+          </p>
+        </div>
       </div>
+      <style jsx>{`
+        .animate-marquee {
+          animation: marquee 30s linear infinite;
+        }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-100%); }
+        }
+      `}</style>
     </div>
   );
 }
