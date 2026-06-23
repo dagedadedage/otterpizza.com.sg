@@ -75,7 +75,7 @@ export function ProductCard({
       {/* Product image */}
       <Link
         href={`/menu/${slug}`}
-        className="relative aspect-[4/3] overflow-hidden bg-cream flex items-center justify-center"
+        className="relative aspect-[16/9] overflow-hidden bg-cream flex items-center justify-center"
       >
         {imageUrl ? (
           <img

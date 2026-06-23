@@ -71,16 +71,16 @@ export default async function ProductDetailPage({
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         {/* Back link */}
         <Link
-          href="/menu"
+          href="/order"
           className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors mb-8"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Menu
+          Back to Order
         </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           {/* Product image */}
-          <div className="aspect-square rounded-2xl bg-cream flex items-center justify-center overflow-hidden border border-border">
+          <div className="aspect-[16/9] rounded-2xl bg-cream flex items-center justify-center overflow-hidden border border-border">
             {product.imageUrl ? (
               <img
                 src={product.imageUrl}
