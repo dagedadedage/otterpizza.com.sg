@@ -19,7 +19,7 @@ export default function CartPage() {
           Looks like you haven&apos;t added anything to your cart yet. Browse our
           menu to find something delicious!
         </p>
-        <Link href="/menu">
+        <Link href="/order">
           <Button variant="primary" size="lg">
             <ShoppingBag className="h-4 w-4" />
             Browse Menu
