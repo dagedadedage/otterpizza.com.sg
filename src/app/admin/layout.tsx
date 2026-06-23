@@ -29,8 +29,15 @@ export default function AdminLayout({
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const isLoginPage = pathname === "/admin/login";
 
   useEffect(() => {
+    // Login page doesn't need auth check
+    if (isLoginPage) {
+      setLoading(false);
+      return;
+    }
+
     fetch("/api/admin/auth/me", { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Not authenticated");
@@ -44,12 +51,15 @@ export default function AdminLayout({
         }
       })
       .catch(() => {
-        if (pathname !== "/admin/login") {
-          router.push("/admin/login");
-        }
+        router.push("/admin/login");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [isLoginPage]);
+
+  // Login page renders standalone without admin chrome
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (
