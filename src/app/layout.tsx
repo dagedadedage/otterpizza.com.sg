@@ -25,6 +25,9 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
+  icons: {
+    icon: "/favicon.png",
+  },
   title: {
     default: "Singapore Neighbourhood Pizzeria | Otter Pizza",
     template: "%s | Otter Pizza",
