@@ -31,6 +31,7 @@ interface Order {
   status: string;
   createdAt: string;
   store: Store | null;
+  deliveryType?: string | null;
   items?: OrderItem[];
 }
 
@@ -73,7 +74,7 @@ export function OrderTable({
               </th>
               {showStore && (
                 <th className="text-left px-4 py-3 font-semibold text-dark">
-                  Store
+                  Type
                 </th>
               )}
               <th className="text-right px-4 py-3 font-semibold text-dark">
@@ -109,7 +110,7 @@ export function OrderTable({
                 </td>
                 {showStore && (
                   <td className="px-4 py-3 text-sm text-muted">
-                    {order.store?.name || "—"}
+                    {order.deliveryType === "delivery" ? "Delivery" : order.deliveryType === "pickup" ? "Pick-up" : "—"}
                   </td>
                 )}
                 <td className="px-4 py-3 text-right font-semibold text-dark">

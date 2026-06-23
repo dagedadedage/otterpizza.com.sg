@@ -159,7 +159,7 @@ ${isDelivery ? `
   <div class="totals-row"><span>Subtotal</span><span>${formatPrice(Number(order.subtotal))}</span></div>
   ${Number(order.discount) > 0 ? `<div class="totals-row"><span>Discount</span><span>-${formatPrice(Number(order.discount))}</span></div>` : ""}
   ${Number(order.deliveryFee) > 0 ? `<div class="totals-row"><span>Delivery Fee</span><span>${formatPrice(Number(order.deliveryFee))}</span></div>` : ""}
-  ${Number(order.gstAmount) > 0 ? `<div class="totals-row"><span>GST (${order.gstRate}%)</span><span>${formatPrice(Number(order.gstAmount))}</span></div>` : ""}
+  ${Number(order.gstAmount) > 0 ? `<div class="totals-row"><span>GST (${order.gstRate}% Incl.)</span><span>${formatPrice(Number(order.gstAmount))}</span></div>` : ""}
   <div class="totals-divider"></div>
   <div class="totals-row totals-total"><span>Total (SGD)</span><span>${formatPrice(Number(order.total))}</span></div>
 </div>
