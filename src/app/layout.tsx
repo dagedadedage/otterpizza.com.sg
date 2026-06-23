@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Chelsea_Market, Caveat } from "next/font/google";
-import { Navbar } from "@/components/layout/Navbar";
+import { ConditionalNavbar, ConditionalFooter } from "@/components/layout/ConditionalNavbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/store/cart-context";
 import "./globals.css";
@@ -68,9 +68,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         <CartProvider>
-          <Navbar />
+          <ConditionalNavbar />
           <main className="flex-1">{children}</main>
-          <Footer />
+          <ConditionalFooter />
         </CartProvider>
       </body>
     </html>
