@@ -77,7 +77,7 @@ export function ScooterHero() {
       </div>
 
       {/* Upper: scooter + content */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-end pb-8">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-end pb-2 lg:pb-8">
         {/* Scooter animation track */}
         <div className="relative w-full overflow-hidden h-80 sm:h-96">
           <MovingSet delay="0s" />
@@ -108,25 +108,28 @@ export function ScooterHero() {
         </div>
       </div>
 
-      {/* Mural band */}
-      <div className="relative h-[30vh] w-full overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-50"
-          style={{
-            backgroundImage: "url(/images/mural-3.jpg)",
-            backgroundSize: "auto 100%",
-            backgroundRepeat: "repeat-x",
-            backgroundPosition: "center",
-          }}
-        />
-        <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-cream to-transparent" />
+      {/* Mural band — downsized (2 per width) + shifted up on mobile */}
+      <div className="relative h-[20vh] lg:h-[30vh] w-full overflow-hidden -mt-2">
+        <div className="mural-bg absolute inset-0 opacity-50" />
+        <div className="absolute top-0 left-0 right-0 h-6 lg:h-12 bg-gradient-to-b from-cream to-transparent" />
       </div>
 
-      {/* Keyframes */}
+      {/* Keyframes + responsive mural */}
       <style jsx>{`
         @keyframes pulse-ring {
           0% { transform: scale(0.9); opacity: 0.6; }
           100% { transform: scale(1.3); opacity: 0; }
+        }
+        .mural-bg {
+          background-image: url(/images/mural-3.jpg);
+          background-size: 50% auto;
+          background-repeat: repeat-x;
+          background-position: center;
+        }
+        @media (min-width: 1024px) {
+          .mural-bg {
+            background-size: auto 100%;
+          }
         }
       `}</style>
     </section>
