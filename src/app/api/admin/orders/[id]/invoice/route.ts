@@ -31,6 +31,7 @@ export async function GET(
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "Asia/Singapore",
     });
 
     const isDelivery = order.deliveryType === "delivery";
