@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -91,14 +92,16 @@ export function AdminSidebar({ role }: { role?: string }) {
       {/* Logo Area */}
       <Link
         href="/"
-        className="flex items-center gap-3 px-4 h-16 border-b border-white/10 shrink-0 hover:bg-white/5 transition-colors"
+        className="flex items-center justify-center px-4 h-16 border-b border-white/10 shrink-0 hover:bg-white/5 transition-colors"
       >
-        <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary shrink-0">
-          <Pizza className="w-5 h-5 text-white" />
-        </div>
-        {!collapsed && (
-          <span className="font-bold text-lg whitespace-nowrap">Otter Admin</span>
-        )}
+        <Image
+          src="/images/logo.png"
+          alt="Otter Pizza"
+          width={138}
+          height={64}
+          className={cn("h-10 w-auto", collapsed && "h-7")}
+          priority
+        />
       </Link>
 
       {/* Navigation */}
