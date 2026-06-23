@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { formatPrice } from "@/lib/utils";
 import { calculatePromotions } from "@/lib/promotions";
 import { getSubtotal } from "@/store/cart-context";
+import { calculateGst, GST_DEFAULTS } from "@/lib/gst-utils";
 import type { CartItem } from "@/store/cart-context";
 
 interface CartSummaryProps {
@@ -12,7 +14,23 @@ interface CartSummaryProps {
 export default function CartSummary({ items }: CartSummaryProps) {
   const subtotal = getSubtotal(items);
   const promo = calculatePromotions(items);
-  const finalTotal = subtotal - promo.discountAmount + promo.deliveryFee;
+  const baseAmount = subtotal - promo.discountAmount;
+
+  const [gstRate, setGstRate] = useState(GST_DEFAULTS.rate);
+  const [gstMode, setGstMode] = useState<"INCLUSIVE" | "EXCLUSIVE">(GST_DEFAULTS.mode);
+
+  useEffect(() => {
+    fetch("/api/gst")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.rate !== undefined) setGstRate(data.rate);
+        if (data.mode) setGstMode(data.mode);
+      })
+      .catch(() => {});
+  }, []);
+
+  const gstAmount = calculateGst(baseAmount, gstRate, gstMode);
+  const finalTotal = baseAmount + promo.deliveryFee + gstAmount;
 
   if (items.length === 0) {
     return null;
@@ -56,6 +74,14 @@ export default function CartSummary({ items }: CartSummaryProps) {
             )}
           </span>
         </div>
+
+        {/* GST */}
+        {gstAmount > 0 && (
+          <div className="flex items-center justify-between text-muted">
+            <span>GST ({gstRate}% {gstMode === "INCLUSIVE" ? "incl." : "excl."})</span>
+            <span>{formatPrice(gstAmount)}</span>
+          </div>
+        )}
 
         {/* Divider */}
         <hr className="border-border" />

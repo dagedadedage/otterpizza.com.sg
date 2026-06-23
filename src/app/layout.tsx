@@ -39,6 +39,10 @@ export const metadata: Metadata = {
     "neighbourhood pizzeria",
     "order pizza",
   ],
+  robots: {
+    index: false,
+    follow: false,
+  },
   openGraph: {
     type: "website",
     locale: "en_SG",
