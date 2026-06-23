@@ -83,14 +83,17 @@ export function AdminSidebar({ role }: { role?: string }) {
       )}
     >
       {/* Logo Area */}
-      <div className="flex items-center gap-3 px-4 h-16 border-b border-white/10 shrink-0">
+      <Link
+        href="/admin"
+        className="flex items-center gap-3 px-4 h-16 border-b border-white/10 shrink-0 hover:bg-white/5 transition-colors"
+      >
         <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary shrink-0">
           <Pizza className="w-5 h-5 text-white" />
         </div>
         {!collapsed && (
           <span className="font-bold text-lg whitespace-nowrap">Otter Admin</span>
         )}
-      </div>
+      </Link>
 
       {/* Navigation */}
       <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
