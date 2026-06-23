@@ -70,7 +70,7 @@ export async function GET(
 <body>
 <div class="header">
   <div>
-    <div class="logo">🦦 Otter Pizza</div>
+    <img src="/images/logo.png" alt="Otter Pizza" style="height:48px;width:auto;" />
     <div style="font-size:12px;color:#666;margin-top:4px;">Tax Invoice</div>
   </div>
   <div class="company-info">
