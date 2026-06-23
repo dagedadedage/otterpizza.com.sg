@@ -1,46 +1,100 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ArrowLeft } from "lucide-react";
+import { CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("order");
-  const status = searchParams.get("status");
+  const [status, setStatus] = useState<string>("pending");
+  const [checking, setChecking] = useState(true);
 
-  const isPending = status === "pending";
+  // Poll for payment status confirmation
+  useEffect(() => {
+    if (!orderNumber) {
+      setChecking(false);
+      return;
+    }
+
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    const checkStatus = async () => {
+      try {
+        const res = await fetch(`/api/checkout/status?order=${orderNumber}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === "CONFIRMED" || data.paymentStatus === "completed") {
+            setStatus("completed");
+            setChecking(false);
+            return;
+          }
+        }
+      } catch { /* keep polling */ }
+
+      attempts++;
+      if (attempts >= maxAttempts) {
+        setChecking(false);
+      }
+    };
+
+    // Check immediately, then every 3 seconds
+    checkStatus();
+    const interval = setInterval(() => {
+      if (attempts >= maxAttempts) {
+        clearInterval(interval);
+        setChecking(false);
+        return;
+      }
+      checkStatus();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [orderNumber]);
+
+  const isCompleted = status === "completed";
 
   return (
     <div className="mx-auto flex max-w-lg flex-col items-center px-4 py-24 text-center">
-      {/* Checkmark animation */}
-      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
-        <CheckCircle className="h-10 w-10 text-green-600" />
-      </div>
+      {checking ? (
+        <>
+          <div className="mb-6 flex h-20 w-20 items-center justify-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          </div>
+          <h1 className="mb-2 text-2xl font-bold text-dark">Verifying Payment...</h1>
+          <p className="text-muted">Checking your payment status. Please wait a moment.</p>
+        </>
+      ) : (
+        <>
+          <div className={`mb-6 flex h-20 w-20 items-center justify-center rounded-full ${isCompleted ? "bg-green-100" : "bg-amber-100"}`}>
+            <CheckCircle className={`h-10 w-10 ${isCompleted ? "text-green-600" : "text-amber-600"}`} />
+          </div>
 
-      <h1 className="mb-2 text-2xl font-bold text-dark">
-        {isPending ? "Payment Initiated!" : "Order Confirmed!"}
-      </h1>
+          <h1 className="mb-2 text-2xl font-bold text-dark">
+            {isCompleted ? "Order Confirmed!" : "Payment Processing"}
+          </h1>
 
-      <p className="mb-2 text-muted">
-        {isPending
-          ? "Your payment is being processed. You will receive a confirmation shortly."
-          : "Thank you for your order! We have received it and will start preparing it soon."}
-      </p>
+          <p className="mb-2 text-muted">
+            {isCompleted
+              ? "Thank you for your order! We have received it and will start preparing it soon."
+              : "Your payment is being processed. You will receive a confirmation shortly."}
+          </p>
 
-      {orderNumber && (
-        <div className="mt-4 rounded-lg border border-border bg-cream px-6 py-3">
-          <p className="text-sm text-muted">Order Number</p>
-          <p className="text-xl font-bold text-primary">{orderNumber}</p>
-        </div>
+          {orderNumber && (
+            <div className="mt-4 rounded-lg border border-border bg-cream px-6 py-3">
+              <p className="text-sm text-muted">Order Number</p>
+              <p className="text-xl font-bold text-primary">{orderNumber}</p>
+            </div>
+          )}
+
+          <p className="mt-6 text-sm text-muted">
+            A confirmation email will be sent to your email address with the order details and payment status.
+          </p>
+        </>
       )}
-
-      <p className="mt-6 text-sm text-muted">
-        A confirmation email will be sent to your email address with the order
-        details and payment status.
-      </p>
 
       <Link href="/" className="mt-8">
         <Button variant="primary" size="lg">
