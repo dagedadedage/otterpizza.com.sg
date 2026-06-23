@@ -47,16 +47,13 @@ function generateTimeslots(selectedDate: string): string[] {
   const today = now.toISOString().split("T")[0];
   const isToday = selectedDate === today;
 
-  // Add ASAP option for today (if within operating hours)
-  if (isToday) {
-    const currentHour = now.getHours();
-    const currentMin = now.getMinutes();
-    const currentTimeMinutes = currentHour * 60 + currentMin;
-    const closeTimeMinutes = 22 * 60; // 10pm
-    // ASAP available if before 9:30pm (30 min before close)
-    if (currentTimeMinutes < closeTimeMinutes - 30) {
-      slots.push("ASAP (~30 min)");
-    }
+  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+  const openTimeMinutes = 10 * 60; // 10am
+  const closeTimeMinutes = 22 * 60; // 10pm
+
+  // Add ASAP option for today (only within operating hours: 10am to 9:30pm)
+  if (isToday && currentTimeMinutes >= openTimeMinutes && currentTimeMinutes < closeTimeMinutes - 30) {
+    slots.push("ASAP (~30 min)");
   }
 
   // Operating hours: 10am to 10pm (last slot at 10:00pm), 30-min increments
@@ -65,7 +62,7 @@ function generateTimeslots(selectedDate: string): string[] {
       // Skip 10:30pm (outside hours)
       if (h === 22 && m > 0) continue;
 
-      const slotTime = new Date(selectedDate);
+      const slotTime = new Date(selectedDate + "T00:00:00");
       slotTime.setHours(h, m, 0, 0);
 
       // For today: skip slots less than 30 min from now
@@ -113,7 +110,15 @@ export default function CustomerForm({
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [deliveryUnit, setDeliveryUnit] = useState("");
   const [deliveryPostalCode, setDeliveryPostalCode] = useState("");
-  const [deliveryDate, setDeliveryDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [deliveryDate, setDeliveryDate] = useState(() => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    const todaySlots = generateTimeslots(todayStr);
+    if (todaySlots.length > 0) return todayStr;
+    // No slots today — use tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split("T")[0];
+  });
   const [deliveryTimeslot, setDeliveryTimeslot] = useState("");
   const [notes, setNotes] = useState("");
   const [stores, setStores] = useState<Store[]>([]);
