@@ -90,7 +90,7 @@ export function AdminSidebar({ role }: { role?: string }) {
     >
       {/* Logo Area */}
       <Link
-        href="/admin"
+        href="/"
         className="flex items-center gap-3 px-4 h-16 border-b border-white/10 shrink-0 hover:bg-white/5 transition-colors"
       >
         <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary shrink-0">

@@ -99,7 +99,14 @@ export async function DELETE(
 
   try {
     const { id } = await params;
-    await prisma.order.delete({ where: { id: Number(id) } });
+    const orderId = Number(id);
+
+    // Delete related records first (SQLite doesn't support cascade)
+    await prisma.orderItem.deleteMany({ where: { orderId } });
+    await prisma.orderStatusLog.deleteMany({ where: { orderId } });
+    await prisma.orderNote.deleteMany({ where: { orderId } });
+    await prisma.order.delete({ where: { id: orderId } });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete order:", error);
