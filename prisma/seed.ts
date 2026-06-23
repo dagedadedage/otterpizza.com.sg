@@ -14,15 +14,27 @@ async function main() {
   const adminHash = await bcrypt.hash("admin123", 12);
   await prisma.adminUser.upsert({
     where: { email: "admin@otterpizza.com.sg" },
-    update: {},
+    update: { role: "ADMIN" },
     create: {
       email: "admin@otterpizza.com.sg",
-      name: "Super Admin",
+      name: "Admin",
       passwordHash: adminHash,
-      role: "SUPER_ADMIN",
+      role: "ADMIN",
     },
   });
-  console.log("✅ Admin user created");
+
+  const managerHash = await bcrypt.hash("manager123", 12);
+  await prisma.adminUser.upsert({
+    where: { email: "manager@otterpizza.com.sg" },
+    update: {},
+    create: {
+      email: "manager@otterpizza.com.sg",
+      name: "Store Manager",
+      passwordHash: managerHash,
+      role: "MANAGER",
+    },
+  });
+  console.log("✅ Admin users created");
 
   // === CATEGORIES ===
   const classic = await prisma.category.upsert({
@@ -61,7 +73,7 @@ async function main() {
     { sku: "101", name: 'OTTER\'S HAWAIIAN 12"', slug: "otters-hawaiian-12", description: "Ham, Pineapple, Mozzarella Cheese, Otter Signature Pizza Sauce", price: 16.80, imageUrl: productImg("101 Otter Hawaian.jpg"), categoryId: classic.id, tags: [], sortOrder: 1 },
     { sku: "102", name: 'HAM & CHEESE SPECIAL 12"', slug: "ham-cheese-special-12", description: "Ham, Cheddar Cheese, Mozzarella Cheese, Otter Signature Pizza Sauce", price: 16.80, imageUrl: productImg("102 Ham and Cheese.jpg"), categoryId: classic.id, tags: [], sortOrder: 2 },
     { sku: "103", name: 'PEPPERONI CLASSIC 12"', slug: "pepperoni-classic-12", description: "Pepperoni, Mozzarella Cheese, Otter Signature Pizza Sauce", price: 16.80, imageUrl: productImg("103 Pepperoni Classic.jpg"), categoryId: classic.id, tags: [], sortOrder: 3 },
-    { sku: "104", name: 'BEEF & PINEAPPLE 12"', slug: "beef-pineapple-12", description: "Beef, Pineapple, Mozzarella Cheese, Otter Signature Pizza Sauce", price: 22.80, imageUrl: productImg("104 Beef & Pineapple.jpg"), categoryId: classic.id, tags: [], sortOrder: 4 },
+    { sku: "104", name: 'BEEF & PINEAPPLE 12"', slug: "beef-pineapple-12", description: "Beef, Pineapple, Mozzarella Cheese, Otter Signature Pizza Sauce", price: 22.80, imageUrl: productImg("104 Beef n Pineapple.jpg"), categoryId: classic.id, tags: [], sortOrder: 4 },
     { sku: "105", name: 'CHEESE MELT 12"', slug: "cheese-melt-12", description: "Mixed Cheeses, Mozzarella Cheese, Otter Signature Pizza Sauce", price: 16.80, imageUrl: productImg("105 Cheese Melt.jpg"), categoryId: classic.id, tags: [], sortOrder: 5 },
     { sku: "106", name: 'MARGHERITA 12"', slug: "margherita-12", description: "Tomato, Basil, Mozzarella Cheese, Otter Signature Pizza Sauce", price: 16.80, imageUrl: productImg("106 Margarita.jpg"), categoryId: classic.id, tags: [], sortOrder: 6 },
     { sku: "107", name: 'VEGGIE DELIGHT 12"', slug: "veggie-delight-12", description: "Mixed Vegetables, Mozzarella Cheese, Otter Signature Pizza Sauce", price: 16.80, imageUrl: productImg("107 Veffie Delight.jpg"), categoryId: classic.id, tags: [], sortOrder: 7 },

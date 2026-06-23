@@ -13,46 +13,67 @@ import {
   ChevronLeft,
   ChevronRight,
   Pizza,
+  Percent,
+  Shield,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const navItems = [
-  {
-    href: "/admin",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    href: "/admin/orders",
-    label: "Orders",
-    icon: ShoppingCart,
-  },
-  {
-    href: "/admin/menu",
-    label: "Menu",
-    icon: UtensilsCrossed,
-  },
-  {
-    href: "/admin/promotions",
-    label: "Promotions",
-    icon: Tag,
-  },
-  {
-    href: "/admin/stores",
-    label: "Stores",
-    icon: Store,
-  },
-  {
-    href: "/admin/contacts",
-    label: "Contacts",
-    icon: MessageSquare,
-  },
-];
+function getNavItems(isAdmin: boolean) {
+  return [
+    {
+      href: "/admin",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      href: "/admin/orders",
+      label: "Orders",
+      icon: ShoppingCart,
+    },
+    {
+      href: "/admin/menu",
+      label: "Menu",
+      icon: UtensilsCrossed,
+    },
+    {
+      href: "/admin/menu/gst",
+      label: "GST",
+      icon: Percent,
+    },
+    {
+      href: "/admin/promotions",
+      label: "Promotions",
+      icon: Tag,
+    },
+    {
+      href: "/admin/stores",
+      label: "Stores",
+      icon: Store,
+    },
+    {
+      href: "/admin/contacts",
+      label: "Contacts",
+      icon: MessageSquare,
+    },
+    // Access Control — ADMIN only
+    ...(isAdmin
+      ? [
+          {
+            href: "/admin/access",
+            label: "Access Control",
+            icon: Shield,
+          },
+        ]
+      : []),
+  ];
+}
 
-export function AdminSidebar() {
+export function AdminSidebar({ role }: { role?: string }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const isAdmin = role === "ADMIN";
+  const navItems = getNavItems(isAdmin);
 
   return (
     <aside

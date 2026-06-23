@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 
 const ADMIN_KEY = "otter-pizza-admin-2024";
 
+function authHeaders(): Record<string, string> {
+  return { "x-admin-key": ADMIN_KEY };
+}
+
 interface Category {
   id: number;
   name: string;
@@ -46,10 +50,12 @@ export default function AdminMenuPage() {
 
       const [productsRes, categoriesRes] = await Promise.all([
         fetch(`/api/admin/menu?${params}`, {
-          headers: { "x-admin-key": ADMIN_KEY },
+          headers: authHeaders(),
+          credentials: "include",
         }),
         fetch("/api/admin/categories", {
-          headers: { "x-admin-key": ADMIN_KEY },
+          headers: authHeaders(),
+          credentials: "include",
         }),
       ]);
 
@@ -89,7 +95,8 @@ export default function AdminMenuPage() {
     try {
       const res = await fetch(`/api/admin/menu/${id}/stock`, {
         method: "PATCH",
-        headers: { "x-admin-key": ADMIN_KEY },
+        headers: authHeaders(),
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to toggle stock");
       await fetchProducts();
@@ -103,7 +110,8 @@ export default function AdminMenuPage() {
     try {
       const res = await fetch(`/api/admin/menu/${id}`, {
         method: "DELETE",
-        headers: { "x-admin-key": ADMIN_KEY },
+        headers: authHeaders(),
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to delete product");
       await fetchProducts();

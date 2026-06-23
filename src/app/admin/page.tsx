@@ -21,6 +21,10 @@ import { Button } from "@/components/ui/button";
 
 const ADMIN_KEY = "otter-pizza-admin-2024";
 
+function authHeaders(): Record<string, string> {
+  return { "x-admin-key": ADMIN_KEY };
+}
+
 interface OrderStats {
   totalOrders: number;
   pendingOrders: number;
@@ -53,11 +57,9 @@ export default function AdminDashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const headers = { "x-admin-key": ADMIN_KEY };
-
       const [statsRes, ordersRes] = await Promise.all([
-        fetch("/api/admin/orders/stats", { headers }),
-        fetch("/api/admin/orders?limit=5", { headers }),
+        fetch("/api/admin/orders/stats", { headers: authHeaders(), credentials: "include" }),
+        fetch("/api/admin/orders?limit=5", { headers: authHeaders(), credentials: "include" }),
       ]);
 
       if (!statsRes.ok || !ordersRes.ok) {

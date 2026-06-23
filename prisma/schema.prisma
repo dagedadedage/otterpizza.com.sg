@@ -68,6 +68,8 @@ model Order {
   subtotal      Float
   discount      Float            @default(0)
   deliveryFee   Float            @default(0)
+  gstAmount     Float            @default(0)
+  gstRate       Float            @default(9)
   total         Float
   status        String           @default("PENDING")
   paymentMethod String?
@@ -135,6 +137,14 @@ model Promotion {
   updatedAt   DateTime  @updatedAt
 }
 
+model GstSetting {
+  id        Int      @id @default(autoincrement())
+  rate      Float    @default(9)
+  mode      String   @default("EXCLUSIVE") // INCLUSIVE or EXCLUSIVE
+  updatedAt DateTime @updatedAt
+  updatedBy Int      @default(0)
+}
+
 model PriceHistory {
   id           Int      @id @default(autoincrement())
   productId    Int
@@ -152,7 +162,7 @@ model AdminUser {
   email        String    @unique
   name         String
   passwordHash String
-  role         String    @default("STAFF")
+  role         String    @default("MANAGER")
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

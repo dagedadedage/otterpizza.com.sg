@@ -136,10 +136,10 @@ export function ProductTable({
           <thead>
             <tr className="bg-cream border-b border-border">
               <th className="text-left px-4 py-3 font-semibold text-dark">
-                Name
+                SKU
               </th>
               <th className="text-left px-4 py-3 font-semibold text-dark">
-                SKU
+                Name
               </th>
               <th className="text-left px-4 py-3 font-semibold text-dark">
                 Category
@@ -167,6 +167,9 @@ export function ProductTable({
                 key={product.id}
                 className="hover:bg-warm-white/50 transition-colors"
               >
+                <td className="px-4 py-3 font-mono text-xs text-muted">
+                  {product.sku}
+                </td>
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/menu/${product.id}/edit`}
@@ -174,9 +177,6 @@ export function ProductTable({
                   >
                     {product.name}
                   </Link>
-                </td>
-                <td className="px-4 py-3 font-mono text-xs text-muted">
-                  {product.sku}
                 </td>
                 <td className="px-4 py-3 text-sm text-muted">
                   {product.category?.name || "—"}

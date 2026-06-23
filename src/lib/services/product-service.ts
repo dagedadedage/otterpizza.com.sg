@@ -23,7 +23,7 @@ export class ProductService {
       prisma.product.findMany({
         where: where as any,
         include: { category: true },
-        orderBy: { sortOrder: "asc" },
+        orderBy: { sku: "asc" },
         skip: (page - 1) * limit,
         take: limit,
       }),

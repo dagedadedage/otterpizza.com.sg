@@ -51,6 +51,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Duplicate check: same name + type + minAmount
+    const existing = await prisma.promotion.findFirst({
+      where: {
+        name: body.name,
+        type: body.type,
+        minAmount: Number(body.minAmount),
+      },
+    });
+    if (existing) {
+      return NextResponse.json(
+        {
+          error: `A promotion "${body.name}" (${body.type}, $${body.minAmount}) already exists`,
+        },
+        { status: 409 }
+      );
+    }
+
     const promotion = await prisma.promotion.create({
       data: {
         name: body.name,

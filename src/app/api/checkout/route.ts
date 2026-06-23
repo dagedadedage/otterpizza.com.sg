@@ -77,7 +77,27 @@ export async function POST(request: Request) {
     }));
 
     const promo = calculatePromotions(cartItems);
-    const total = subtotal - promo.discountAmount + promo.deliveryFee;
+    const baseAmount = subtotal - promo.discountAmount;
+
+    // --- Calculate GST ---
+    let gstAmount = 0;
+    let gstRate = 9;
+    try {
+      const gstSetting = await prisma.gstSetting.findFirst();
+      if (gstSetting && gstSetting.rate > 0) {
+        gstRate = gstSetting.rate;
+        if (gstSetting.mode === "EXCLUSIVE") {
+          gstAmount = Math.round(baseAmount * gstRate) / 100;
+        } else {
+          // INCLUSIVE: extract embedded GST
+          gstAmount = Math.round(baseAmount * gstRate / (100 + gstRate) * 100) / 100;
+        }
+      }
+    } catch {
+      // GST setting not found or error — use defaults
+    }
+
+    const total = baseAmount + promo.deliveryFee + gstAmount;
 
     if (total < 0) {
       return NextResponse.json(
@@ -101,6 +121,8 @@ export async function POST(request: Request) {
         subtotal,
         discount: promo.discountAmount,
         deliveryFee: promo.deliveryFee,
+        gstAmount,
+        gstRate,
         total,
         status: "PENDING",
         items: {
