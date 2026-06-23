@@ -169,7 +169,7 @@ export async function POST(request: Request) {
         phone: body.customerPhone?.trim() || undefined,
         referenceNumber: orderNumber,
         redirectUrl: `${appUrl}/checkout/success?order=${orderNumber}`,
-        paymentMethods: ["paynow_online", "card", "grabpay_direct"],
+        paymentMethods: ["paynow_online", "card"],
       });
 
       paymentUrl = hitpayResponse.url;
