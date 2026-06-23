@@ -28,28 +28,11 @@ export function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Mobile: hamburger */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="lg:hidden -ml-2"
-                aria-label="Open menu"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left">
-              <MobileMenu />
-            </SheetContent>
-          </Sheet>
-
-          {/* Brand logo — left */}
+        <div className="relative flex h-16 items-center">
+          {/* Brand logo — centered on mobile, left on desktop */}
           <Link
             href="/"
-            className="flex items-center shrink-0"
+            className="flex items-center shrink-0 max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2"
             aria-label="Otter Pizza Home"
           >
             <Image
@@ -62,7 +45,7 @@ export function Navbar() {
             />
           </Link>
 
-          {/* Right side: nav links + cart + login */}
+          {/* Right side: nav links + cart + login (desktop) */}
           <div className="hidden lg:flex items-center gap-1 ml-auto">
             <nav aria-label="Main navigation" className="flex items-center gap-0.5">
               {navLinks.map((link) => {
@@ -120,6 +103,23 @@ export function Navbar() {
               </Link>
             </Button>
           </div>
+
+          {/* Mobile: hamburger — right side */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden ml-auto -mr-2"
+                aria-label="Open menu"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <MobileMenu />
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

@@ -78,22 +78,29 @@ export default async function LocateUsPage() {
             {stores.map((store) => (
               <div
                 key={store.id}
-                className="rounded-lg border border-border bg-white p-4 shadow-sm hover:shadow-md transition-shadow hover:border-primary/30"
+                className="rounded-lg border border-border bg-white p-4 shadow-sm hover:shadow-md transition-shadow hover:border-primary/30 max-lg:flex max-lg:items-center max-lg:justify-between max-lg:gap-3 max-lg:p-3"
               >
-                <h3 className="text-sm font-bold text-dark truncate">
-                  {store.name}
-                </h3>
-                <p className="mt-1 text-xs text-muted leading-relaxed">
-                  {store.address}
-                  {store.unit && <>, {store.unit}</>}
-                  <br />
-                  {store.building}
-                  <br />
-                  S{store.postalCode}
-                </p>
+                <div className="max-lg:min-w-0 max-lg:flex-1">
+                  <h3 className="text-sm font-bold text-dark truncate">
+                    {store.name}
+                  </h3>
+                  <p className="mt-1 text-xs text-muted leading-relaxed max-lg:truncate max-lg:mt-0.5">
+                    {store.address}
+                    {store.unit && <>, {store.unit}</>}
+                    <span className="max-lg:hidden">
+                      <br />
+                      {store.building}
+                      <br />
+                      S{store.postalCode}
+                    </span>
+                    <span className="hidden max-lg:inline">
+                      , {store.building}, S{store.postalCode}
+                    </span>
+                  </p>
+                </div>
 
                 {/* Delivery platform buttons */}
-                <div className="mt-3 pt-3 border-t border-border flex items-center gap-2">
+                <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 max-lg:mt-0 max-lg:pt-0 max-lg:border-t-0 max-lg:shrink-0">
                   {store.grabUrl ? (
                     <a
                       href={store.grabUrl}

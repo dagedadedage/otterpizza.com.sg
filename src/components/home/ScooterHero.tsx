@@ -4,22 +4,22 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
-function MovingSet({ delay }: { delay?: string }) {
+function MovingSet({ delay, className }: { delay?: string; className?: string }) {
   return (
     <div
-      className="absolute bottom-0 flex items-center gap-6"
+      className={`absolute bottom-0 flex items-center gap-6 ${className || ""}`}
       style={{
         animation: "scoot-slide 20s linear infinite",
         animationDelay: delay,
       }}
     >
-      {/* Scooter */}
+      {/* Scooter — 50% size on mobile */}
       <Image
         src="/images/otter-scooter.png"
         alt=""
         width={440}
         height={390}
-        className="w-80 sm:w-96 h-auto drop-shadow-xl shrink-0"
+        className="w-40 sm:w-48 lg:w-80 lg:min-[640px]:w-96 h-auto drop-shadow-xl shrink-0"
         priority={!delay}
       />
 
@@ -81,8 +81,8 @@ export function ScooterHero() {
         {/* Scooter animation track */}
         <div className="relative w-full overflow-hidden h-80 sm:h-96">
           <MovingSet delay="0s" />
-          <MovingSet delay="-7s" />
-          <MovingSet delay="-14s" />
+          <MovingSet delay="-7s" className="hidden lg:flex" />
+          <MovingSet delay="-14s" className="hidden lg:flex" />
         </div>
 
         {/* Text + buttons */}
@@ -96,11 +96,11 @@ export function ScooterHero() {
             Order online for delivery or pickup across the island.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button variant="primary" size="lg" asChild>
+          <div className="flex flex-row items-center justify-center gap-3 max-lg:flex-nowrap">
+            <Button variant="primary" size="lg" asChild className="max-lg:text-sm max-lg:px-4 max-lg:py-2">
               <Link href="/menu">View Menu</Link>
             </Button>
-            <Button variant="primary" size="lg" asChild>
+            <Button variant="primary" size="lg" asChild className="max-lg:text-sm max-lg:px-4 max-lg:py-2">
               <Link href="/locate-us">Locate Us</Link>
             </Button>
           </div>
