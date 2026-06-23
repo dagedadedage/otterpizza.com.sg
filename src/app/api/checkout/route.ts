@@ -16,7 +16,12 @@ interface CheckoutBody {
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
+  deliveryType?: string;
   storeId?: number;
+  deliveryAddress?: string;
+  deliveryUnit?: string;
+  deliveryPostalCode?: string;
+  deliveryTimeslot?: string;
   notes?: string;
   items: CheckoutItemInput[];
 }
@@ -121,6 +126,11 @@ export async function POST(request: Request) {
         customerEmail: body.customerEmail.trim(),
         customerPhone: body.customerPhone?.trim() || null,
         storeId: body.storeId || null,
+        deliveryType: body.deliveryType || null,
+        deliveryAddress: body.deliveryAddress?.trim() || null,
+        deliveryUnit: body.deliveryUnit?.trim() || null,
+        deliveryPostalCode: body.deliveryPostalCode?.trim() || null,
+        deliveryTimeslot: body.deliveryTimeslot || null,
         notes: body.notes?.trim() || null,
         subtotal,
         discount: promo.discountAmount,

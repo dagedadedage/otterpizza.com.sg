@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Truck, Store } from "lucide-react";
 
 interface Store {
   id: number;
@@ -11,11 +12,16 @@ interface Store {
   address: string;
 }
 
-interface CustomerFormData {
+export interface CustomerFormData {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  deliveryType: "delivery" | "pickup";
   storeId: string;
+  deliveryAddress: string;
+  deliveryUnit: string;
+  deliveryPostalCode: string;
+  deliveryTimeslot: string;
   notes: string;
 }
 
@@ -29,6 +35,33 @@ interface ValidationErrors {
   customerName?: string;
   customerEmail?: string;
   storeId?: string;
+  deliveryAddress?: string;
+  deliveryPostalCode?: string;
+  deliveryTimeslot?: string;
+}
+
+function generateTimeslots(): string[] {
+  const slots: string[] = [];
+  const now = new Date();
+  // Round up to next 30-min mark
+  const start = new Date(now);
+  start.setMinutes(Math.ceil(start.getMinutes() / 30) * 30, 0, 0);
+  // Earliest is "now" (estimated 30 min)
+  slots.push("ASAP (est. 30 min)");
+  // Future slots from next hour, in 30-min increments
+  const firstSlot = new Date(start);
+  firstSlot.setHours(start.getHours() + 1);
+  for (let i = 0; i < 12; i++) {
+    const t = new Date(firstSlot);
+    t.setMinutes(t.getMinutes() + i * 30);
+    const h = t.getHours();
+    const m = t.getMinutes();
+    const ampm = h >= 12 ? "PM" : "AM";
+    const h12 = h % 12 || 12;
+    const label = `${h12}:${m.toString().padStart(2, "0")} ${ampm}`;
+    slots.push(label);
+  }
+  return slots;
 }
 
 export default function CustomerForm({
@@ -39,13 +72,18 @@ export default function CustomerForm({
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [deliveryType, setDeliveryType] = useState<"delivery" | "pickup">("delivery");
   const [storeId, setStoreId] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [deliveryUnit, setDeliveryUnit] = useState("");
+  const [deliveryPostalCode, setDeliveryPostalCode] = useState("");
+  const [deliveryTimeslot, setDeliveryTimeslot] = useState("");
   const [notes, setNotes] = useState("");
   const [stores, setStores] = useState<Store[]>([]);
   const [storesLoading, setStoresLoading] = useState(true);
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
-    {},
-  );
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+
+  const timeslots = useMemo(() => generateTimeslots(), []);
 
   useEffect(() => {
     async function fetchStores() {
@@ -54,18 +92,21 @@ export default function CustomerForm({
         if (res.ok) {
           const data = (await res.json()) as Store[];
           setStores(data);
-          if (data.length === 1) {
-            setStoreId(String(data[0].id));
-          }
         }
       } catch {
-        // Silently fail — user can still type manually
+        // Silently fail
       } finally {
         setStoresLoading(false);
       }
     }
     fetchStores();
   }, []);
+
+  useEffect(() => {
+    if (timeslots.length > 0 && !deliveryTimeslot) {
+      setDeliveryTimeslot(timeslots[0]);
+    }
+  }, [timeslots, deliveryTimeslot]);
 
   function validate(): boolean {
     const errors: ValidationErrors = {};
@@ -77,8 +118,19 @@ export default function CustomerForm({
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim())) {
       errors.customerEmail = "Please enter a valid email address";
     }
-    if (!storeId) {
-      errors.storeId = "Please select a store";
+    if (deliveryType === "pickup" && !storeId) {
+      errors.storeId = "Please select a store for pick-up";
+    }
+    if (deliveryType === "delivery") {
+      if (!deliveryAddress.trim()) {
+        errors.deliveryAddress = "Delivery address is required";
+      }
+      if (!deliveryPostalCode.trim()) {
+        errors.deliveryPostalCode = "Postal code is required";
+      }
+      if (!deliveryTimeslot) {
+        errors.deliveryTimeslot = "Please select a delivery timeslot";
+      }
     }
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -91,7 +143,12 @@ export default function CustomerForm({
       customerName: customerName.trim(),
       customerEmail: customerEmail.trim(),
       customerPhone: customerPhone.trim(),
+      deliveryType,
       storeId,
+      deliveryAddress: deliveryAddress.trim(),
+      deliveryUnit: deliveryUnit.trim(),
+      deliveryPostalCode: deliveryPostalCode.trim(),
+      deliveryTimeslot,
       notes: notes.trim(),
     });
   }
@@ -107,6 +164,35 @@ export default function CustomerForm({
         </div>
       )}
 
+      {/* Delivery / Pick-up toggle */}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setDeliveryType("delivery")}
+          className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border-2 text-sm font-medium transition-colors ${
+            deliveryType === "delivery"
+              ? "border-primary bg-primary/5 text-primary"
+              : "border-border text-muted hover:border-primary/30"
+          }`}
+        >
+          <Truck className="h-4 w-4" />
+          Delivery
+        </button>
+        <button
+          type="button"
+          onClick={() => setDeliveryType("pickup")}
+          className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border-2 text-sm font-medium transition-colors ${
+            deliveryType === "pickup"
+              ? "border-primary bg-primary/5 text-primary"
+              : "border-border text-muted hover:border-primary/30"
+          }`}
+        >
+          <Store className="h-4 w-4" />
+          Self Pick-up
+        </button>
+      </div>
+
+      {/* Name + Email */}
       <Input
         label="Name *"
         id="customer-name"
@@ -138,34 +224,95 @@ export default function CustomerForm({
         disabled={isSubmitting}
       />
 
-      {/* Store select */}
-      <div className="w-full">
-        <Label htmlFor="customer-store" className="mb-1.5 block text-sm font-medium text-dark">
-          Store *
-        </Label>
-        <select
-          id="customer-store"
-          value={storeId}
-          onChange={(e) => setStoreId(e.target.value)}
-          disabled={isSubmitting || storesLoading}
-          className="flex h-10 w-full rounded-lg border border-border bg-warm-white px-3 py-2 text-sm text-dark placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
-          aria-invalid={!!validationErrors.storeId}
-        >
-          <option value="">
-            {storesLoading ? "Loading stores..." : "Select a store"}
-          </option>
-          {stores.map((store) => (
-            <option key={store.id} value={store.id}>
-              {store.name}
+      {/* Delivery: address + timeslot */}
+      {deliveryType === "delivery" && (
+        <>
+          <Input
+            label="Delivery Address *"
+            id="delivery-address"
+            placeholder="Block/Street name"
+            value={deliveryAddress}
+            onChange={(e) => setDeliveryAddress(e.target.value)}
+            error={validationErrors.deliveryAddress}
+            disabled={isSubmitting}
+          />
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="Unit"
+              id="delivery-unit"
+              placeholder="#01-23"
+              value={deliveryUnit}
+              onChange={(e) => setDeliveryUnit(e.target.value)}
+              disabled={isSubmitting}
+            />
+            <Input
+              label="Postal Code *"
+              id="delivery-postal"
+              placeholder="123456"
+              value={deliveryPostalCode}
+              onChange={(e) => setDeliveryPostalCode(e.target.value)}
+              error={validationErrors.deliveryPostalCode}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          {/* Timeslot */}
+          <div className="w-full">
+            <Label htmlFor="delivery-timeslot" className="mb-1.5 block text-sm font-medium text-dark">
+              Delivery Time *
+            </Label>
+            <select
+              id="delivery-timeslot"
+              value={deliveryTimeslot}
+              onChange={(e) => setDeliveryTimeslot(e.target.value)}
+              disabled={isSubmitting}
+              className="flex h-10 w-full rounded-lg border border-border bg-warm-white px-3 py-2 text-sm text-dark focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {timeslots.map((slot) => (
+                <option key={slot} value={slot}>
+                  {slot}
+                </option>
+              ))}
+            </select>
+            {validationErrors.deliveryTimeslot && (
+              <p className="mt-1 text-xs text-accent" role="alert">
+                {validationErrors.deliveryTimeslot}
+              </p>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Pick-up: store select */}
+      {deliveryType === "pickup" && (
+        <div className="w-full">
+          <Label htmlFor="customer-store" className="mb-1.5 block text-sm font-medium text-dark">
+            Pick-up Store *
+          </Label>
+          <select
+            id="customer-store"
+            value={storeId}
+            onChange={(e) => setStoreId(e.target.value)}
+            disabled={isSubmitting || storesLoading}
+            className="flex h-10 w-full rounded-lg border border-border bg-warm-white px-3 py-2 text-sm text-dark placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">
+              {storesLoading ? "Loading stores..." : "Select a store"}
             </option>
-          ))}
-        </select>
-        {validationErrors.storeId && (
-          <p className="mt-1 text-xs text-accent" role="alert">
-            {validationErrors.storeId}
-          </p>
-        )}
-      </div>
+            {stores.map((store) => (
+              <option key={store.id} value={store.id}>
+                {store.name} — {store.address}
+              </option>
+            ))}
+          </select>
+          {validationErrors.storeId && (
+            <p className="mt-1 text-xs text-accent" role="alert">
+              {validationErrors.storeId}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Order notes */}
       <div className="w-full">
@@ -190,33 +337,7 @@ export default function CustomerForm({
         className="w-full"
         disabled={isSubmitting}
       >
-        {isSubmitting ? (
-          <span className="flex items-center gap-2">
-            <svg
-              className="h-4 w-4 animate-spin"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-              />
-            </svg>
-            Processing...
-          </span>
-        ) : (
-          "Place Order & Pay"
-        )}
+        {isSubmitting ? "Processing..." : "Place Order & Pay"}
       </Button>
     </form>
   );

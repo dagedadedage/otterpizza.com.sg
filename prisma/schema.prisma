@@ -76,6 +76,11 @@ model Order {
   paymentId     String?
   paymentStatus String?
   items         OrderItem[]
+  deliveryType  String?          // "delivery" or "pickup"
+  deliveryAddress String?
+  deliveryUnit  String?
+  deliveryPostalCode String?
+  deliveryTimeslot String?
   notes         String?
   statusLogs    OrderStatusLog[]
   adminNotes    OrderNote[]

@@ -29,7 +29,12 @@ export default function CheckoutPage() {
     customerName: string;
     customerEmail: string;
     customerPhone: string;
+    deliveryType: "delivery" | "pickup";
     storeId: string;
+    deliveryAddress: string;
+    deliveryUnit: string;
+    deliveryPostalCode: string;
+    deliveryTimeslot: string;
     notes: string;
   }) {
     setIsSubmitting(true);
@@ -47,7 +52,12 @@ export default function CheckoutPage() {
         customerName: formData.customerName,
         customerEmail: formData.customerEmail,
         customerPhone: formData.customerPhone || undefined,
+        deliveryType: formData.deliveryType,
         storeId: formData.storeId ? parseInt(formData.storeId, 10) : undefined,
+        deliveryAddress: formData.deliveryAddress || undefined,
+        deliveryUnit: formData.deliveryUnit || undefined,
+        deliveryPostalCode: formData.deliveryPostalCode || undefined,
+        deliveryTimeslot: formData.deliveryTimeslot || undefined,
         notes: formData.notes || undefined,
         items: orderItems,
       };
