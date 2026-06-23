@@ -122,7 +122,7 @@ export function ScooterHero() {
         }
         .mural-bg {
           background-image: url(/images/mural-3.jpg);
-          background-size: 50% auto;
+          background-size: 33% auto;
           background-repeat: repeat-x;
           background-position: center;
         }
