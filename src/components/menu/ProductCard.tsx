@@ -7,6 +7,7 @@ import { formatPrice } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart-context";
+import { showCartToast } from "@/components/cart/CartToast";
 
 interface ProductCardProps {
   id: number;
@@ -63,6 +64,7 @@ export function ProductCard({
       quantity: 1,
       imageUrl: imageUrl ?? null,
     });
+    showCartToast(name);
   };
 
   return (

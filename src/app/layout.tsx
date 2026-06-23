@@ -3,6 +3,7 @@ import { Inter, Chelsea_Market, Caveat } from "next/font/google";
 import { ConditionalNavbar, ConditionalFooter } from "@/components/layout/ConditionalNavbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/store/cart-context";
+import { CartToast } from "@/components/cart/CartToast";
 import "./globals.css";
 
 const inter = Inter({
@@ -71,6 +72,7 @@ export default function RootLayout({
           <ConditionalNavbar />
           <main className="flex-1">{children}</main>
           <ConditionalFooter />
+          <CartToast />
         </CartProvider>
       </body>
     </html>
