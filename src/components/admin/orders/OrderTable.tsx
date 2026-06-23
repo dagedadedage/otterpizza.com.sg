@@ -1,26 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { formatPrice, cn } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 import { OrderStatusBadge } from "./OrderStatusBadge";
-import { Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Eye, ChevronLeft, ChevronRight, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface OrderItem {
-  id: number;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  product: {
-    id: number;
-    name: string;
-  };
-}
-
-interface Store {
-  id: number;
-  name: string;
-}
 
 interface Order {
   id: number;
@@ -30,9 +14,8 @@ interface Order {
   total: number;
   status: string;
   createdAt: string;
-  store: Store | null;
+  store?: { id: number; name: string } | null;
   deliveryType?: string | null;
-  items?: OrderItem[];
 }
 
 interface OrderTableProps {
@@ -41,6 +24,8 @@ interface OrderTableProps {
   totalPages: number;
   total: number;
   onPageChange: (page: number) => void;
+  onConfirm?: (id: number) => void;
+  onCancel?: (id: number) => void;
   showStore?: boolean;
 }
 
@@ -50,6 +35,8 @@ export function OrderTable({
   totalPages,
   total,
   onPageChange,
+  onConfirm,
+  onCancel,
   showStore = true,
 }: OrderTableProps) {
   if (orders.length === 0) {
@@ -67,6 +54,9 @@ export function OrderTable({
           <thead>
             <tr className="bg-cream border-b border-border">
               <th className="text-left px-4 py-3 font-semibold text-dark">
+                Date
+              </th>
+              <th className="text-left px-4 py-3 font-semibold text-dark">
                 Order #
               </th>
               <th className="text-left px-4 py-3 font-semibold text-dark">
@@ -83,9 +73,6 @@ export function OrderTable({
               <th className="text-center px-4 py-3 font-semibold text-dark">
                 Status
               </th>
-              <th className="text-left px-4 py-3 font-semibold text-dark">
-                Date
-              </th>
               <th className="text-center px-4 py-3 font-semibold text-dark">
                 Actions
               </th>
@@ -97,6 +84,13 @@ export function OrderTable({
                 key={order.id}
                 className="hover:bg-warm-white/50 transition-colors"
               >
+                <td className="px-4 py-3 text-sm text-muted whitespace-nowrap">
+                  {new Date(order.createdAt).toLocaleDateString("en-SG", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </td>
                 <td className="px-4 py-3 font-mono text-sm font-medium">
                   {order.orderNumber}
                 </td>
@@ -119,19 +113,36 @@ export function OrderTable({
                 <td className="px-4 py-3 text-center">
                   <OrderStatusBadge status={order.status} />
                 </td>
-                <td className="px-4 py-3 text-sm text-muted whitespace-nowrap">
-                  {new Date(order.createdAt).toLocaleDateString("en-SG", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href={`/admin/orders/${order.id}`}>
-                      <Eye className="w-4 h-4" />
-                    </Link>
-                  </Button>
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-center gap-1">
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`/admin/orders/${order.id}`}>
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                    </Button>
+                    {order.status === "PENDING" && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onConfirm?.(order.id)}
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                          title="Confirm"
+                        >
+                          <Check className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onCancel?.(order.id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          title="Cancel"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -143,7 +154,7 @@ export function OrderTable({
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
           <p className="text-sm text-muted">
-            Showing page {page} of {totalPages} ({total} total orders)
+            {total} total orders
           </p>
           <div className="flex items-center gap-2">
             <Button

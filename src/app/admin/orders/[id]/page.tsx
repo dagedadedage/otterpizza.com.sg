@@ -117,7 +117,7 @@ const statusTransitions: Record<string, { label: string; nextStatus: string; var
     { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
   ],
   READY: [
-    { label: "Mark Completed", nextStatus: "COMPLETED", variant: "primary" },
+    { label: "Fulfill Order", nextStatus: "COMPLETED", variant: "primary" },
     { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
   ],
   COMPLETED: [],

@@ -26,6 +26,7 @@ interface Order {
   status: string;
   createdAt: string;
   store: { id: number; name: string } | null;
+  deliveryType?: string | null;
 }
 
 export default function AdminOrdersPage() {
@@ -82,6 +83,29 @@ export default function AdminOrdersPage() {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+  };
+
+  const handleConfirm = async (id: number) => {
+    try {
+      await fetch(`/api/admin/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
+        body: JSON.stringify({ status: "CONFIRMED", changedBy: 0 }),
+      });
+      fetchOrders();
+    } catch { alert("Failed to confirm order"); }
+  };
+
+  const handleCancel = async (id: number) => {
+    if (!confirm("Cancel this order?")) return;
+    try {
+      await fetch(`/api/admin/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
+        body: JSON.stringify({ status: "CANCELLED", changedBy: 0 }),
+      });
+      fetchOrders();
+    } catch { alert("Failed to cancel order"); }
   };
 
   return (
@@ -156,6 +180,8 @@ export default function AdminOrdersPage() {
           totalPages={totalPages}
           total={total}
           onPageChange={handlePageChange}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
         />
       )}
     </div>
