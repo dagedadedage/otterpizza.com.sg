@@ -81,7 +81,7 @@ export function ScooterHero() {
         {/* Scooter animation track */}
         <div className="relative w-full overflow-hidden h-80 sm:h-96">
           <MovingSet delay="0s" />
-          <MovingSet delay="-10s" />
+          <MovingSet delay="-10s" className="lg:hidden" />
           <MovingSet delay="-7s" className="hidden lg:flex" />
           <MovingSet delay="-14s" className="hidden lg:flex" />
         </div>
@@ -122,7 +122,7 @@ export function ScooterHero() {
         }
         .mural-bg {
           background-image: url(/images/mural-3.jpg);
-          background-size: 33% auto;
+          background-size: auto 75%;
           background-repeat: repeat-x;
           background-position: center;
         }
