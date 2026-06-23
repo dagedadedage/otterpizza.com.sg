@@ -7,7 +7,7 @@ const StoreMap = dynamic(() => import("@/components/locate-us/StoreMap"), {
   loading: () => (
     <div
       className="w-full rounded-xl overflow-hidden border-2 border-primary/15 shadow-md ring-1 ring-gold/20 bg-muted/10 flex items-center justify-center"
-      style={{ height: "320px" }}
+      style={{ height: "640px" }}
     >
       <p className="text-muted">Loading map…</p>
     </div>
