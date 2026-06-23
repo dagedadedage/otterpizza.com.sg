@@ -17,6 +17,7 @@ interface CheckoutBody {
   customerEmail: string;
   customerPhone?: string;
   deliveryType?: string;
+  deliveryDate?: string;
   storeId?: number;
   deliveryAddress?: string;
   deliveryUnit?: string;
@@ -127,6 +128,7 @@ export async function POST(request: Request) {
         customerPhone: body.customerPhone?.trim() || null,
         storeId: body.storeId || null,
         deliveryType: body.deliveryType || null,
+        deliveryDate: body.deliveryDate || null,
         deliveryAddress: body.deliveryAddress?.trim() || null,
         deliveryUnit: body.deliveryUnit?.trim() || null,
         deliveryPostalCode: body.deliveryPostalCode?.trim() || null,

@@ -17,6 +17,7 @@ export interface CustomerFormData {
   customerEmail: string;
   customerPhone: string;
   deliveryType: "delivery" | "pickup";
+  deliveryDate: string;
   storeId: string;
   deliveryAddress: string;
   deliveryUnit: string;
@@ -40,28 +41,48 @@ interface ValidationErrors {
   deliveryTimeslot?: string;
 }
 
-function generateTimeslots(): string[] {
+function generateTimeslots(selectedDate: string): string[] {
   const slots: string[] = [];
   const now = new Date();
-  // Round up to next 30-min mark
-  const start = new Date(now);
-  start.setMinutes(Math.ceil(start.getMinutes() / 30) * 30, 0, 0);
-  // Earliest is "now" (estimated 30 min)
-  slots.push("ASAP (est. 30 min)");
-  // Future slots from next hour, in 30-min increments
-  const firstSlot = new Date(start);
-  firstSlot.setHours(start.getHours() + 1);
-  for (let i = 0; i < 12; i++) {
-    const t = new Date(firstSlot);
-    t.setMinutes(t.getMinutes() + i * 30);
-    const h = t.getHours();
-    const m = t.getMinutes();
-    const ampm = h >= 12 ? "PM" : "AM";
-    const h12 = h % 12 || 12;
-    const label = `${h12}:${m.toString().padStart(2, "0")} ${ampm}`;
-    slots.push(label);
+  const today = now.toISOString().split("T")[0];
+  const isToday = selectedDate === today;
+
+  // Operating hours: 10am to 10pm, 30-min increments
+  for (let h = 10; h < 22; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      const slotTime = new Date(selectedDate);
+      slotTime.setHours(h, m, 0, 0);
+
+      // For today: skip slots less than 30 min from now
+      if (isToday && slotTime.getTime() < now.getTime() + 30 * 60 * 1000) {
+        continue;
+      }
+
+      const h12 = h % 12 || 12;
+      const ampm = h >= 12 ? "PM" : "AM";
+      const label = `${h12}:${m.toString().padStart(2, "0")} ${ampm}`;
+      slots.push(label);
+    }
   }
   return slots;
+}
+
+function generateDateOptions(): { value: string; label: string }[] {
+  const dates: { value: string; label: string }[] = [];
+  const now = new Date();
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + i);
+    const value = d.toISOString().split("T")[0];
+    const label =
+      i === 0
+        ? `Today, ${d.toLocaleDateString("en-SG", { day: "numeric", month: "short" })}`
+        : i === 1
+          ? `Tomorrow, ${d.toLocaleDateString("en-SG", { day: "numeric", month: "short" })}`
+          : d.toLocaleDateString("en-SG", { weekday: "short", day: "numeric", month: "short" });
+    dates.push({ value, label });
+  }
+  return dates;
 }
 
 export default function CustomerForm({
@@ -77,13 +98,15 @@ export default function CustomerForm({
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [deliveryUnit, setDeliveryUnit] = useState("");
   const [deliveryPostalCode, setDeliveryPostalCode] = useState("");
+  const [deliveryDate, setDeliveryDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [deliveryTimeslot, setDeliveryTimeslot] = useState("");
   const [notes, setNotes] = useState("");
   const [stores, setStores] = useState<Store[]>([]);
   const [storesLoading, setStoresLoading] = useState(true);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
-  const timeslots = useMemo(() => generateTimeslots(), []);
+  const dateOptions = useMemo(() => generateDateOptions(), []);
+  const timeslots = useMemo(() => generateTimeslots(deliveryDate), [deliveryDate]);
 
   useEffect(() => {
     async function fetchStores() {
@@ -103,10 +126,12 @@ export default function CustomerForm({
   }, []);
 
   useEffect(() => {
-    if (timeslots.length > 0 && !deliveryTimeslot) {
+    if (timeslots.length > 0) {
       setDeliveryTimeslot(timeslots[0]);
+    } else {
+      setDeliveryTimeslot("");
     }
-  }, [timeslots, deliveryTimeslot]);
+  }, [timeslots]);
 
   function validate(): boolean {
     const errors: ValidationErrors = {};
@@ -144,6 +169,7 @@ export default function CustomerForm({
       customerEmail: customerEmail.trim(),
       customerPhone: customerPhone.trim(),
       deliveryType,
+      deliveryDate,
       storeId,
       deliveryAddress: deliveryAddress.trim(),
       deliveryUnit: deliveryUnit.trim(),
@@ -224,7 +250,56 @@ export default function CustomerForm({
         disabled={isSubmitting}
       />
 
-      {/* Delivery: address + timeslot */}
+      {/* Date + Time slot (for both delivery and pickup) */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="w-full">
+          <Label htmlFor="delivery-date" className="mb-1.5 block text-sm font-medium text-dark">
+            Date *
+          </Label>
+          <select
+            id="delivery-date"
+            value={deliveryDate}
+            onChange={(e) => setDeliveryDate(e.target.value)}
+            disabled={isSubmitting}
+            className="flex h-10 w-full rounded-lg border border-border bg-warm-white px-3 py-2 text-sm text-dark focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {dateOptions.map((d) => (
+              <option key={d.value} value={d.value}>
+                {d.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="w-full">
+          <Label htmlFor="delivery-timeslot" className="mb-1.5 block text-sm font-medium text-dark">
+            Time *
+          </Label>
+          <select
+            id="delivery-timeslot"
+            value={deliveryTimeslot}
+            onChange={(e) => setDeliveryTimeslot(e.target.value)}
+            disabled={isSubmitting}
+            className="flex h-10 w-full rounded-lg border border-border bg-warm-white px-3 py-2 text-sm text-dark focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {timeslots.length > 0 ? (
+              timeslots.map((slot) => (
+                <option key={slot} value={slot}>
+                  {slot}
+                </option>
+              ))
+            ) : (
+              <option value="">No slots available</option>
+            )}
+          </select>
+          {validationErrors.deliveryTimeslot && (
+            <p className="mt-1 text-xs text-accent" role="alert">
+              {validationErrors.deliveryTimeslot}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Delivery: address */}
       {deliveryType === "delivery" && (
         <>
           <Input
@@ -255,31 +330,6 @@ export default function CustomerForm({
               error={validationErrors.deliveryPostalCode}
               disabled={isSubmitting}
             />
-          </div>
-
-          {/* Timeslot */}
-          <div className="w-full">
-            <Label htmlFor="delivery-timeslot" className="mb-1.5 block text-sm font-medium text-dark">
-              Delivery Time *
-            </Label>
-            <select
-              id="delivery-timeslot"
-              value={deliveryTimeslot}
-              onChange={(e) => setDeliveryTimeslot(e.target.value)}
-              disabled={isSubmitting}
-              className="flex h-10 w-full rounded-lg border border-border bg-warm-white px-3 py-2 text-sm text-dark focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {timeslots.map((slot) => (
-                <option key={slot} value={slot}>
-                  {slot}
-                </option>
-              ))}
-            </select>
-            {validationErrors.deliveryTimeslot && (
-              <p className="mt-1 text-xs text-accent" role="alert">
-                {validationErrors.deliveryTimeslot}
-              </p>
-            )}
           </div>
         </>
       )}

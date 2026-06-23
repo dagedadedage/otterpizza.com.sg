@@ -30,6 +30,7 @@ export default function CheckoutPage() {
     customerEmail: string;
     customerPhone: string;
     deliveryType: "delivery" | "pickup";
+    deliveryDate: string;
     storeId: string;
     deliveryAddress: string;
     deliveryUnit: string;
@@ -53,6 +54,7 @@ export default function CheckoutPage() {
         customerEmail: formData.customerEmail,
         customerPhone: formData.customerPhone || undefined,
         deliveryType: formData.deliveryType,
+        deliveryDate: formData.deliveryDate || undefined,
         storeId: formData.storeId ? parseInt(formData.storeId, 10) : undefined,
         deliveryAddress: formData.deliveryAddress || undefined,
         deliveryUnit: formData.deliveryUnit || undefined,
