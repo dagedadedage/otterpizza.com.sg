@@ -31,7 +31,9 @@ export default function OrderSummary({ items }: OrderSummaryProps) {
   }, []);
 
   const gstAmount = calculateGst(baseAmount, gstRate, gstMode);
-  const finalTotal = baseAmount + promo.deliveryFee + gstAmount;
+  // INCLUSIVE: GST already in prices, don't add to total. EXCLUSIVE: add GST on top.
+  const gstAddon = gstMode === "EXCLUSIVE" ? gstAmount : 0;
+  const finalTotal = baseAmount + promo.deliveryFee + gstAddon;
 
   if (items.length === 0) {
     return (

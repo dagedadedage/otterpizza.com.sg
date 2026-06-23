@@ -82,14 +82,16 @@ export async function POST(request: Request) {
     // --- Calculate GST ---
     let gstAmount = 0;
     let gstRate = 9;
+    let gstMode = "EXCLUSIVE";
     try {
       const gstSetting = await prisma.gstSetting.findFirst();
       if (gstSetting && gstSetting.rate > 0) {
         gstRate = gstSetting.rate;
-        if (gstSetting.mode === "EXCLUSIVE") {
+        gstMode = gstSetting.mode;
+        if (gstMode === "EXCLUSIVE") {
           gstAmount = Math.round(baseAmount * gstRate) / 100;
         } else {
-          // INCLUSIVE: extract embedded GST
+          // INCLUSIVE: extract embedded GST (informational only)
           gstAmount = Math.round(baseAmount * gstRate / (100 + gstRate) * 100) / 100;
         }
       }
@@ -97,7 +99,9 @@ export async function POST(request: Request) {
       // GST setting not found or error — use defaults
     }
 
-    const total = baseAmount + promo.deliveryFee + gstAmount;
+    // INCLUSIVE: GST already in prices, don't add. EXCLUSIVE: add GST on top.
+    const gstAddon = gstMode === "EXCLUSIVE" ? gstAmount : 0;
+    const total = baseAmount + promo.deliveryFee + gstAddon;
 
     if (total < 0) {
       return NextResponse.json(
