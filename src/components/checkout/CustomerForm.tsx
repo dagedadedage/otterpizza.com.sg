@@ -145,13 +145,21 @@ export default function CustomerForm({
     fetchStores();
   }, []);
 
+  // Auto-advance date if no slots available (e.g. past 9:30pm)
   useEffect(() => {
     if (timeslots.length > 0) {
-      setDeliveryTimeslot(timeslots[0]);
+      setDeliveryTimeslot((prev) => prev && timeslots.includes(prev) ? prev : timeslots[0]);
     } else {
       setDeliveryTimeslot("");
+      // If today has no slots, jump to the first date that does
+      for (const d of dateOptions) {
+        if (generateTimeslots(d.value).length > 0) {
+          setDeliveryDate(d.value);
+          break;
+        }
+      }
     }
-  }, [timeslots]);
+  }, [timeslots, dateOptions]);
 
   function validate(): boolean {
     const errors: ValidationErrors = {};
