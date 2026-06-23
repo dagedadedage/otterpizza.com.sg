@@ -19,8 +19,8 @@ export function MobileMenu() {
   const { itemCount } = useCart();
 
   return (
-    <div className="flex flex-col gap-6 pt-12">
-      <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
+    <div className="flex flex-col gap-4 pt-8">
+      <nav className="flex flex-col gap-0.5" aria-label="Mobile navigation">
         {navLinks.map((link) => {
           const isActive =
             link.href === "/"
@@ -31,7 +31,7 @@ export function MobileMenu() {
             <SheetClose key={link.href} asChild>
               <Link
                 href={link.href}
-                className={`flex items-center px-4 py-3 text-lg font-medium rounded-lg transition-colors ${
+                className={`flex items-center px-4 py-2.5 text-base font-medium rounded-lg transition-colors ${
                   isActive
                     ? "text-primary bg-primary-light"
                     : "text-dark hover:bg-gray-100"
@@ -50,7 +50,7 @@ export function MobileMenu() {
         <SheetClose asChild>
           <Link
             href="/cart"
-            className="flex items-center justify-between px-4 py-3 text-lg font-medium rounded-lg text-dark hover:bg-gray-100 transition-colors"
+            className="flex items-center justify-between px-4 py-2.5 text-base font-medium rounded-lg text-dark hover:bg-gray-100 transition-colors"
           >
             <span className="flex items-center gap-3">
               <ShoppingCart className="h-5 w-5" />
@@ -67,12 +67,12 @@ export function MobileMenu() {
         <SheetClose asChild>
           <Button
             variant="primary"
-            size="lg"
-            className="w-full mt-2"
+            size="md"
+            className="w-full mt-1"
             asChild
           >
             <Link href="/login">
-              <LogIn className="h-5 w-5" />
+              <LogIn className="h-4 w-4" />
               Login
             </Link>
           </Button>

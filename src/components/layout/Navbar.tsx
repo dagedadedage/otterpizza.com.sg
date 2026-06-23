@@ -113,7 +113,7 @@ export function Navbar() {
                 className="lg:hidden ml-auto -mr-2"
                 aria-label="Open menu"
               >
-                <Menu className="h-5 w-5" />
+                <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right">

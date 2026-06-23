@@ -119,7 +119,7 @@ export function ProductCard({
       {/* Product info */}
       <div className="flex flex-col flex-1 p-4">
         <Link href={`/menu/${slug}`}>
-          <h3 className="text-sm font-bold text-dark leading-snug line-clamp-2 hover:text-primary transition-colors">
+          <h3 className="text-xs lg:text-sm font-bold text-dark leading-snug line-clamp-2 hover:text-primary transition-colors">
             <span className="text-muted font-medium">{sku}</span>{" "}
             {name}
           </h3>
@@ -129,15 +129,15 @@ export function ProductCard({
         <div className="mt-2 flex items-baseline gap-2">
           {hasSale ? (
             <>
-              <span className="text-lg font-extrabold text-primary">
+              <span className="text-base lg:text-lg font-bold lg:font-extrabold text-primary">
                 {formatPrice(numericSalePrice)}
               </span>
-              <span className="text-sm text-muted line-through">
+              <span className="text-xs lg:text-sm text-muted line-through">
                 {formatPrice(numericPrice)}
               </span>
             </>
           ) : (
-            <span className="text-lg font-extrabold text-dark">
+            <span className="text-base lg:text-lg font-bold lg:font-extrabold text-dark">
               {formatPrice(numericPrice)}
             </span>
           )}
