@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { formatPrice } from "@/lib/utils";
 import { calculatePromotions } from "@/lib/promotions";
-import { getSubtotal } from "@/store/cart-context";
+import { getSubtotal } from "@/lib/cart-utils";
 import { calculateGst, GST_DEFAULTS } from "@/lib/gst-utils";
-import type { CartItem } from "@/store/cart-context";
+import type { CartItem } from "@/lib/cart-utils";
 
 interface CartSummaryProps {
   items: CartItem[];

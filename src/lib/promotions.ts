@@ -1,5 +1,5 @@
-import type { CartItem } from "@/store/cart-context";
-import { getSubtotal } from "@/store/cart-context";
+import type { CartItem } from "@/lib/cart-utils";
+import { getSubtotal } from "@/lib/cart-utils";
 
 export interface AppliedPromo {
   type: "free_delivery" | "percentage" | "none";

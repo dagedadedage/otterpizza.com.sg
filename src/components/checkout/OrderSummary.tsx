@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import { calculatePromotions } from "@/lib/promotions";
-import { getItemPrice, getSubtotal } from "@/store/cart-context";
+import { getItemPrice, getSubtotal } from "@/lib/cart-utils";
 import { calculateGst, GST_DEFAULTS } from "@/lib/gst-utils";
-import type { CartItem } from "@/store/cart-context";
+import type { CartItem } from "@/lib/cart-utils";
 
 interface OrderSummaryProps {
   items: CartItem[];

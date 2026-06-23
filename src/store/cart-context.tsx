@@ -9,15 +9,10 @@ import {
   type ReactNode,
 } from "react";
 
-export interface CartItem {
-  productId: number;
-  sku: string;
-  name: string;
-  price: number;
-  salePrice?: number | null;
-  quantity: number;
-  imageUrl?: string | null;
-}
+export type { CartItem } from "@/lib/cart-utils";
+export { getItemPrice, getSubtotal, getItemCount } from "@/lib/cart-utils";
+import type { CartItem } from "@/lib/cart-utils";
+import { getItemPrice, getSubtotal, getItemCount } from "@/lib/cart-utils";
 
 interface CartState {
   items: CartItem[];
@@ -31,24 +26,6 @@ type CartAction =
   | { type: "HYDRATE"; items: CartItem[] };
 
 const STORAGE_KEY = "otterpizza-cart";
-
-/** Effective price (sale price if available). */
-export function getItemPrice(item: CartItem): number {
-  return item.salePrice ?? item.price;
-}
-
-/** Subtotal of all items using effective prices. */
-export function getSubtotal(items: CartItem[]): number {
-  return items.reduce(
-    (sum, item) => sum + getItemPrice(item) * item.quantity,
-    0,
-  );
-}
-
-/** Total item count. */
-export function getItemCount(items: CartItem[]): number {
-  return items.reduce((sum, item) => sum + item.quantity, 0);
-}
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {

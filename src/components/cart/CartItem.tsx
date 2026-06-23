@@ -4,8 +4,8 @@ import Image from "next/image";
 import { X, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils";
-import { getItemPrice } from "@/store/cart-context";
-import type { CartItem as CartItemType } from "@/store/cart-context";
+import { getItemPrice } from "@/lib/cart-utils";
+import type { CartItem as CartItemType } from "@/lib/cart-utils";
 
 interface CartItemProps {
   item: CartItemType;

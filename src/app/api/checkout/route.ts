@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice, generateOrderNumber } from "@/lib/utils";
 import { createPaymentRequest } from "@/lib/hitpay";
 import { calculatePromotions } from "@/lib/promotions";
-import type { CartItem } from "@/store/cart-context";
+import type { CartItem } from "@/lib/cart-utils";
 
 interface CheckoutItemInput {
   productId: number;
