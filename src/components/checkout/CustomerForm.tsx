@@ -47,9 +47,24 @@ function generateTimeslots(selectedDate: string): string[] {
   const today = now.toISOString().split("T")[0];
   const isToday = selectedDate === today;
 
-  // Operating hours: 10am to 10pm, 30-min increments
-  for (let h = 10; h < 22; h++) {
+  // Add ASAP option for today (if within operating hours)
+  if (isToday) {
+    const currentHour = now.getHours();
+    const currentMin = now.getMinutes();
+    const currentTimeMinutes = currentHour * 60 + currentMin;
+    const closeTimeMinutes = 22 * 60; // 10pm
+    // ASAP available if before 9:30pm (30 min before close)
+    if (currentTimeMinutes < closeTimeMinutes - 30) {
+      slots.push("ASAP (~30 min)");
+    }
+  }
+
+  // Operating hours: 10am to 10pm (last slot at 10:00pm), 30-min increments
+  for (let h = 10; h <= 22; h++) {
     for (let m = 0; m < 60; m += 30) {
+      // Skip 10:30pm (outside hours)
+      if (h === 22 && m > 0) continue;
+
       const slotTime = new Date(selectedDate);
       slotTime.setHours(h, m, 0, 0);
 
