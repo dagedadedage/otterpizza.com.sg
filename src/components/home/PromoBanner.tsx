@@ -38,19 +38,24 @@ export function PromoBanner() {
     fetchPromos();
   }, []);
 
-  const displayText = loaded && promos.length > 0
-    ? promos
-        .map(
-          (p) =>
-            `${p.description || p.name}${p.type === "PERCENTAGE_DISCOUNT" ? ` (${p.value}% OFF)` : ""}`
-        )
-        .join(" 🙃 ")
-    : DEFAULT_PROMOS.map((p) => `${p.label}`).join(" 🙃 ");
+  const displayText =
+    loaded && promos.length > 0
+      ? promos
+          .map(
+            (p) =>
+              `${p.description || p.name}${
+                p.type === "PERCENTAGE_DISCOUNT"
+                  ? ` (${p.value}% OFF)`
+                  : ""
+              }`
+          )
+          .join(" 🙃 ")
+      : DEFAULT_PROMOS.map((p) => `${p.label}`).join(" 🙃 ");
 
   return (
-    <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-y border-primary/15">
+    <div className="bg-gold">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-        <p className="text-center text-xs sm:text-sm font-bold text-dark tracking-wide leading-relaxed">
+        <p className="text-center text-sm sm:text-base font-bold text-dark tracking-wide leading-relaxed">
           {displayText}
         </p>
       </div>

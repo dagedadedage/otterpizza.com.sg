@@ -101,6 +101,7 @@ export default async function ProductDetailPage({
 
             {/* Product name */}
             <h1 className="mt-2 text-2xl sm:text-3xl font-black text-dark leading-tight">
+              <span className="text-muted font-medium">{product.sku}</span>{" "}
               {product.name}
             </h1>
 

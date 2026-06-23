@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ShoppingCart, Menu, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ import { useCart } from "@/store/cart-context";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/menu", label: "Menu" },
-  { href: "/order", label: "Order" },
+  { href: "/order", label: "Online Ordering" },
   { href: "/locate-us", label: "Locate Us" },
 ];
 
@@ -25,7 +26,7 @@ export function Navbar() {
   const { itemCount } = useCart();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-warm-white/90 backdrop-blur-md shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Mobile: hamburger */}
@@ -37,7 +38,7 @@ export function Navbar() {
                 className="lg:hidden -ml-2"
                 aria-label="Open menu"
               >
-                <Menu className="h-6 w-6" />
+                <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
@@ -45,54 +46,57 @@ export function Navbar() {
             </SheetContent>
           </Sheet>
 
-          {/* Brand logo */}
+          {/* Brand logo — left */}
           <Link
             href="/"
-            className="flex items-center gap-2 font-extrabold text-xl tracking-tight text-primary"
+            className="flex items-center shrink-0"
+            aria-label="Otter Pizza Home"
           >
-            <span className="sr-only">Otter Pizza</span>
-            OTTER PIZZA
+            <Image
+              src="/images/logo.png"
+              alt="Otter Pizza"
+              width={138}
+              height={64}
+              className="h-12 w-auto"
+              priority
+            />
           </Link>
 
-          {/* Desktop nav links */}
-          <nav
-            className="hidden lg:flex items-center gap-1"
-            aria-label="Main navigation"
-          >
-            {navLinks.map((link) => {
-              const isActive =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href);
+          {/* Right side: nav links + cart + login */}
+          <div className="hidden lg:flex items-center gap-1 ml-auto">
+            <nav aria-label="Main navigation" className="flex items-center gap-0.5">
+              {navLinks.map((link) => {
+                const isActive =
+                  link.href === "/"
+                    ? pathname === "/"
+                    : pathname.startsWith(link.href);
 
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`relative px-4 py-2 text-sm font-semibold transition-colors rounded-lg ${
-                    isActive
-                      ? "text-primary"
-                      : "text-dark hover:text-primary hover:bg-primary-light/50"
-                  }`}
-                >
-                  {link.label}
-                  {isActive && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4/5 bg-primary rounded-full" />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`relative px-3 py-2 text-sm font-medium transition-colors rounded-lg ${
+                      isActive
+                        ? "text-primary"
+                        : "text-dark hover:text-primary hover:bg-primary-light/50"
+                    }`}
+                  >
+                    {link.label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-3/4 bg-primary rounded-full" />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
 
-          {/* Right side */}
-          <div className="flex items-center gap-2">
             {/* Cart icon */}
             <Link
               href="/cart"
               className="relative p-2 text-dark hover:text-primary transition-colors rounded-lg hover:bg-primary-light/50"
               aria-label={`Shopping cart${itemCount > 0 ? ` (${itemCount} items)` : ""}`}
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-4 w-4" />
               {itemCount > 0 && (
                 <Badge
                   variant="signature"
@@ -107,12 +111,12 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="sm"
-              className="hidden lg:inline-flex"
+              className="font-[family-name:var(--font-inter)] font-semibold"
               asChild
             >
               <Link href="/login">
-                <LogIn className="h-4 w-4" />
-                Login
+                <LogIn className="h-3.5 w-3.5" />
+                Log In
               </Link>
             </Button>
           </div>

@@ -5,6 +5,7 @@ import { ProductCard } from "@/components/menu/ProductCard";
 
 interface ProductData {
   id: number;
+  sku: string;
   name: string;
   slug: string;
   description: string | null;
@@ -70,11 +71,12 @@ export function MenuPageClient({ categories }: MenuPageClientProps) {
 
       {/* Product grid */}
       {displayedProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {displayedProducts.map((product) => (
             <ProductCard
               key={product.id}
               id={product.id}
+              sku={product.sku}
               name={product.name}
               slug={product.slug}
               description={product.description}

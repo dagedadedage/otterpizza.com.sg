@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, MapPin, ShoppingBag } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { parseTags } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/menu/ProductCard";
-import { PromoBanner } from "@/components/home/PromoBanner";
+import { ScooterHero } from "@/components/home/ScooterHero";
 
 function serializeDecimal(value: unknown): number {
   if (typeof value === "number") return value;
@@ -17,6 +17,7 @@ function serializeDecimal(value: unknown): number {
 
 type FeaturedProduct = {
   id: number;
+  sku: string;
   name: string;
   slug: string;
   description: string | null;
@@ -36,6 +37,7 @@ async function getFeaturedProducts(): Promise<FeaturedProduct[]> {
     });
     return products.map((p) => ({
       id: p.id,
+      sku: p.sku,
       name: p.name,
       slug: p.slug,
       description: p.description,
@@ -55,89 +57,27 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-cream to-warm-white">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/5 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-secondary/5 blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-primary/10" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] rounded-full border border-primary/15" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full border border-primary/20" />
-        </div>
-
-        <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center py-20">
-          {/* Large circular brand container */}
-          <div className="mx-auto mb-8 w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-gradient-to-br from-primary to-primary-hover shadow-xl flex items-center justify-center ring-4 ring-primary/20">
-            <div className="text-center px-4">
-              <span className="block text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
-                OTTER
-              </span>
-              <span className="block text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
-                PIZZA
-              </span>
-            </div>
-          </div>
-
-          <h1 className="sr-only">Otter Pizza - Singapore&apos;s Neighbourhood Pizzeria</h1>
-
-          <p className="mt-6 text-lg sm:text-xl text-muted max-w-xl mx-auto leading-relaxed">
-            Singapore&apos;s Neighbourhood Pizzeria
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="primary" size="lg" asChild>
-              <Link href="/order">
-                <ShoppingBag className="h-5 w-5" />
-                Order Online
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <Link href="/menu">
-                View Menu
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button variant="ghost" size="lg" asChild>
-              <Link href="/locate-us">
-                <MapPin className="h-5 w-5" />
-                Locate Us
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Promo Banner */}
-      <PromoBanner />
+      <ScooterHero />
 
       {/* Featured Products */}
       {featured.length > 0 && (
-        <section className="py-16 sm:py-20 bg-warm-white">
+        <section className="py-16 sm:py-20 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-10">
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-dark">
-                  Featured Favourites
-                </h2>
-                <p className="mt-2 text-muted">
-                  Our most loved pizzas, handpicked for you
-                </p>
-              </div>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/menu">
-                  View Full Menu
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+            <div className="text-center mb-10">
+              <h2 className="text-2xl sm:text-3xl font-bold text-dark">
+                Featured Favourites
+              </h2>
+              <p className="mt-2 text-muted text-sm">
+                Our most loved pizzas, handpicked for you
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {featured.map((product) => (
                 <ProductCard
                   key={product.id}
                   id={product.id}
+                  sku={product.sku}
                   name={product.name}
                   slug={product.slug}
                   description={product.description}
@@ -149,30 +89,35 @@ export default async function HomePage() {
                 />
               ))}
             </div>
+
+            <div className="text-center mt-10">
+              <Button variant="ghost" size="md" asChild>
+                <Link href="/order">
+                  View Full Menu
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
       )}
 
       {/* Bottom CTA */}
-      <section className="py-20 bg-cream">
+      <section className="py-16 bg-gold">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold text-dark">
             Ready to Order?
           </h2>
-          <p className="mt-3 text-muted max-w-lg mx-auto">
-            Fresh, handcrafted pizzas made with quality ingredients. Order online for delivery or pickup.
+          <p className="mt-2 text-dark/70 text-sm max-w-md mx-auto">
+            Fresh, handcrafted pizzas made with quality ingredients.
+            Order online for delivery or pickup.
           </p>
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="primary" size="lg" asChild>
-              <Link href="/order">
-                <ShoppingBag className="h-5 w-5" />
-                Order Now
-              </Link>
+          <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button variant="primary" size="lg" className="!bg-white !text-dark hover:!bg-primary-light hover:!text-primary" asChild>
+              <Link href="/order">Order Now</Link>
             </Button>
-            <Button variant="outline" size="lg" asChild>
-              <Link href="/menu">
-                Browse Menu
-              </Link>
+            <Button variant="primary" size="lg" className="!bg-white !text-dark hover:!bg-primary-light hover:!text-primary" asChild>
+              <Link href="/menu">Browse Menu</Link>
             </Button>
           </div>
         </div>

@@ -10,6 +10,7 @@ import { useCart } from "@/store/cart-context";
 
 interface ProductCardProps {
   id: number;
+  sku: string;
   name: string;
   slug: string;
   description?: string | null;
@@ -32,6 +33,7 @@ function getTagVariant(
 
 export function ProductCard({
   id,
+  sku,
   name,
   slug,
   price,
@@ -118,6 +120,7 @@ export function ProductCard({
       <div className="flex flex-col flex-1 p-4">
         <Link href={`/menu/${slug}`}>
           <h3 className="text-sm font-bold text-dark leading-snug line-clamp-2 hover:text-primary transition-colors">
+            <span className="text-muted font-medium">{sku}</span>{" "}
             {name}
           </h3>
         </Link>
