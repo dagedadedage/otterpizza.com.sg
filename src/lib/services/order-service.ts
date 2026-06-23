@@ -85,6 +85,13 @@ export class OrderService {
     });
   }
 
+  static async updateTrackingUrl(orderId: number, url: string | null) {
+    return prisma.order.update({
+      where: { id: orderId },
+      data: { deliveryTrackingUrl: url },
+    });
+  }
+
   static async getStats() {
     const [
       total,

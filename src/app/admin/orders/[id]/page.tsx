@@ -21,11 +21,21 @@ import {
   Calendar,
   FileText,
   Package,
+  Truck,
+  Printer,
+  MapPin,
+  Clock,
+  Link2,
+  Save,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const ADMIN_KEY = "otter-pizza-admin-2024";
+
+function authHeaders(): Record<string, string> {
+  return { "x-admin-key": ADMIN_KEY };
+}
 
 interface OrderItem {
   id: number;
@@ -71,11 +81,20 @@ interface OrderData {
   subtotal: number;
   discount: number;
   deliveryFee: number;
+  gstAmount: number;
+  gstRate: number;
   total: number;
   status: string;
   paymentMethod: string | null;
   paymentId: string | null;
   paymentStatus: string | null;
+  deliveryType: string | null;
+  deliveryDate: string | null;
+  deliveryAddress: string | null;
+  deliveryUnit: string | null;
+  deliveryPostalCode: string | null;
+  deliveryTimeslot: string | null;
+  deliveryTrackingUrl: string | null;
   notes: string | null;
   items: OrderItem[];
   statusLogs: StatusLog[];
@@ -114,13 +133,16 @@ export default function AdminOrderDetailPage() {
   const [noteText, setNoteText] = useState("");
   const [statusLoading, setStatusLoading] = useState(false);
   const [noteLoading, setNoteLoading] = useState(false);
+  const [trackingUrl, setTrackingUrl] = useState("");
+  const [trackingSaving, setTrackingSaving] = useState(false);
 
   const fetchOrder = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch(`/api/admin/orders/${params.id}`, {
-        headers: { "x-admin-key": ADMIN_KEY },
+        headers: authHeaders(),
+        credentials: "include",
       });
       if (!res.ok) {
         if (res.status === 404) {
@@ -130,6 +152,7 @@ export default function AdminOrderDetailPage() {
       }
       const data = await res.json();
       setOrder(data);
+      setTrackingUrl(data.deliveryTrackingUrl || "");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -148,8 +171,9 @@ export default function AdminOrderDetailPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-key": ADMIN_KEY,
+          ...authHeaders(),
         },
+        credentials: "include",
         body: JSON.stringify({
           status: newStatus,
           changedBy: 0,
@@ -177,8 +201,9 @@ export default function AdminOrderDetailPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-key": ADMIN_KEY,
+          ...authHeaders(),
         },
+        credentials: "include",
         body: JSON.stringify({
           note: noteText,
           changedBy: 0,
@@ -194,6 +219,33 @@ export default function AdminOrderDetailPage() {
     } finally {
       setNoteLoading(false);
     }
+  };
+
+  const handleSaveTrackingUrl = async () => {
+    setTrackingSaving(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${params.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders(),
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          deliveryTrackingUrl: trackingUrl,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to save tracking URL");
+      await fetchOrder();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setTrackingSaving(false);
+    }
+  };
+
+  const handlePrintInvoice = () => {
+    window.open(`/api/admin/orders/${params.id}/invoice`, "_blank");
   };
 
   if (loading) {
@@ -252,7 +304,13 @@ export default function AdminOrderDetailPage() {
             </p>
           </div>
         </div>
-        <OrderStatusBadge status={order.status} className="text-sm px-3 py-1" />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handlePrintInvoice}>
+            <Printer className="w-4 h-4" />
+            Invoice
+          </Button>
+          <OrderStatusBadge status={order.status} className="text-sm px-3 py-1" />
+        </div>
       </div>
 
       {/* Status Actions */}
@@ -348,6 +406,16 @@ export default function AdminOrderDetailPage() {
                       </td>
                       <td className="px-6 py-3 text-right font-semibold text-dark">
                         {formatPrice(Number(order.deliveryFee))}
+                      </td>
+                    </tr>
+                  )}
+                  {(order.gstAmount ?? 0) > 0 && (
+                    <tr>
+                      <td colSpan={3} className="px-6 py-3 text-right text-sm text-muted">
+                        GST ({order.gstRate ?? 9}%)
+                      </td>
+                      <td className="px-6 py-3 text-right font-semibold text-dark">
+                        {formatPrice(Number(order.gstAmount))}
                       </td>
                     </tr>
                   )}
@@ -470,6 +538,43 @@ export default function AdminOrderDetailPage() {
             </div>
           </div>
 
+          {/* Order Type & Delivery Info */}
+          <div className="bg-white rounded-xl border border-border shadow-sm">
+            <div className="px-5 py-4 border-b border-border">
+              <h3 className="font-semibold text-dark">Order Type</h3>
+            </div>
+            <div className="px-5 py-4 space-y-3">
+              <div className="flex items-center gap-3">
+                {order.deliveryType === "delivery" ? (
+                  <Truck className="w-4 h-4 text-primary shrink-0" />
+                ) : (
+                  <Store className="w-4 h-4 text-primary shrink-0" />
+                )}
+                <span className="text-sm font-medium text-dark">
+                  {order.deliveryType === "delivery" ? "Delivery" : "Self Pick-up"}
+                </span>
+              </div>
+              {order.deliveryType === "delivery" && order.deliveryAddress && (
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-4 h-4 text-muted shrink-0 mt-0.5" />
+                  <p className="text-sm text-muted">
+                    {order.deliveryAddress}
+                    {order.deliveryUnit && `, ${order.deliveryUnit}`}
+                    <br />S{order.deliveryPostalCode}
+                  </p>
+                </div>
+              )}
+              {order.deliveryDate && (
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-4 h-4 text-muted shrink-0" />
+                  <span className="text-sm text-muted">
+                    {order.deliveryDate} {order.deliveryTimeslot && `at ${order.deliveryTimeslot}`}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Store Info */}
           <div className="bg-white rounded-xl border border-border shadow-sm">
             <div className="px-5 py-4 border-b border-border">
@@ -491,6 +596,48 @@ export default function AdminOrderDetailPage() {
               )}
             </div>
           </div>
+
+          {/* Delivery Tracking (if delivery) */}
+          {order.deliveryType === "delivery" && (
+            <div className="bg-white rounded-xl border border-border shadow-sm">
+              <div className="px-5 py-4 border-b border-border">
+                <h3 className="font-semibold text-dark">Delivery Tracking</h3>
+              </div>
+              <div className="px-5 py-4 space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter tracking URL..."
+                    value={trackingUrl}
+                    onChange={(e) => setTrackingUrl(e.target.value)}
+                    className="flex-1 text-xs"
+                  />
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleSaveTrackingUrl}
+                    disabled={trackingSaving}
+                  >
+                    {trackingSaving ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Save className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+                {order.deliveryTrackingUrl && (
+                  <a
+                    href={order.deliveryTrackingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-xs text-primary hover:underline"
+                  >
+                    <Link2 className="w-3 h-3" />
+                    Open tracking link
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Payment Info */}
           <div className="bg-white rounded-xl border border-border shadow-sm">

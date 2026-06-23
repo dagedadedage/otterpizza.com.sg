@@ -82,6 +82,7 @@ model Order {
   deliveryUnit  String?
   deliveryPostalCode String?
   deliveryTimeslot String?
+  deliveryTrackingUrl String?
   notes         String?
   statusLogs    OrderStatusLog[]
   adminNotes    OrderNote[]

@@ -73,6 +73,11 @@ export async function PATCH(
       await OrderService.addNote(Number(id), body.note, body.changedBy || 0);
     }
 
+    // Update delivery tracking URL
+    if (body.deliveryTrackingUrl !== undefined) {
+      await OrderService.updateTrackingUrl(Number(id), body.deliveryTrackingUrl || null);
+    }
+
     const updated = await OrderService.getOrder(Number(id));
     return NextResponse.json(updated);
   } catch (error) {
