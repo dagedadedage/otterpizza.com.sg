@@ -68,6 +68,21 @@ export async function PATCH(
         );
       }
 
+      // Enforce delivery-type-aware transitions
+      const isPickup = order.deliveryType === "pickup";
+      if (body.status === "READY" && !isPickup) {
+        return NextResponse.json(
+          { error: "Delivery orders should use Out for Delivery, not Ready for Pick-up" },
+          { status: 400 }
+        );
+      }
+      if (body.status === "OUT_FOR_DELIVERY" && isPickup) {
+        return NextResponse.json(
+          { error: "Pickup orders should use Ready for Pick-up, not Out for Delivery" },
+          { status: 400 }
+        );
+      }
+
       // Build payment note for manual payment marking
       let note = body.note as string | undefined;
       if (body.status === "PAID" && body.paymentMethod) {
