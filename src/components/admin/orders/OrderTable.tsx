@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { Eye, ChevronLeft, ChevronRight, Check, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MarkAsPaidDialog, type PaymentInfo } from "./MarkAsPaidDialog";
 
 interface Order {
   id: number;
@@ -24,7 +26,7 @@ interface OrderTableProps {
   totalPages: number;
   total: number;
   onPageChange: (page: number) => void;
-  onConfirm?: (id: number, currentStatus?: string) => void;
+  onConfirm?: (id: number, currentStatus: string, paymentInfo?: PaymentInfo) => void;
   onCancel?: (id: number) => void;
   onDelete?: (id: number) => void;
   showStore?: boolean;
@@ -41,6 +43,8 @@ export function OrderTable({
   onDelete,
   showStore = true,
 }: OrderTableProps) {
+  const [paymentDialogOrder, setPaymentDialogOrder] = useState<{ id: number; status: string } | null>(null);
+
   if (orders.length === 0) {
     return (
       <div className="text-center py-12">
@@ -127,7 +131,7 @@ export function OrderTable({
                       <>
                         <Button
                           size="sm"
-                          onClick={() => onConfirm?.(order.id, order.status)}
+                          onClick={() => setPaymentDialogOrder({ id: order.id, status: order.status })}
                           className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
                         >
                           <Check className="w-3.5 h-3.5" />
@@ -170,6 +174,18 @@ export function OrderTable({
           </tbody>
         </table>
       </div>
+
+      {/* Payment Info Dialog */}
+      <MarkAsPaidDialog
+        open={!!paymentDialogOrder}
+        onClose={() => setPaymentDialogOrder(null)}
+        onConfirm={(info) => {
+          if (paymentDialogOrder && onConfirm) {
+            onConfirm(paymentDialogOrder.id, paymentDialogOrder.status, info);
+          }
+          setPaymentDialogOrder(null);
+        }}
+      />
 
       {/* Pagination */}
       {totalPages > 1 && (

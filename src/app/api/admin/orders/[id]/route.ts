@@ -67,11 +67,29 @@ export async function PATCH(
         );
       }
 
+      // Build payment note for manual payment marking
+      let note = body.note as string | undefined;
+      if (body.status === "PAID" && body.paymentMethod) {
+        const parts = [`Manual payment via ${body.paymentMethod}`];
+        if (body.paymentReference) parts.push(`Ref: ${body.paymentReference}`);
+        if (body.paymentNote) parts.push(`(${body.paymentNote})`);
+        note = parts.join(" — ");
+
+        // Store payment info on the order record
+        await prisma.order.update({
+          where: { id: Number(id) },
+          data: {
+            paymentStatus: "manual",
+            paymentMethod: body.paymentMethod as string,
+          },
+        });
+      }
+
       await OrderService.updateStatus(
         Number(id),
         body.status,
         body.changedBy || 0,
-        body.note
+        note
       );
     }
 

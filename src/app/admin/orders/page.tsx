@@ -84,14 +84,23 @@ export default function AdminOrdersPage() {
     setPage(newPage);
   };
 
-  const handleConfirm = async (id: number, currentStatus?: string) => {
+  const handleConfirm = async (id: number, currentStatus: string, paymentInfo?: { paymentMethod: string; referenceNumber: string; note: string }) => {
     // PENDING -> PAID, PAID -> ACCEPTED
     const nextStatus = currentStatus === "PAID" ? "ACCEPTED" : "PAID";
+    const body: Record<string, unknown> = { status: nextStatus, changedBy: 0 };
+
+    // Include payment info when marking as paid
+    if (nextStatus === "PAID" && paymentInfo) {
+      body.paymentMethod = paymentInfo.paymentMethod;
+      body.paymentReference = paymentInfo.referenceNumber;
+      body.paymentNote = paymentInfo.note;
+    }
+
     try {
       await fetch(`/api/admin/orders/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({ status: nextStatus, changedBy: 0 }),
+        body: JSON.stringify(body),
       });
       fetchOrders();
     } catch { alert("Failed to update order"); }
