@@ -161,7 +161,7 @@ export async function POST(request: Request) {
           })),
         },
       },
-      include: { items: true },
+      include: { items: { include: { product: true } } },
     });
 
     // --- Call HitPay to create payment request ---

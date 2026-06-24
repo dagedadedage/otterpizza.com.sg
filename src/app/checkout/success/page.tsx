@@ -9,12 +9,13 @@ import { CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("order");
-  const [status, setStatus] = useState<string>("pending");
-  const [checking, setChecking] = useState(true);
+  const urlStatus = searchParams.get("status");
+  const [status, setStatus] = useState<string>(urlStatus === "completed" ? "completed" : "pending");
+  const [checking, setChecking] = useState(urlStatus !== "completed");
 
   // Poll for payment status confirmation
   useEffect(() => {
-    if (!orderNumber) {
+    if (!orderNumber || urlStatus === "completed") {
       setChecking(false);
       return;
     }

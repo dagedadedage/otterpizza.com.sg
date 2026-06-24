@@ -67,12 +67,12 @@ function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): st
         <tr style="border-bottom:1px solid #E8D5C4"><th style="text-align:left;padding:8px;font-size:12px;color:#8B7355">Item</th><th style="text-align:center;padding:8px;font-size:12px;color:#8B7355">Qty</th><th style="text-align:right;padding:8px;font-size:12px;color:#8B7355">Price</th></tr>
         ${data.items.map(i => `<tr style="border-bottom:1px solid #E8D5C4"><td style="padding:8px;font-size:13px;color:#2D1B14">${i.name}</td><td style="text-align:center;padding:8px;font-size:13px;color:#2D1B14">${i.quantity}</td><td style="text-align:right;padding:8px;font-size:13px;color:#2D1B14">${formatPrice(i.totalPrice)}</td></tr>`).join("")}
       </table>
-      <div style="margin-top:16px;border-top:1px solid #E8D5C4;padding-top:12px">
-        <div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0"><span>Subtotal</span><span>${formatPrice(data.subtotal)}</span></div>
-        ${data.discount > 0 ? `<div style="display:flex;justify-content:space-between;font-size:13px;color:#E85D2C;margin:4px 0"><span>Discount</span><span>-${formatPrice(data.discount)}</span></div>` : ""}
-        ${data.deliveryFee > 0 ? `<div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0"><span>Delivery Fee</span><span>${formatPrice(data.deliveryFee)}</span></div>` : ""}
-        <div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0"><span>GST (9%)</span><span>${formatPrice(data.gstAmount)}</span></div>
-        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:15px;color:#2D1B14;margin:8px 0;border-top:1px solid #E8D5C4;padding-top:8px"><span>Total</span><span>${formatPrice(data.total)}</span></div>
+      <div style="margin-top:16px;margin-left:auto;width:220px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0"><span>Subtotal</span><span style="text-align:right">${formatPrice(data.subtotal)}</span></div>
+        ${data.discount > 0 ? `<div style="display:flex;justify-content:space-between;font-size:13px;color:#E85D2C;margin:4px 0"><span>Discount</span><span style="text-align:right">-${formatPrice(data.discount)}</span></div>` : ""}
+        ${data.deliveryFee > 0 ? `<div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0"><span>Delivery Fee</span><span style="text-align:right">${formatPrice(data.deliveryFee)}</span></div>` : ""}
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0"><span>GST (9% incl.)</span><span style="text-align:right">${formatPrice(data.gstAmount)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:15px;color:#2D1B14;margin:8px 0;border-top:1px solid #E8D5C4;padding-top:8px"><span>Total</span><span style="text-align:right">${formatPrice(data.total)}</span></div>
       </div>
     </div>
     <p style="color:#8B7355;font-size:11px;text-align:center;margin:20px 0">Thank you for ordering from Otter Pizza!<br/>Questions? Reply to this email.</p>
