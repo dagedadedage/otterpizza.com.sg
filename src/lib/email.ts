@@ -32,6 +32,7 @@ export interface OrderEmailData {
   deliveryDate: string | null;
   deliveryTimeslot: string | null;
   deliveryAddress: string | null;
+  paymentUrl?: string | null;
 }
 
 function formatPrice(cents: number): string {
@@ -129,7 +130,17 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
 }
 
 export async function sendPendingPaymentReminder(data: OrderEmailData) {
-  return sendEmail(data.customerEmail, "💳 Payment Pending — Otter Pizza", buildHtml(data, "💳 Payment Pending", "Your order has been received. Please complete your payment to confirm your order."));
+  const paymentButton = data.paymentUrl
+    ? `<div style="text-align:center;margin:24px 0">
+        <a href="${data.paymentUrl}" style="display:inline-block;background:#E85D2C;color:white;padding:14px 32px;border-radius:24px;text-decoration:none;font-weight:600;font-size:16px">💳 Make Payment</a>
+        <p style="color:#8B7355;font-size:12px;margin-top:8px">Click the button above to complete your payment securely via HitPay</p>
+       </div>`
+    : "";
+  return sendEmail(
+    data.customerEmail,
+    "💳 Payment Pending — Otter Pizza",
+    buildHtml(data, "💳 Payment Pending", "Your order has been received. Please complete your payment to confirm your order.") + paymentButton
+  );
 }
 
 export async function sendReadyForPickup(data: OrderEmailData) {
