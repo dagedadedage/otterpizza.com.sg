@@ -33,6 +33,7 @@ export interface OrderEmailData {
   deliveryTimeslot: string | null;
   deliveryAddress: string | null;
   paymentUrl?: string | null;
+  orderId?: number;
 }
 
 function formatPrice(cents: number): string {
@@ -126,7 +127,14 @@ async function sendEmail(to: string, subject: string, html: string) {
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
-  return sendEmail(data.customerEmail, "🍕 Order Confirmed — Otter Pizza", buildHtml(data, "🍕 Order Confirmed!", "Your payment has been received and your order is being prepared."));
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://otterpizza.com";
+  const invoiceUrl = data.orderId ? `${appUrl}/api/admin/orders/${data.orderId}/invoice` : null;
+  const invoiceButton = invoiceUrl
+    ? `<div style="text-align:center;margin:24px 0">
+        <a href="${invoiceUrl}" style="display:inline-block;background:#2D1B14;color:white;padding:12px 28px;border-radius:24px;text-decoration:none;font-weight:600;font-size:14px">📄 Download Invoice</a>
+       </div>`
+    : "";
+  return sendEmail(data.customerEmail, "🍕 Order Confirmed — Otter Pizza", buildHtml(data, "🍕 Order Confirmed!", "Your payment has been received and your order is being prepared.") + invoiceButton);
 }
 
 export async function sendPendingPaymentReminder(data: OrderEmailData) {

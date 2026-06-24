@@ -131,6 +131,7 @@ export async function POST(request: NextRequest) {
 
       // Send order confirmation email
       sendOrderConfirmation({
+        orderId: updatedOrder.id,
         orderNumber: updatedOrder.orderNumber,
         customerName: updatedOrder.customerName,
         customerEmail: updatedOrder.customerEmail,

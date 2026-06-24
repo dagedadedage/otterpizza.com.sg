@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkAdminAuth } from "@/lib/admin-auth";
 
+// Public endpoint — customers access via email link
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const authError = await checkAdminAuth(request);
-  if (authError) return authError;
-
   try {
     const { id } = await params;
     const order = await prisma.order.findUnique({
