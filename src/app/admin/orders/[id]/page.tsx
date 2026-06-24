@@ -284,15 +284,19 @@ export default function AdminOrderDetailPage() {
   const handleSaveTrackingUrl = async () => {
     setTrackingSaving(true);
     try {
+      const patchBody: Record<string, unknown> = {
+        deliveryTrackingUrl: trackingUrl,
+      };
+      // Auto-transition to OUT_FOR_DELIVERY when tracking URL is added to a READY delivery order
+      if (trackingUrl && order?.status === "READY" && order?.deliveryType !== "pickup") {
+        patchBody.status = "OUT_FOR_DELIVERY";
+        patchBody.note = "Tracking URL added — auto-transitioned to Out for Delivery";
+      }
       const res = await fetch(`/api/admin/orders/${params.id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          deliveryTrackingUrl: trackingUrl,
-        }),
+        body: JSON.stringify(patchBody),
       });
       if (!res.ok) throw new Error("Failed to save tracking URL");
       await fetchOrder();
@@ -346,7 +350,16 @@ export default function AdminOrderDetailPage() {
     );
   }
 
-  const transitions = statusTransitions[order.status] || [];
+  const isPickup = order?.deliveryType === "pickup";
+  const allTransitions = statusTransitions[order.status] || [];
+  // Filter: show only relevant button based on delivery type for PAID status
+  const transitions = (order.status === "PAID" || order.status === "ACCEPTED")
+    ? allTransitions.filter((t) => {
+        if (t.nextStatus === "READY" && !isPickup) return false; // hide Ready for delivery orders
+        if (t.nextStatus === "OUT_FOR_DELIVERY" && isPickup) return false; // hide Out for Delivery for pickups
+        return true;
+      })
+    : allTransitions;
 
   return (
     <div className="space-y-6">
