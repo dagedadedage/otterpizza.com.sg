@@ -119,12 +119,6 @@ export default function AdminDashboardPage() {
       color: "text-emerald-600 bg-emerald-100",
     },
     {
-      label: "Accepted",
-      value: stats?.acceptedOrders ?? 0,
-      icon: CheckCircle2,
-      color: "text-blue-600 bg-blue-100",
-    },
-    {
       label: "Ready",
       value: stats?.readyOrders ?? 0,
       icon: PackageCheck,

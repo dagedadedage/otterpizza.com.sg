@@ -9,11 +9,11 @@ const statusTabs = [
   { label: "All", value: "" },
   { label: "Pending", value: "PENDING" },
   { label: "Paid", value: "PAID" },
-  { label: "Accepted", value: "ACCEPTED" },
   { label: "Ready", value: "READY" },
   { label: "Out for Delivery", value: "OUT_FOR_DELIVERY" },
   { label: "Fulfilled", value: "FULFILLED" },
   { label: "Cancelled", value: "CANCELLED" },
+  { label: "Refunded", value: "REFUNDED" },
 ];
 
 interface Order {
@@ -85,12 +85,13 @@ export default function AdminOrdersPage() {
   };
 
   const handleConfirm = async (id: number, currentStatus: string, paymentInfo?: { paymentMethod: string; referenceNumber: string; note: string }) => {
-    // PENDING -> PAID, PAID -> ACCEPTED
-    const nextStatus = currentStatus === "PAID" ? "ACCEPTED" : "PAID";
+    // Only PENDING -> PAID (via payment dialog); other transitions via detail page
+    if (currentStatus !== "PENDING") return;
+    const nextStatus = "PAID";
     const body: Record<string, unknown> = { status: nextStatus, changedBy: 0 };
 
     // Include payment info when marking as paid
-    if (nextStatus === "PAID" && paymentInfo) {
+    if (paymentInfo) {
       body.paymentMethod = paymentInfo.paymentMethod;
       body.paymentReference = paymentInfo.referenceNumber;
       body.paymentNote = paymentInfo.note;

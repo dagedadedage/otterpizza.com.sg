@@ -127,45 +127,26 @@ export function OrderTable({
                         <span>View</span>
                       </Link>
                     </Button>
-                    {order.status === "PENDING" && (
-                      <>
-                        <Button
-                          size="sm"
-                          onClick={() => setPaymentDialogOrder({ id: order.id, status: order.status })}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                          Mark Paid
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => onCancel?.(order.id)}
-                          className="text-red-600 border-red-300 hover:bg-red-50 gap-1"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                          Cancel
-                        </Button>
-                      </>
-                    )}
-                    {order.status === "PAID" && (
-                      <Button
-                        size="sm"
-                        onClick={() => onConfirm?.(order.id, order.status)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white gap-1"
-                      >
-                        <Check className="w-3.5 h-3.5" />
-                        Accept
-                      </Button>
-                    )}
+                    {/* Mark Paid — only for PENDING */}
                     <Button
-                      variant="ghost"
                       size="sm"
-                      onClick={() => { if (confirm("Delete this order permanently?")) onDelete?.(order.id); }}
-                      className="text-red-400 hover:text-red-600 hover:bg-red-50"
-                      title="Delete"
+                      onClick={() => setPaymentDialogOrder({ id: order.id, status: order.status })}
+                      disabled={order.status !== "PENDING"}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Check className="w-3.5 h-3.5" />
+                      Mark Paid
+                    </Button>
+                    {/* Cancel — only for non-final statuses */}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onCancel?.(order.id)}
+                      disabled={["CANCELLED", "REFUNDED", "FULFILLED"].includes(order.status)}
+                      className="text-red-600 border-red-300 hover:bg-red-50 gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      Cancel
                     </Button>
                   </div>
                 </td>

@@ -105,9 +105,11 @@ const statusTransitions: Record<string, { label: string; nextStatus: string; var
     { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
   ],
   PAID: [
-    { label: "Accept Order", nextStatus: "ACCEPTED", variant: "primary" },
+    { label: "Ready for Pick-up", nextStatus: "READY", variant: "primary" },
+    { label: "Out for Delivery", nextStatus: "OUT_FOR_DELIVERY", variant: "secondary" },
     { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
   ],
+  // Legacy status — same transitions as PAID
   ACCEPTED: [
     { label: "Ready for Pick-up", nextStatus: "READY", variant: "primary" },
     { label: "Out for Delivery", nextStatus: "OUT_FOR_DELIVERY", variant: "secondary" },

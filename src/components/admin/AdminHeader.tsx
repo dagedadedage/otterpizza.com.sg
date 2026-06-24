@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { ShieldCheck, Shield, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -32,7 +33,6 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ onToggleSidebar, user }: AdminHeaderProps) {
   const [loggingOut, setLoggingOut] = useState(false);
-  const router = useRouter();
   const pathname = usePathname();
 
   // Find the best matching title
@@ -106,11 +106,7 @@ export function AdminHeader({ onToggleSidebar, user }: AdminHeaderProps) {
               size="sm"
               onClick={async () => {
                 setLoggingOut(true);
-                // Clear all possible auth cookies and redirect
-                document.cookie = "authjs.session-token=; path=/; max-age=0; secure; samesite=lax";
-                document.cookie = "__Secure-authjs.session-token=; path=/; max-age=0; secure; samesite=lax";
-                document.cookie = "otter-admin-token=; path=/; max-age=0; secure; samesite=lax";
-                router.push("/admin/login");
+                await signOut({ callbackUrl: "/admin/login" });
               }}
               disabled={loggingOut}
               className="text-muted hover:text-red-600"
