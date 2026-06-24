@@ -114,13 +114,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (!token) return null;
       const payload = verifyToken(token);
       if (!payload) return null;
+      const now = Math.floor(Date.now() / 1000);
       return {
         userId: payload.userId,
         email: payload.email,
         name: payload.name,
         role: payload.role,
         sub: String(payload.userId),
-        iat: Math.floor(Date.now() / 1000),
+        iat: now,
+        exp: now + 15 * 24 * 60 * 60, // 15 days
       };
     },
   },
