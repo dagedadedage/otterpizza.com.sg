@@ -1,15 +1,33 @@
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Loader2, Pizza } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 function LoginForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
   const error = searchParams.get("error");
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
+
+  // If already authenticated, redirect to admin
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      router.push(callbackUrl);
+    }
+  }, [status, session, callbackUrl, router]);
+
+  if (status === "loading" || (status === "authenticated" && session?.user)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   useEffect(() => {
     // Fetch CSRF token for the sign-in form
