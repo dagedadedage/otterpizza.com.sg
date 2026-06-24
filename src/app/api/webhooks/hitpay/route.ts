@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyWebhookSignature } from "@/lib/hitpay";
+import { sendOrderConfirmation } from "@/lib/email";
 
 /**
  * HitPay webhook handler.
@@ -107,11 +108,14 @@ export async function POST(request: NextRequest) {
 
     if (completedStatuses.includes(paymentStatus.toLowerCase())) {
       // Payment completed — confirm the order
-      await prisma.order.update({
+      const updatedOrder = await prisma.order.update({
         where: { id: order.id },
         data: {
           status: "PAID",
           paymentStatus: "completed",
+        },
+        include: {
+          items: { include: { product: true } },
         },
       });
 
@@ -124,6 +128,23 @@ export async function POST(request: NextRequest) {
           note: `Payment completed via HitPay webhook (status: ${paymentStatus})`,
         },
       });
+
+      // Send order confirmation email
+      sendOrderConfirmation({
+        orderNumber: updatedOrder.orderNumber,
+        customerName: updatedOrder.customerName,
+        customerEmail: updatedOrder.customerEmail,
+        items: updatedOrder.items.map((i) => ({ name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),
+        subtotal: updatedOrder.subtotal,
+        deliveryFee: updatedOrder.deliveryFee,
+        discount: updatedOrder.discount,
+        gstAmount: updatedOrder.gstAmount,
+        total: updatedOrder.total,
+        deliveryType: updatedOrder.deliveryType,
+        deliveryDate: updatedOrder.deliveryDate,
+        deliveryTimeslot: updatedOrder.deliveryTimeslot,
+        deliveryAddress: updatedOrder.deliveryAddress,
+      }).catch((err) => console.error("[webhook] Email failed:", err));
 
       console.log(`[webhook] Order ${order.orderNumber} auto-confirmed (payment ${paymentStatus})`);
     } else if (failedStatuses.includes(paymentStatus.toLowerCase())) {

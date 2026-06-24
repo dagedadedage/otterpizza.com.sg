@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice, generateOrderNumber } from "@/lib/utils";
 import { createPaymentRequest } from "@/lib/hitpay";
 import { calculatePromotions } from "@/lib/promotions";
+import { sendPendingPaymentReminder } from "@/lib/email";
 import type { CartItem } from "@/lib/cart-utils";
 
 interface CheckoutItemInput {
@@ -219,6 +220,23 @@ export async function POST(request: Request) {
     }).catch((err: unknown) => {
       console.error("[checkout] Failed to create status log:", err);
     });
+
+    // --- Send pending payment email ---
+    sendPendingPaymentReminder({
+      orderNumber: order.orderNumber,
+      customerName: order.customerName,
+      customerEmail: order.customerEmail,
+      items: order.items.map((i: any) => ({ name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),
+      subtotal: order.subtotal,
+      deliveryFee: order.deliveryFee,
+      discount: order.discount,
+      gstAmount: order.gstAmount,
+      total: order.total,
+      deliveryType: order.deliveryType,
+      deliveryDate: order.deliveryDate,
+      deliveryTimeslot: order.deliveryTimeslot,
+      deliveryAddress: order.deliveryAddress,
+    }).catch((err) => console.error("[checkout] Email failed:", err));
 
     return NextResponse.json({
       url: paymentUrl,

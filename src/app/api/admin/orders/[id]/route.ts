@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { OrderService } from "@/lib/services/order-service";
 import { checkAdminAuth } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { sendReadyForPickup, sendOutForDelivery } from "@/lib/email";
 
 export async function GET(
   request: NextRequest,
@@ -107,6 +108,33 @@ export async function PATCH(
         body.changedBy || 0,
         note
       );
+
+      // Send status notification emails
+      if (body.status === "READY" || body.status === "OUT_FOR_DELIVERY") {
+        const fullOrder = await OrderService.getOrder(Number(id));
+        if (fullOrder) {
+          const emailData = {
+            orderNumber: fullOrder.orderNumber,
+            customerName: fullOrder.customerName,
+            customerEmail: fullOrder.customerEmail,
+            items: (fullOrder as any).items?.map((i: any) => ({ name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })) || [],
+            subtotal: fullOrder.subtotal,
+            deliveryFee: fullOrder.deliveryFee,
+            discount: fullOrder.discount,
+            gstAmount: fullOrder.gstAmount,
+            total: fullOrder.total,
+            deliveryType: fullOrder.deliveryType,
+            deliveryDate: fullOrder.deliveryDate,
+            deliveryTimeslot: fullOrder.deliveryTimeslot,
+            deliveryAddress: fullOrder.deliveryAddress,
+          };
+          if (body.status === "READY") {
+            sendReadyForPickup(emailData).catch((err) => console.error("[orders] Email failed:", err));
+          } else {
+            sendOutForDelivery(emailData, fullOrder.deliveryTrackingUrl || undefined).catch((err) => console.error("[orders] Email failed:", err));
+          }
+        }
+      }
     }
 
     if (body.note && !body.status) {
