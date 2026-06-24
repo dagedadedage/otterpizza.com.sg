@@ -131,7 +131,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         httpOnly: true,
         sameSite: "lax" as const,
         path: "/",
-        secure: (process.env.NEXT_PUBLIC_APP_URL || "").startsWith("https://"),
+        secure: process.env.NODE_ENV === "production",
       },
     },
   },

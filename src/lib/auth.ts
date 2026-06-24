@@ -108,8 +108,7 @@ export function requireRole(
   return result;
 }
 
-const IS_SECURE =
-  (process.env.NEXT_PUBLIC_APP_URL || "").startsWith("https://");
+const IS_SECURE = process.env.NODE_ENV === "production";
 
 /** Set the auth cookie on a response. */
 export function setAuthCookie(response: NextResponse, token: string): void {

@@ -74,9 +74,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    // If order already processed, skip
-    if (order.status !== "PENDING") {
-      console.log(`[webhook] Order ${order.orderNumber} already ${order.status}, skipping`);
+    // Skip if order is in a final state
+    const finalStatuses = ["CANCELLED", "REFUNDED", "FULFILLED"];
+    if (finalStatuses.includes(order.status)) {
+      console.log(`[webhook] Order ${order.orderNumber} is ${order.status} (final), skipping`);
       return NextResponse.json({ received: true });
     }
 
