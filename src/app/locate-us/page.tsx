@@ -27,6 +27,8 @@ async function getStores(): Promise<StoreData[]> {
   }
 }
 
+export const revalidate = 300; // revalidate every 5 minutes
+
 export const metadata = {
   title: "Locate Us",
   description:
