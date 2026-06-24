@@ -45,8 +45,8 @@ export const metadata: Metadata = {
     "order pizza",
   ],
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
   },
   openGraph: {
     type: "website",

@@ -88,6 +88,17 @@ function LoginForm() {
             panel.
           </p>
         </div>
+
+        <p className="text-center text-xs text-muted/60 mt-6">
+          Otter Pizza Pte Ltd &middot;{" "}
+          <a href="/privacy" className="underline hover:text-muted">
+            Privacy Policy
+          </a>{" "}
+          &middot;{" "}
+          <a href="/" className="underline hover:text-muted">
+            Back to Site
+          </a>
+        </p>
       </div>
     </div>
   );
