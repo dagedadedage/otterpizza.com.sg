@@ -84,7 +84,7 @@ export default async function LocateUsPage() {
               >
                 <div className="max-lg:min-w-0 max-lg:flex-1">
                   <h3 className="text-sm font-bold text-dark truncate">
-                    {store.name}
+                    Otter Pizza | {store.name}
                   </h3>
                   <p className="mt-1 text-xs text-muted leading-relaxed max-lg:truncate max-lg:mt-0.5">
                     {store.address}
@@ -132,8 +132,8 @@ export default async function LocateUsPage() {
                     </a>
                   ) : null}
                   {!store.grabUrl && !store.foodpandaUrl && (
-                    <span className="text-[10px] text-muted/50 italic">
-                      Coming soon
+                    <span className="text-[10px] text-muted/60">
+                      Order via website
                     </span>
                   )}
                 </div>

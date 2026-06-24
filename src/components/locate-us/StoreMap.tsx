@@ -37,10 +37,9 @@ export default function StoreMap({ stores }: StoreMapProps) {
         mapRef.current = null;
       }
 
-      // Singapore center
+      // Singapore centre
       const center: [number, number] = [1.3521, 103.8198];
 
-      // Grey/white tile style — CartoDB light
       mapRef.current = L.map(mapContainerRef.current, {
         center,
         zoom: 12,
@@ -48,42 +47,57 @@ export default function StoreMap({ stores }: StoreMapProps) {
         zoomControl: true,
       });
 
+      // Light tile style similar to Google Maps
       L.tileLayer(
         "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
         {
           attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
           subdomains: "abcd",
           maxZoom: 19,
         }
       ).addTo(mapRef.current);
 
-      // Custom Otter Merlion marker icon (237x290 scaled to 40x49)
+      // Custom Otter Merlion marker icon
       const merlionIcon = L.icon({
         iconUrl: "/images/otter-merlion.png",
         iconSize: [40, 49],
-        iconAnchor: [20, 49], // bottom center
+        iconAnchor: [20, 49],
         popupAnchor: [0, -52],
       });
 
-      // Add markers
+      // Add markers with store name labels
       const validStores = stores.filter(
         (s) => s.latitude != null && s.longitude != null
       );
 
       const newMarkers = validStores.map((store) => {
+        const displayName = `Otter Pizza | ${store.name}`;
+
         const marker = L.marker([store.latitude, store.longitude], {
           icon: merlionIcon,
         }).addTo(mapRef.current!);
 
-        const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(`Otter Pizza ${store.name} Singapore`)}`;
+        // Permanent label beside marker showing store name
+        marker.bindTooltip(store.name, {
+          permanent: true,
+          direction: "right",
+          offset: [8, -20],
+          className: "store-marker-label",
+        });
+
+        const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(
+          `Otter Pizza ${store.name} Singapore`
+        )}`;
 
         marker.bindPopup(
-          `<div style="font-family:system-ui,sans-serif;min-width:180px">
-            <strong style="font-size:14px;color:#E85D2C">${store.name}</strong><br/>
-            <span style="font-size:12px;color:#666">${store.address}${store.unit ? ", " + store.unit : ""}<br/>${store.building}<br/>S${store.postalCode}</span>
+          `<div style="font-family:system-ui,sans-serif;min-width:200px">
+            <strong style="font-size:14px;color:#E85D2C">${displayName}</strong><br/>
+            <span style="font-size:12px;color:#555">${store.address}${
+            store.unit ? ", " + store.unit : ""
+          }<br/>${store.building}<br/>S${store.postalCode}</span>
             <br/>
-            <a href="${mapsUrl}" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;font-size:12px;color:#E85D2C;text-decoration:none;font-weight:600;border:1px solid #E85D2C;border-radius:20px;padding:3px 10px;">📍 Open in Google Maps</a>
+            <a href="${mapsUrl}" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;font-size:12px;color:#E85D2C;text-decoration:none;font-weight:600;border:1px solid #E85D2C;border-radius:20px;padding:3px 12px;">📍 Open in Google Maps</a>
           </div>`
         );
 
@@ -92,7 +106,7 @@ export default function StoreMap({ stores }: StoreMapProps) {
 
       markersRef.current = newMarkers;
 
-      // Fit bounds to show all markers
+      // Fit bounds to show all markers, or default to Singapore view
       if (validStores.length > 0) {
         const bounds = L.latLngBounds(
           validStores.map((s) => [s.latitude, s.longitude] as [number, number])
