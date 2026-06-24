@@ -121,7 +121,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   pages: {
-    signIn: "/admin/login",
     error: "/admin/login",
   },
 });
