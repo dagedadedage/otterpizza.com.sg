@@ -31,28 +31,25 @@ export default function StoreMap({ stores }: StoreMapProps) {
       const L = (await import("leaflet")).default;
       await import("leaflet/dist/leaflet.css");
 
-      // Clean up previous
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
 
-      // Singapore centre
-      const center: [number, number] = [1.3521, 103.8198];
+      // Singapore geographic centre
+      const SINGAPORE_CENTER: [number, number] = [1.3521, 103.8198];
 
       mapRef.current = L.map(mapContainerRef.current, {
-        center,
-        zoom: 12,
+        center: SINGAPORE_CENTER,
+        zoom: 11,
         scrollWheelZoom: true,
         zoomControl: true,
       });
 
-      // Light tile style similar to Google Maps
       L.tileLayer(
         "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
         {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
           subdomains: "abcd",
           maxZoom: 19,
         }
@@ -66,7 +63,6 @@ export default function StoreMap({ stores }: StoreMapProps) {
         popupAnchor: [0, -52],
       });
 
-      // Add markers with store name labels
       const validStores = stores.filter(
         (s) => s.latitude != null && s.longitude != null
       );
@@ -78,40 +74,54 @@ export default function StoreMap({ stores }: StoreMapProps) {
           icon: merlionIcon,
         }).addTo(mapRef.current!);
 
-        // Permanent label beside marker showing store name
-        marker.bindTooltip(store.name, {
-          permanent: true,
-          direction: "right",
-          offset: [8, -20],
-          className: "store-marker-label",
+        // Create a custom label below the marker (clickable)
+        const labelIcon = L.divIcon({
+          className: "store-marker-label-wrapper",
+          html: `<div class="store-marker-label">${store.name}</div>`,
+          iconSize: [120, 24],
+          iconAnchor: [60, -30],
+        });
+
+        const label = L.marker([store.latitude, store.longitude], {
+          icon: labelIcon,
+          interactive: true,
+        }).addTo(mapRef.current!);
+
+        // Clicking the label opens the marker popup
+        label.on("click", () => {
+          marker.openPopup();
         });
 
         const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(
           `Otter Pizza ${store.name} Singapore`
         )}`;
 
-        marker.bindPopup(
-          `<div style="font-family:system-ui,sans-serif;min-width:200px">
+        const popupContent = `
+          <div style="font-family:system-ui,sans-serif;min-width:200px">
             <strong style="font-size:14px;color:#E85D2C">${displayName}</strong><br/>
             <span style="font-size:12px;color:#555">${store.address}${
-            store.unit ? ", " + store.unit : ""
-          }<br/>${store.building}<br/>S${store.postalCode}</span>
+              store.unit ? ", " + store.unit : ""
+            }<br/>${store.building}<br/>S${store.postalCode}</span>
             <br/>
             <a href="${mapsUrl}" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;font-size:12px;color:#E85D2C;text-decoration:none;font-weight:600;border:1px solid #E85D2C;border-radius:20px;padding:3px 12px;">📍 Open in Google Maps</a>
-          </div>`
-        );
+          </div>`;
 
-        return marker;
+        marker.bindPopup(popupContent);
+
+        return { marker, label };
       });
 
       markersRef.current = newMarkers;
 
-      // Fit bounds to show all markers, or default to Singapore view
+      // Set bounds to show all stores across Singapore, or default view
       if (validStores.length > 0) {
         const bounds = L.latLngBounds(
           validStores.map((s) => [s.latitude, s.longitude] as [number, number])
         );
-        mapRef.current.fitBounds(bounds.pad(0.15));
+        mapRef.current.fitBounds(bounds.pad(0.2));
+      } else {
+        // Default: view of all Singapore
+        mapRef.current.setView(SINGAPORE_CENTER, 11);
       }
     }
 
