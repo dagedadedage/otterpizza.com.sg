@@ -36,11 +36,8 @@ export default function StoreMap({ stores }: StoreMapProps) {
         mapRef.current = null;
       }
 
-      // Singapore geographic centre
-      const SINGAPORE_CENTER: [number, number] = [1.3521, 103.8198];
-
       mapRef.current = L.map(mapContainerRef.current, {
-        center: SINGAPORE_CENTER,
+        center: [1.3521, 103.8198],
         zoom: 11,
         scrollWheelZoom: true,
         zoomControl: true,
@@ -103,13 +100,14 @@ export default function StoreMap({ stores }: StoreMapProps) {
 
       markersRef.current = newMarkers;
 
-      // Lock to Singapore view — don't let individual stores change the center
-      mapRef.current.setView(SINGAPORE_CENTER, 11);
+      // Fit to Singapore main island boundary
+      const SG_BOUNDS: [[number, number], [number, number]] = [
+        [1.2000, 103.6000], // SW corner (Tuas/Sentosa)
+        [1.4708, 104.0500], // NE corner (Woodlands/Changi)
+      ];
+      mapRef.current.fitBounds(SG_BOUNDS);
       mapRef.current.setMinZoom(10);
-      mapRef.current.setMaxBounds([
-        [1.15, 103.55], // SW corner
-        [1.50, 104.10], // NE corner
-      ]);
+      mapRef.current.setMaxBounds(SG_BOUNDS);
     }
 
     initMap();
