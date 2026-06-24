@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import nodemailer from "nodemailer";
+import { formatPrice } from "@/lib/utils";
 
 const FROM_NAME = "Otter Pizza";
 const FROM_EMAIL = "orders@otterpizza.com.sg";
@@ -11,11 +12,9 @@ const resend = process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "you
   : null;
 
 // Nodemailer via Gmail SMTP.
-// Authenticate with a real Workspace account, send from the Google Group address.
-// The authenticated user must be an Owner of the Google Group with "Send as" permission.
 const gmailUser = process.env.GMAIL_USER || "";
 const gmailPass = process.env.GMAIL_APP_PASSWORD || "";
-const gmailFrom = process.env.GMAIL_FROM || FROM_EMAIL; // Default: orders@otterpizza.com.sg
+const gmailFrom = process.env.GMAIL_FROM || FROM_EMAIL;
 const useGmail = gmailUser && gmailPass;
 
 export interface OrderEmailData {
@@ -32,12 +31,9 @@ export interface OrderEmailData {
   deliveryDate: string | null;
   deliveryTimeslot: string | null;
   deliveryAddress: string | null;
+  gstRate?: number;
   paymentUrl?: string | null;
   orderId?: number;
-}
-
-function formatPrice(cents: number): string {
-  return `$${cents.toFixed(2)}`;
 }
 
 function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): string {
@@ -71,7 +67,7 @@ function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): st
         <tr><td style="text-align:right;padding:2px 0;font-size:13px;color:#8B7355">Subtotal</td><td style="width:80px;text-align:right;padding:2px 0;font-size:13px;color:#8B7355">${formatPrice(data.subtotal)}</td></tr>
         ${data.discount > 0 ? `<tr><td style="text-align:right;padding:2px 0;font-size:13px;color:#E85D2C">Discount</td><td style="width:80px;text-align:right;padding:2px 0;font-size:13px;color:#E85D2C">-${formatPrice(data.discount)}</td></tr>` : ""}
         ${data.deliveryFee > 0 ? `<tr><td style="text-align:right;padding:2px 0;font-size:13px;color:#8B7355">Delivery Fee</td><td style="width:80px;text-align:right;padding:2px 0;font-size:13px;color:#8B7355">${formatPrice(data.deliveryFee)}</td></tr>` : ""}
-        <tr><td style="text-align:right;padding:2px 0;font-size:13px;color:#8B7355">GST (9% incl.)</td><td style="width:80px;text-align:right;padding:2px 0;font-size:13px;color:#8B7355">${formatPrice(data.gstAmount)}</td></tr>
+        <tr><td style="text-align:right;padding:2px 0;font-size:13px;color:#8B7355">GST (${(data.gstRate || 9).toFixed(0)}% incl.)</td><td style="width:80px;text-align:right;padding:2px 0;font-size:13px;color:#8B7355">${formatPrice(data.gstAmount)}</td></tr>
         <tr style="border-top:1px solid #E8D5C4"><td style="text-align:right;padding:6px 0 0 0;font-weight:700;font-size:15px;color:#2D1B14">Total</td><td style="width:80px;text-align:right;padding:6px 0 0 0;font-weight:700;font-size:15px;color:#2D1B14">${formatPrice(data.total)}</td></tr>
       </table>
     </div>
@@ -125,7 +121,7 @@ async function sendEmail(to: string, subject: string, html: string) {
     }
   }
 
-  console.log(`[email] No transport configured. Skipping: ${subject}`);
+  console.error(`[email] ALERT: All transports failed for "${subject}" to ${to}. Neither Gmail nor Resend is working.`);
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
