@@ -108,12 +108,9 @@ export default async function LocateUsPage() {
                       href={store.grabUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full bg-[#00B14F] px-3 py-1 text-xs font-semibold text-white hover:bg-[#009A3F] transition-colors"
+                      className="inline-flex items-center rounded-full bg-[#00B14F] px-3 py-1 text-xs font-semibold text-white hover:bg-[#009A3F] transition-colors"
                       aria-label={`Order ${store.name} on Grab`}
                     >
-                      <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.5 7H14v4h-2V9h-1.5l2.5-2.5L15.5 9zM10 15H8.5l-2.5-2.5L8.5 10H10v5z" />
-                      </svg>
                       Grab
                     </a>
                   ) : null}
@@ -122,12 +119,9 @@ export default async function LocateUsPage() {
                       href={store.foodpandaUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full bg-[#FF2B85] px-3 py-1 text-xs font-semibold text-white hover:bg-[#E51A70] transition-colors"
+                      className="inline-flex items-center rounded-full bg-[#FF2B85] px-3 py-1 text-xs font-semibold text-white hover:bg-[#E51A70] transition-colors"
                       aria-label={`Order ${store.name} on Foodpanda`}
                     >
-                      <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z" />
-                      </svg>
                       Foodpanda
                     </a>
                   ) : null}

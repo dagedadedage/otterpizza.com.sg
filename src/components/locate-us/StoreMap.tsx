@@ -78,8 +78,8 @@ export default function StoreMap({ stores }: StoreMapProps) {
         const labelIcon = L.divIcon({
           className: "store-marker-label-wrapper",
           html: `<div class="store-marker-label">${store.name}</div>`,
-          iconSize: [120, 24],
-          iconAnchor: [60, -30],
+          iconSize: [120, 20],
+          iconAnchor: [60, -8],
         });
 
         const label = L.marker([store.latitude, store.longitude], {
@@ -113,16 +113,13 @@ export default function StoreMap({ stores }: StoreMapProps) {
 
       markersRef.current = newMarkers;
 
-      // Set bounds to show all stores across Singapore, or default view
-      if (validStores.length > 0) {
-        const bounds = L.latLngBounds(
-          validStores.map((s) => [s.latitude, s.longitude] as [number, number])
-        );
-        mapRef.current.fitBounds(bounds.pad(0.2));
-      } else {
-        // Default: view of all Singapore
-        mapRef.current.setView(SINGAPORE_CENTER, 11);
-      }
+      // Lock to Singapore view — don't let individual stores change the center
+      mapRef.current.setView(SINGAPORE_CENTER, 11);
+      mapRef.current.setMinZoom(10);
+      mapRef.current.setMaxBounds([
+        [1.15, 103.55], // SW corner
+        [1.50, 104.10], // NE corner
+      ]);
     }
 
     initMap();
