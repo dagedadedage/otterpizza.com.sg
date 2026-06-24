@@ -1,9 +1,22 @@
 import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-const FROM_EMAIL = "Otter Pizza <orders@otterpizza.com.sg>";
+const FROM_NAME = "Otter Pizza";
+const FROM_EMAIL = "orders@otterpizza.com.sg";
 const ADMIN_EMAIL = "orders@otterpizza.com.sg";
+
+// Resend client (works once DNS is verified)
+const resend = process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "your_resend_api_key"
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
+// Nodemailer via Gmail SMTP.
+// Authenticate with a real Workspace account, send from the Google Group address.
+// The authenticated user must be an Owner of the Google Group with "Send as" permission.
+const gmailUser = process.env.GMAIL_USER || "";
+const gmailPass = process.env.GMAIL_APP_PASSWORD || "";
+const gmailFrom = process.env.GMAIL_FROM || FROM_EMAIL; // Default: orders@otterpizza.com.sg
+const useGmail = gmailUser && gmailPass;
 
 export interface OrderEmailData {
   orderNumber: string;
@@ -25,7 +38,7 @@ function formatPrice(cents: number): string {
   return `$${cents.toFixed(2)}`;
 }
 
-function buildOrderHtml(data: OrderEmailData, status: string, extraInfo?: string): string {
+function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): string {
   const deliveryInfo =
     data.deliveryType === "pickup"
       ? "Self Pick-up"
@@ -33,120 +46,99 @@ function buildOrderHtml(data: OrderEmailData, status: string, extraInfo?: string
         ? `Delivery${data.deliveryAddress ? ` to ${data.deliveryAddress}` : ""}${data.deliveryDate ? ` on ${data.deliveryDate}` : ""}${data.deliveryTimeslot ? ` at ${data.deliveryTimeslot}` : ""}`
         : "";
 
-  return `
-    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-      <div style="text-align:center;padding:20px 0">
-        <h1 style="color:#E85D2C;margin:0">Otter Pizza</h1>
-        <p style="color:#8B7355;font-size:14px">Singapore's Neighbourhood Pizzeria</p>
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+    <div style="text-align:center;padding:20px 0">
+      <h1 style="color:#E85D2C;margin:0">Otter Pizza</h1>
+      <p style="color:#8B7355;font-size:14px">Singapore's Neighbourhood Pizzeria</p>
+    </div>
+    <div style="background:#FFF8F0;border:1px solid #E8D5C4;border-radius:12px;padding:24px;margin:16px 0">
+      <h2 style="color:#2D1B14;margin:0 0 4px 0">${status}</h2>
+      <p style="color:#8B7355;margin:0">Order ${data.orderNumber}</p>
+      ${extraInfo ? `<p style="color:#2D1B14;margin:12px 0 0 0;font-size:14px">${extraInfo}</p>` : ""}
+    </div>
+    <div style="background:white;border:1px solid #E8D5C4;border-radius:12px;padding:16px;margin:16px 0">
+      <p style="color:#2D1B14;font-weight:600;margin:0 0 8px 0">Hi ${data.customerName},</p>
+      ${deliveryInfo ? `<p style="color:#8B7355;margin:0 0 12px 0">${deliveryInfo}</p>` : ""}
+      <table style="width:100%;border-collapse:collapse">
+        <tr style="border-bottom:1px solid #E8D5C4"><th style="text-align:left;padding:8px;font-size:13px;color:#8B7355">Item</th><th style="text-align:center;padding:8px;font-size:13px;color:#8B7355">Qty</th><th style="text-align:right;padding:8px;font-size:13px;color:#8B7355">Price</th></tr>
+        ${data.items.map(i => `<tr style="border-bottom:1px solid #E8D5C4"><td style="padding:8px;font-size:13px;color:#2D1B14">${i.name}</td><td style="text-align:center;padding:8px;font-size:13px;color:#2D1B14">${i.quantity}</td><td style="text-align:right;padding:8px;font-size:13px;color:#2D1B14">${formatPrice(i.totalPrice)}</td></tr>`).join("")}
+      </table>
+      <div style="margin-top:16px;border-top:1px solid #E8D5C4;padding-top:12px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0"><span>Subtotal</span><span>${formatPrice(data.subtotal)}</span></div>
+        ${data.discount > 0 ? `<div style="display:flex;justify-content:space-between;font-size:13px;color:#E85D2C;margin:4px 0"><span>Discount</span><span>-${formatPrice(data.discount)}</span></div>` : ""}
+        ${data.deliveryFee > 0 ? `<div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0"><span>Delivery Fee</span><span>${formatPrice(data.deliveryFee)}</span></div>` : ""}
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0"><span>GST (9%)</span><span>${formatPrice(data.gstAmount)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:15px;color:#2D1B14;margin:8px 0;border-top:1px solid #E8D5C4;padding-top:8px"><span>Total</span><span>${formatPrice(data.total)}</span></div>
       </div>
+    </div>
+    <p style="color:#8B7355;font-size:12px;text-align:center;margin:24px 0">Thank you for ordering from Otter Pizza!<br/>Questions? Reply to this email.</p>
+  </body></html>`;
+}
 
-      <div style="background:#FFF8F0;border:1px solid #E8D5C4;border-radius:12px;padding:24px;margin:16px 0">
-        <h2 style="color:#2D1B14;margin:0 0 4px 0">${status}</h2>
-        <p style="color:#8B7355;margin:0">Order ${data.orderNumber}</p>
-        ${extraInfo ? `<p style="color:#2D1B14;margin:12px 0 0 0;font-size:14px">${extraInfo}</p>` : ""}
-      </div>
+async function sendEmail(to: string, subject: string, html: string) {
+  const recipients = [to, ADMIN_EMAIL];
 
-      <div style="background:white;border:1px solid #E8D5C4;border-radius:12px;padding:16px;margin:16px 0">
-        <p style="color:#2D1B14;font-weight:600;margin:0 0 8px 0">Hi ${data.customerName},</p>
-        ${deliveryInfo ? `<p style="color:#8B7355;margin:0 0 12px 0">${deliveryInfo}</p>` : ""}
+  // Try Gmail SMTP first (works immediately, no DNS needed)
+  if (useGmail) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: { user: gmailUser, pass: gmailPass },
+      });
+      await transporter.sendMail({
+        from: `"${FROM_NAME}" <${gmailFrom}>`,
+        replyTo: gmailFrom,
+        to: recipients.join(", "),
+        subject,
+        html,
+      });
+      console.log(`[email] Sent via Gmail: ${subject} to ${to} (from ${gmailFrom})`);
+      return;
+    } catch (err: any) {
+      console.error(`[email] Gmail failed: ${err.message}`);
+    }
+  }
 
-        <table style="width:100%;border-collapse:collapse">
-          <thead>
-            <tr style="border-bottom:1px solid #E8D5C4">
-              <th style="text-align:left;padding:8px;font-size:13px;color:#8B7355">Item</th>
-              <th style="text-align:center;padding:8px;font-size:13px;color:#8B7355">Qty</th>
-              <th style="text-align:right;padding:8px;font-size:13px;color:#8B7355">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${data.items
-              .map(
-                (item) => `
-              <tr style="border-bottom:1px solid #E8D5C4">
-                <td style="padding:8px;font-size:13px;color:#2D1B14">${item.name}</td>
-                <td style="text-align:center;padding:8px;font-size:13px;color:#2D1B14">${item.quantity}</td>
-                <td style="text-align:right;padding:8px;font-size:13px;color:#2D1B14">${formatPrice(item.totalPrice)}</td>
-              </tr>`
-              )
-              .join("")}
-          </tbody>
-        </table>
+  // Fall back to Resend (works once DNS is verified)
+  if (resend) {
+    try {
+      const { error } = await resend.emails.send({
+        from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+        to: recipients,
+        subject,
+        html,
+      });
+      if (error) {
+        console.error(`[email] Resend failed: ${error.message}`);
+      } else {
+        console.log(`[email] Sent via Resend: ${subject} to ${to}`);
+      }
+      return;
+    } catch (err: any) {
+      console.error(`[email] Resend failed: ${err.message}`);
+    }
+  }
 
-        <div style="margin-top:16px;border-top:1px solid #E8D5C4;padding-top:12px">
-          <div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0">
-            <span>Subtotal</span><span>${formatPrice(data.subtotal)}</span>
-          </div>
-          ${data.discount > 0 ? `<div style="display:flex;justify-content:space-between;font-size:13px;color:#E85D2C;margin:4px 0"><span>Discount</span><span>-${formatPrice(data.discount)}</span></div>` : ""}
-          ${data.deliveryFee > 0 ? `<div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0"><span>Delivery Fee</span><span>${formatPrice(data.deliveryFee)}</span></div>` : ""}
-          <div style="display:flex;justify-content:space-between;font-size:13px;color:#8B7355;margin:4px 0">
-            <span>GST (9%)</span><span>${formatPrice(data.gstAmount)}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-weight:700;font-size:15px;color:#2D1B14;margin:8px 0;border-top:1px solid #E8D5C4;padding-top:8px">
-            <span>Total</span><span>${formatPrice(data.total)}</span>
-          </div>
-        </div>
-      </div>
-
-      <p style="color:#8B7355;font-size:12px;text-align:center;margin:24px 0">
-        Thank you for ordering from Otter Pizza!<br/>
-        Questions? Reply to this email — we're here to help.
-      </p>
-    </div>`;
+  console.log(`[email] No transport configured. Skipping: ${subject}`);
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
-  const html = buildOrderHtml(
-    data,
-    "🍕 Order Confirmed!",
-    "Your payment has been received and your order is being prepared."
-  );
-  return sendEmail(data.customerEmail, "🍕 Order Confirmed!", html);
+  return sendEmail(data.customerEmail, "🍕 Order Confirmed — Otter Pizza", buildHtml(data, "🍕 Order Confirmed!", "Your payment has been received and your order is being prepared."));
 }
 
 export async function sendPendingPaymentReminder(data: OrderEmailData) {
-  const html = buildOrderHtml(
-    data,
-    "💳 Payment Pending",
-    "Your order has been received but payment is not yet complete. Please complete your payment to confirm your order."
-  );
-  return sendEmail(data.customerEmail, "💳 Payment Pending — Otter Pizza", html);
+  return sendEmail(data.customerEmail, "💳 Payment Pending — Otter Pizza", buildHtml(data, "💳 Payment Pending", "Your order has been received. Please complete your payment to confirm your order."));
 }
 
 export async function sendReadyForPickup(data: OrderEmailData) {
-  const html = buildOrderHtml(
-    data,
-    "📦 Order Ready for Pick-up!",
-    "Your order is ready for collection. Please come to our store to pick it up."
-  );
-  return sendEmail(data.customerEmail, "📦 Ready for Pick-up — Otter Pizza", html);
+  return sendEmail(data.customerEmail, "📦 Ready for Pick-up — Otter Pizza", buildHtml(data, "📦 Order Ready for Pick-up!", "Your order is ready for collection. Please come to our store to pick it up."));
 }
 
 export async function sendOutForDelivery(data: OrderEmailData, trackingUrl?: string) {
   const extraInfo = trackingUrl
     ? `Track your delivery: <a href="${trackingUrl}" style="color:#E85D2C">${trackingUrl}</a>`
     : "Your order is on its way!";
-  const html = buildOrderHtml(data, "🚀 Out for Delivery!", extraInfo);
-  return sendEmail(data.customerEmail, "🚀 Out for Delivery — Otter Pizza", html);
-}
-
-async function sendEmail(to: string, subject: string, html: string) {
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "your_resend_api_key") {
-    console.log(`[email] Skipping (no API key configured): ${subject} to ${to}`);
-    return;
-  }
-  try {
-    const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: [to, ADMIN_EMAIL],
-      subject,
-      html,
-    });
-    if (error) {
-      console.error(`[email] Failed to send: ${error.message}`);
-    } else {
-      console.log(`[email] Sent: ${subject} to ${to} + ${ADMIN_EMAIL} (id: ${data?.id})`);
-    }
-  } catch (err: any) {
-    console.error(`[email] Error sending: ${err.message}`);
-  }
+  return sendEmail(data.customerEmail, "🚀 Out for Delivery — Otter Pizza", buildHtml(data, "🚀 Out for Delivery!", extraInfo));
 }
