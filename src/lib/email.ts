@@ -136,7 +136,7 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
         <a href="${invoiceUrl}" style="display:inline-block;background:#2D1B14;color:white;padding:12px 28px;border-radius:24px;text-decoration:none;font-weight:600;font-size:14px">📄 Download Invoice</a>
        </div>`
     : "";
-  return sendEmail(data.customerEmail, "🍕 Order Confirmed — Otter Pizza", buildHtml(data, "🍕 Order Confirmed!", "Your payment has been received and your order is being prepared.") + invoiceButton);
+  return sendEmail(data.customerEmail, `🍕 Order Confirmed — ${data.orderNumber}`, buildHtml(data, "🍕 Order Confirmed!", "Your payment has been received and your order is being prepared.") + invoiceButton);
 }
 
 export async function sendPendingPaymentReminder(data: OrderEmailData) {
@@ -148,18 +148,18 @@ export async function sendPendingPaymentReminder(data: OrderEmailData) {
     : "";
   return sendEmail(
     data.customerEmail,
-    "💳 Payment Pending — Otter Pizza",
+    `💳 Payment Pending — ${data.orderNumber}`,
     buildHtml(data, "💳 Payment Pending", "Your order has been received. Please complete your payment to confirm your order.") + paymentButton
   );
 }
 
 export async function sendReadyForPickup(data: OrderEmailData) {
-  return sendEmail(data.customerEmail, "📦 Ready for Pick-up — Otter Pizza", buildHtml(data, "📦 Order Ready for Pick-up!", "Your order is ready for collection. Please come to our store to pick it up."));
+  return sendEmail(data.customerEmail, `📦 Ready for Pick-up — ${data.orderNumber}`, buildHtml(data, "📦 Order Ready for Pick-up!", "Your order is ready for collection. Please come to our store to pick it up."));
 }
 
 export async function sendOutForDelivery(data: OrderEmailData, trackingUrl?: string) {
   const extraInfo = trackingUrl
     ? `Track your delivery: <a href="${trackingUrl}" style="color:#E85D2C">${trackingUrl}</a>`
     : "Your order is on its way!";
-  return sendEmail(data.customerEmail, "🚀 Out for Delivery — Otter Pizza", buildHtml(data, "🚀 Out for Delivery!", extraInfo));
+  return sendEmail(data.customerEmail, `🚀 Out for Delivery — ${data.orderNumber}`, buildHtml(data, "🚀 Out for Delivery!", extraInfo));
 }
