@@ -28,7 +28,12 @@ const caveat = Caveat({
 
 export const metadata: Metadata = {
   icons: {
-    icon: "/favicon.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/favicon.png", sizes: "256x256", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/favicon.png",
   },
   title: {
     default: "Singapore Neighbourhood Pizzeria | Otter Pizza",
