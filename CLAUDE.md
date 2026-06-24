@@ -41,6 +41,11 @@ Open http://localhost:3000
 - Webhook: `POST /api/webhooks/hitpay` verifies HMAC-SHA256, updates order status
 - Sandbox by default — set `HITPAY_API_KEY` for production
 
+## Devlogs
+- Save daily devlogs to `D:\BH DEV\otterpizza.com.sg\devlogs\` with format `YYYY-MM-DD.md`
+- Include: all changes made, bugs fixed, features added, commits pushed, production deploy status
+- Commit and push devlogs along with code changes
+
 ## Brand
 - Primary: #E85D2C | BG: #FEFBF7 | Dark: #2D1B14 | Font: Inter
 
