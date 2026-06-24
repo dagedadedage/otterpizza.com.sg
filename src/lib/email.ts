@@ -140,17 +140,35 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
 }
 
 export async function sendPendingPaymentReminder(data: OrderEmailData) {
-  const paymentButton = data.paymentUrl
-    ? `<div style="text-align:center;margin:24px 0">
-        <a href="${data.paymentUrl}" style="display:inline-block;background:#E85D2C;color:white;padding:14px 32px;border-radius:24px;text-decoration:none;font-weight:600;font-size:16px">💳 Make Payment</a>
-        <p style="color:#8B7355;font-size:12px;margin-top:8px">Click the button above to complete your payment securely via HitPay</p>
-       </div>`
-    : "";
-  return sendEmail(
-    data.customerEmail,
-    `💳 Payment Pending — ${data.orderNumber}`,
-    buildHtml(data, "💳 Payment Pending", "Your order has been received. Please complete your payment to confirm your order.") + paymentButton
-  );
+  // Delay 2 minutes — if customer pays within this window, they get Order Confirmed instead
+  const PAYMENT_WINDOW_MS = 2 * 60 * 1000;
+  const orderId = data.orderId;
+
+  setTimeout(async () => {
+    // Check if order is still PENDING before sending reminder
+    if (orderId) {
+      try {
+        const { prisma } = await import("@/lib/prisma");
+        const order = await prisma.order.findUnique({ where: { id: orderId }, select: { status: true } });
+        if (order && order.status !== "PENDING") {
+          console.log(`[email] Skipping pending reminder for ${data.orderNumber} — already ${order.status}`);
+          return;
+        }
+      } catch { /* proceed with send */ }
+    }
+
+    const paymentButton = data.paymentUrl
+      ? `<div style="text-align:center;margin:24px 0">
+          <a href="${data.paymentUrl}" style="display:inline-block;background:#E85D2C;color:white;padding:14px 32px;border-radius:24px;text-decoration:none;font-weight:600;font-size:16px">💳 Make Payment</a>
+          <p style="color:#8B7355;font-size:12px;margin-top:8px">Click the button above to complete your payment securely via HitPay</p>
+         </div>`
+      : "";
+    await sendEmail(
+      data.customerEmail,
+      `💳 Payment Pending — ${data.orderNumber}`,
+      buildHtml(data, "💳 Payment Pending", "Your order has been received. Please complete your payment to confirm your order.") + paymentButton
+    );
+  }, PAYMENT_WINDOW_MS);
 }
 
 export async function sendReadyForPickup(data: OrderEmailData) {

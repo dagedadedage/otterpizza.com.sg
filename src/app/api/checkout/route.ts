@@ -223,6 +223,7 @@ export async function POST(request: Request) {
 
     // --- Send pending payment email ---
     sendPendingPaymentReminder({
+      orderId: order.id,
       orderNumber: order.orderNumber,
       customerName: order.customerName,
       customerEmail: order.customerEmail,
