@@ -48,21 +48,23 @@ function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): st
         ? `Delivery${data.deliveryAddress ? ` to ${data.deliveryAddress}` : ""}${data.deliveryDate ? ` on ${data.deliveryDate}` : ""}${data.deliveryTimeslot ? ` at ${data.deliveryTimeslot}` : ""}`
         : "";
 
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-    <div style="text-align:center;padding:20px 0">
-      <h1 style="color:#E85D2C;margin:0">Otter Pizza</h1>
-      <p style="color:#8B7355;font-size:14px">Singapore's Neighbourhood Pizzeria</p>
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;background:#FEFBF7">
+    <!-- Gold header strip with logo -->
+    <div style="background:#FDD000;padding:24px 20px;text-align:center;border-radius:12px 12px 0 0">
+      <img src="https://otterpizza.com/images/logo.png" alt="Otter Pizza" style="height:48px;width:auto" />
     </div>
-    <div style="background:#FFF8F0;border:1px solid #E8D5C4;border-radius:12px;padding:24px;margin:16px 0">
-      <h2 style="color:#2D1B14;margin:0 0 4px 0">${status}</h2>
-      <p style="color:#8B7355;margin:0">Order ${data.orderNumber}</p>
-      ${extraInfo ? `<p style="color:#2D1B14;margin:12px 0 0 0;font-size:14px">${extraInfo}</p>` : ""}
+    <!-- Status banner -->
+    <div style="background:#FFF8F0;border-left:1px solid #E8D5C4;border-right:1px solid #E8D5C4;padding:24px;text-align:center">
+      <h2 style="color:#2D1B14;margin:0 0 4px 0;font-size:18px">${status}</h2>
+      <p style="color:#8B7355;margin:0;font-size:14px">Order ${data.orderNumber}</p>
+      ${extraInfo ? `<p style="color:#2D1B14;margin:12px 0 0 0;font-size:13px">${extraInfo}</p>` : ""}
     </div>
-    <div style="background:white;border:1px solid #E8D5C4;border-radius:12px;padding:16px;margin:16px 0">
+    <!-- Order details -->
+    <div style="background:white;border:1px solid #E8D5C4;border-top:none;border-radius:0 0 12px 12px;padding:20px">
       <p style="color:#2D1B14;font-weight:600;margin:0 0 8px 0">Hi ${data.customerName},</p>
-      ${deliveryInfo ? `<p style="color:#8B7355;margin:0 0 12px 0">${deliveryInfo}</p>` : ""}
+      ${deliveryInfo ? `<p style="color:#8B7355;margin:0 0 12px 0;font-size:13px">${deliveryInfo}</p>` : ""}
       <table style="width:100%;border-collapse:collapse">
-        <tr style="border-bottom:1px solid #E8D5C4"><th style="text-align:left;padding:8px;font-size:13px;color:#8B7355">Item</th><th style="text-align:center;padding:8px;font-size:13px;color:#8B7355">Qty</th><th style="text-align:right;padding:8px;font-size:13px;color:#8B7355">Price</th></tr>
+        <tr style="border-bottom:1px solid #E8D5C4"><th style="text-align:left;padding:8px;font-size:12px;color:#8B7355">Item</th><th style="text-align:center;padding:8px;font-size:12px;color:#8B7355">Qty</th><th style="text-align:right;padding:8px;font-size:12px;color:#8B7355">Price</th></tr>
         ${data.items.map(i => `<tr style="border-bottom:1px solid #E8D5C4"><td style="padding:8px;font-size:13px;color:#2D1B14">${i.name}</td><td style="text-align:center;padding:8px;font-size:13px;color:#2D1B14">${i.quantity}</td><td style="text-align:right;padding:8px;font-size:13px;color:#2D1B14">${formatPrice(i.totalPrice)}</td></tr>`).join("")}
       </table>
       <div style="margin-top:16px;border-top:1px solid #E8D5C4;padding-top:12px">
@@ -73,7 +75,7 @@ function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): st
         <div style="display:flex;justify-content:space-between;font-weight:700;font-size:15px;color:#2D1B14;margin:8px 0;border-top:1px solid #E8D5C4;padding-top:8px"><span>Total</span><span>${formatPrice(data.total)}</span></div>
       </div>
     </div>
-    <p style="color:#8B7355;font-size:12px;text-align:center;margin:24px 0">Thank you for ordering from Otter Pizza!<br/>Questions? Reply to this email.</p>
+    <p style="color:#8B7355;font-size:11px;text-align:center;margin:20px 0">Thank you for ordering from Otter Pizza!<br/>Questions? Reply to this email.</p>
   </body></html>`;
 }
 
