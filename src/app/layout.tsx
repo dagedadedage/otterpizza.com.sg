@@ -4,6 +4,7 @@ import { ConditionalNavbar, ConditionalFooter } from "@/components/layout/Condit
 import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/store/cart-context";
 import { CartToast } from "@/components/cart/CartToast";
+import { SessionProvider } from "@/components/auth/SessionProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -68,12 +69,14 @@ export default function RootLayout({
       className={`${inter.variable} ${chelseaMarket.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
-        <CartProvider>
-          <ConditionalNavbar />
-          <main className="flex-1">{children}</main>
-          <ConditionalFooter />
-          <CartToast />
-        </CartProvider>
+        <SessionProvider>
+          <CartProvider>
+            <ConditionalNavbar />
+            <main className="flex-1">{children}</main>
+            <ConditionalFooter />
+            <CartToast />
+          </CartProvider>
+        </SessionProvider>
       </body>
     </html>
   );

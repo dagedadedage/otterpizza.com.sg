@@ -32,12 +32,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const ADMIN_KEY = "otter-pizza-admin-2024";
-
-function authHeaders(): Record<string, string> {
-  return { "x-admin-key": ADMIN_KEY };
-}
-
 interface OrderItem {
   id: number;
   quantity: number;
@@ -142,7 +136,6 @@ export default function AdminOrderDetailPage() {
     setError(null);
     try {
       const res = await fetch(`/api/admin/orders/${params.id}`, {
-        headers: authHeaders(),
         credentials: "include",
       });
       if (!res.ok) {
@@ -172,7 +165,6 @@ export default function AdminOrderDetailPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          ...authHeaders(),
         },
         credentials: "include",
         body: JSON.stringify({
@@ -202,7 +194,6 @@ export default function AdminOrderDetailPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          ...authHeaders(),
         },
         credentials: "include",
         body: JSON.stringify({
@@ -229,7 +220,6 @@ export default function AdminOrderDetailPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          ...authHeaders(),
         },
         credentials: "include",
         body: JSON.stringify({
@@ -254,7 +244,6 @@ export default function AdminOrderDetailPage() {
     try {
       const res = await fetch(`/api/admin/orders/${params.id}`, {
         method: "DELETE",
-        headers: authHeaders(),
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed");

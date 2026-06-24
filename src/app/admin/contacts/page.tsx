@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -13,8 +13,6 @@ import {
   Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const ADMIN_KEY = "otter-pizza-admin-2024";
 
 interface ContactSubmission {
   id: number;
@@ -40,7 +38,7 @@ export default function AdminContactsPage() {
     setError(null);
     try {
       const res = await fetch(`/api/admin/contacts?page=${page}&limit=20`, {
-        headers: { "x-admin-key": ADMIN_KEY },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch contact submissions");
       const data = await res.json();

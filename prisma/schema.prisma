@@ -175,7 +175,8 @@ model AdminUser {
   id           Int       @id @default(autoincrement())
   email        String    @unique
   name         String
-  passwordHash String
+  passwordHash String?
+  googleId     String?
   role         String    @default("MANAGER")
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())

@@ -1,14 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Loader2, AlertCircle, Save, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-const ADMIN_KEY = "otter-pizza-admin-2024";
-function authHeaders(): Record<string, string> {
-  return { "x-admin-key": ADMIN_KEY };
-}
 
 export default function DeliverySettingsPage() {
   const [fee, setFee] = useState<number>(5);
@@ -18,7 +13,7 @@ export default function DeliverySettingsPage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/admin/delivery", { headers: authHeaders(), credentials: "include" })
+    fetch("/api/admin/delivery", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => { if (data.fee !== undefined) setFee(data.fee); })
       .catch((err) => setError(err.message))
@@ -30,7 +25,7 @@ export default function DeliverySettingsPage() {
     try {
       const res = await fetch("/api/admin/delivery", {
         method: "PUT",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ fee }),
       });

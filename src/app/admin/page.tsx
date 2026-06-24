@@ -19,12 +19,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const ADMIN_KEY = "otter-pizza-admin-2024";
-
-function authHeaders(): Record<string, string> {
-  return { "x-admin-key": ADMIN_KEY };
-}
-
 interface OrderStats {
   totalOrders: number;
   pendingOrders: number;
@@ -58,8 +52,8 @@ export default function AdminDashboardPage() {
     setError(null);
     try {
       const [statsRes, ordersRes] = await Promise.all([
-        fetch("/api/admin/orders/stats", { headers: authHeaders(), credentials: "include" }),
-        fetch("/api/admin/orders?limit=5", { headers: authHeaders(), credentials: "include" }),
+        fetch("/api/admin/orders/stats", { credentials: "include" }),
+        fetch("/api/admin/orders?limit=5", { credentials: "include" }),
       ]);
 
       if (!statsRes.ok || !ordersRes.ok) {

@@ -1,15 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Loader2, AlertCircle, Save, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-const ADMIN_KEY = "otter-pizza-admin-2024";
-
-function authHeaders(): Record<string, string> {
-  return { "x-admin-key": ADMIN_KEY };
-}
 
 export default function GstSettingsPage() {
   const [rate, setRate] = useState<number>(9);
@@ -28,7 +22,6 @@ export default function GstSettingsPage() {
     setError(null);
     try {
       const res = await fetch("/api/admin/gst", {
-        headers: authHeaders(),
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to load GST settings");
@@ -51,7 +44,6 @@ export default function GstSettingsPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          ...authHeaders(),
         },
         credentials: "include",
         body: JSON.stringify({ rate, mode }),

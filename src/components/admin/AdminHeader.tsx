@@ -1,8 +1,7 @@
 "use client";
 
-"use client";
-
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { ShieldCheck, Shield, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -19,11 +18,12 @@ const pageTitles: Record<string, string> = {
   "/admin/access": "Access Control",
 };
 
-interface AdminUser {
-  id: number;
+export interface AdminUser {
+  id: number | string;
   email: string;
   name: string;
   role: string;
+  image?: string | null;
 }
 
 interface AdminHeaderProps {
@@ -32,7 +32,6 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ onToggleSidebar, user }: AdminHeaderProps) {
-  const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const pathname = usePathname();
 
@@ -76,6 +75,14 @@ export function AdminHeader({ onToggleSidebar, user }: AdminHeaderProps) {
       <div className="flex items-center gap-3">
         {user && (
           <>
+            {user.image && (
+              <img
+                src={user.image}
+                alt={user.name}
+                className="w-8 h-8 rounded-full border-2 border-border"
+                referrerPolicy="no-referrer"
+              />
+            )}
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium text-dark">{user.name}</p>
               <p className="text-xs text-muted">{user.email}</p>
@@ -99,11 +106,7 @@ export function AdminHeader({ onToggleSidebar, user }: AdminHeaderProps) {
               size="sm"
               onClick={async () => {
                 setLoggingOut(true);
-                await fetch("/api/admin/auth/logout", {
-                  method: "POST",
-                  credentials: "include",
-                });
-                router.push("/admin/login");
+                await signOut({ callbackUrl: "/admin/login" });
               }}
               disabled={loggingOut}
               className="text-muted hover:text-red-600"

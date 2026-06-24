@@ -8,8 +8,6 @@ import { parseTags } from "@/lib/utils";
 import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const ADMIN_KEY = "otter-pizza-admin-2024";
-
 interface Category {
   id: number;
   name: string;
@@ -47,10 +45,10 @@ export default function EditProductPage() {
     try {
       const [productRes, categoriesRes] = await Promise.all([
         fetch(`/api/admin/menu/${params.id}`, {
-          headers: { "x-admin-key": ADMIN_KEY },
+          credentials: "include",
         }),
         fetch("/api/admin/categories", {
-          headers: { "x-admin-key": ADMIN_KEY },
+          credentials: "include",
         }),
       ]);
 
@@ -81,8 +79,8 @@ export default function EditProductPage() {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        "x-admin-key": ADMIN_KEY,
       },
+      credentials: "include",
       body: JSON.stringify({
         sku: formData.sku,
         name: formData.name,

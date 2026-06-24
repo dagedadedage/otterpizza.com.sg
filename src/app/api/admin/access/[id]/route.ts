@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
-import bcrypt from "bcryptjs";
 
 // PUT - update admin user (ADMIN only)
 export async function PUT(
@@ -52,15 +51,6 @@ export async function PUT(
       }
       updateData.isActive = body.isActive;
     }
-    if (body.password) {
-      if (body.password.length < 6) {
-        return NextResponse.json(
-          { error: "Password must be at least 6 characters" },
-          { status: 400 }
-        );
-      }
-      updateData.passwordHash = await bcrypt.hash(body.password, 10);
-    }
 
     const updated = await prisma.adminUser.update({
       where: { id: userId },
@@ -71,6 +61,7 @@ export async function PUT(
         name: true,
         role: true,
         isActive: true,
+        googleId: true,
         updatedAt: true,
       },
     });

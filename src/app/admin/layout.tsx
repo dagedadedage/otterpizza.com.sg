@@ -1,18 +1,14 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, createContext, useContext } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
+import type { AdminUser } from "@/components/admin/AdminHeader";
 import { Loader2 } from "lucide-react";
 
-export interface AdminUser {
-  id: number;
-  email: string;
-  name: string;
-  role: string;
-}
-
+export { type AdminUser };
 export const AdminUserContext = createContext<AdminUser | null>(null);
 
 export function useAdminUser() {
@@ -25,43 +21,17 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const isLoginPage = pathname === "/admin/login";
-
-  useEffect(() => {
-    // Login page doesn't need auth check
-    if (isLoginPage) {
-      setLoading(false);
-      return;
-    }
-
-    fetch("/api/admin/auth/me", { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Not authenticated");
-        return res.json();
-      })
-      .then((data) => {
-        if (data.user) {
-          setUser(data.user);
-        } else {
-          router.push("/admin/login");
-        }
-      })
-      .catch(() => {
-        router.push("/admin/login");
-      })
-      .finally(() => setLoading(false));
-  }, [isLoginPage]);
 
   // Login page renders standalone without admin chrome
   if (isLoginPage) {
     return <>{children}</>;
   }
 
-  if (loading) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -69,13 +39,22 @@ export default function AdminLayout({
     );
   }
 
-  if (!user) {
+  if (!session?.user) {
+    router.push("/admin/login");
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <p className="text-muted">Redirecting to login...</p>
       </div>
     );
   }
+
+  const user: AdminUser = {
+    id: session.user.id || "0",
+    email: session.user.email || "",
+    name: session.user.name || "",
+    role: (session.user as Record<string, unknown>).role as string || "MANAGER",
+    image: session.user.image,
+  };
 
   return (
     <AdminUserContext.Provider value={user}>

@@ -1,12 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProductForm } from "@/components/admin/menu/ProductForm";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const ADMIN_KEY = "otter-pizza-admin-2024";
 
 interface Category {
   id: number;
@@ -24,7 +22,7 @@ export default function NewProductPage() {
     async function loadCategories() {
       try {
         const res = await fetch("/api/admin/categories", {
-          headers: { "x-admin-key": ADMIN_KEY },
+          credentials: "include",
         });
         if (!res.ok) throw new Error("Failed to load categories");
         const data = await res.json();
@@ -43,7 +41,6 @@ export default function NewProductPage() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-admin-key": ADMIN_KEY,
       },
       body: JSON.stringify({
         sku: formData.sku,

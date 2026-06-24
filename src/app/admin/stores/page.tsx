@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -18,8 +18,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const ADMIN_KEY = "otter-pizza-admin-2024";
 
 interface Store {
   id: number;
@@ -66,7 +64,7 @@ export default function AdminStoresPage() {
     setError(null);
     try {
       const res = await fetch("/api/admin/stores?includeInactive=true", {
-        headers: { "x-admin-key": ADMIN_KEY },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch stores");
       const data = await res.json();
@@ -153,7 +151,6 @@ export default function AdminStoresPage() {
         method,
         headers: {
           "Content-Type": "application/json",
-          "x-admin-key": ADMIN_KEY,
         },
         body: JSON.stringify(body),
       });
@@ -178,7 +175,6 @@ export default function AdminStoresPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-key": ADMIN_KEY,
         },
         body: JSON.stringify({ isActive: !current }),
       });
@@ -199,7 +195,7 @@ export default function AdminStoresPage() {
     try {
       const res = await fetch(`/api/admin/stores/${id}`, {
         method: "DELETE",
-        headers: { "x-admin-key": ADMIN_KEY },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to delete store");
       await fetchStores();

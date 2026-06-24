@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { formatPrice } from "@/lib/utils";
@@ -20,8 +20,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const ADMIN_KEY = "otter-pizza-admin-2024";
 
 interface Promotion {
   id: number;
@@ -74,7 +72,7 @@ export default function AdminPromotionsPage() {
     setError(null);
     try {
       const res = await fetch("/api/admin/promotions?includeInactive=true", {
-        headers: { "x-admin-key": ADMIN_KEY },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch promotions");
       const data = await res.json();
@@ -137,7 +135,6 @@ export default function AdminPromotionsPage() {
         method,
         headers: {
           "Content-Type": "application/json",
-          "x-admin-key": ADMIN_KEY,
         },
         body: JSON.stringify({
           name: formData.name,
@@ -171,7 +168,6 @@ export default function AdminPromotionsPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-key": ADMIN_KEY,
         },
         body: JSON.stringify({ isActive: !current }),
       });
@@ -187,7 +183,7 @@ export default function AdminPromotionsPage() {
     try {
       const res = await fetch(`/api/admin/promotions/${id}`, {
         method: "DELETE",
-        headers: { "x-admin-key": ADMIN_KEY },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to delete promotion");
       await fetchPromotions();

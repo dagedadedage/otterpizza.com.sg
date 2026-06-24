@@ -5,8 +5,6 @@ import { OrderTable } from "@/components/admin/orders/OrderTable";
 import { Search, Filter, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const ADMIN_KEY = "otter-pizza-admin-2024";
-
 const statusTabs = [
   { label: "All", value: "" },
   { label: "Pending", value: "PENDING" },
@@ -51,7 +49,7 @@ export default function AdminOrdersPage() {
       params.set("limit", "20");
 
       const res = await fetch(`/api/admin/orders?${params}`, {
-        headers: { "x-admin-key": ADMIN_KEY },
+        credentials: "include",
       });
 
       if (!res.ok) throw new Error("Failed to fetch orders");
@@ -89,7 +87,7 @@ export default function AdminOrdersPage() {
     try {
       await fetch(`/api/admin/orders/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
+        headers: { "Content-Type": "application/json" }, credentials: "include",
         body: JSON.stringify({ status: "CONFIRMED", changedBy: 0 }),
       });
       fetchOrders();
@@ -101,7 +99,7 @@ export default function AdminOrdersPage() {
     try {
       await fetch(`/api/admin/orders/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
+        headers: { "Content-Type": "application/json" }, credentials: "include",
         body: JSON.stringify({ status: "CANCELLED", changedBy: 0 }),
       });
       fetchOrders();
@@ -112,7 +110,7 @@ export default function AdminOrdersPage() {
     try {
       const res = await fetch(`/api/admin/orders/${id}`, {
         method: "DELETE",
-        headers: { "x-admin-key": ADMIN_KEY },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed");
       fetchOrders();

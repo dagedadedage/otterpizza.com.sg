@@ -1,15 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { ProductTable } from "@/components/admin/menu/ProductTable";
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const ADMIN_KEY = "otter-pizza-admin-2024";
-
-function authHeaders(): Record<string, string> {
-  return { "x-admin-key": ADMIN_KEY };
-}
 
 interface Category {
   id: number;
@@ -50,11 +44,9 @@ export default function AdminMenuPage() {
 
       const [productsRes, categoriesRes] = await Promise.all([
         fetch(`/api/admin/menu?${params}`, {
-          headers: authHeaders(),
           credentials: "include",
         }),
         fetch("/api/admin/categories", {
-          headers: authHeaders(),
           credentials: "include",
         }),
       ]);
@@ -95,7 +87,6 @@ export default function AdminMenuPage() {
     try {
       const res = await fetch(`/api/admin/menu/${id}/stock`, {
         method: "PATCH",
-        headers: authHeaders(),
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to toggle stock");
@@ -110,7 +101,6 @@ export default function AdminMenuPage() {
     try {
       const res = await fetch(`/api/admin/menu/${id}`, {
         method: "DELETE",
-        headers: authHeaders(),
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to delete product");
