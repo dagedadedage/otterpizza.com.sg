@@ -36,15 +36,19 @@ export async function POST(
       );
     }
 
-    // Call HitPay refund API
+    // Call HitPay refund API (best-effort)
+    let refundNote = "";
     try {
       await refundPayment(order.paymentId, refundAmount);
+      refundNote = refundAmount
+        ? `Partial refund of $${refundAmount.toFixed(2)} via HitPay`
+        : "Full refund via HitPay";
     } catch (err: any) {
       console.error("[refund] HitPay refund error:", err);
-      return NextResponse.json(
-        { error: `HitPay refund failed: ${err.message}` },
-        { status: 502 }
-      );
+      // Proceed with local refund even if HitPay fails
+      refundNote = refundAmount
+        ? `Partial refund of $${refundAmount.toFixed(2)} — HitPay call failed: ${err.message}`
+        : `Full refund — HitPay call failed: ${err.message}`;
     }
 
     // Update order status
@@ -62,9 +66,7 @@ export async function POST(
         fromStatus: order.status,
         toStatus: "REFUNDED",
         changedBy: result.user.userId,
-        note: refundAmount
-          ? `Partial refund of $${refundAmount.toFixed(2)} via HitPay`
-          : "Full refund via HitPay",
+        note: refundNote,
       },
     });
 
