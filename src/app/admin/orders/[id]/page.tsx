@@ -100,23 +100,38 @@ interface OrderData {
 
 const statusTransitions: Record<string, { label: string; nextStatus: string; variant: "primary" | "secondary" | "outline" }[]> = {
   PENDING: [
-    { label: "Confirm Order", nextStatus: "CONFIRMED", variant: "primary" },
+    { label: "Mark as Paid", nextStatus: "PAID", variant: "primary" },
     { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
   ],
-  CONFIRMED: [
-    { label: "Start Preparing", nextStatus: "PREPARING", variant: "primary" },
+  PAID: [
+    { label: "Accept Order", nextStatus: "ACCEPTED", variant: "primary" },
     { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
   ],
-  PREPARING: [
-    { label: "Mark Ready", nextStatus: "READY", variant: "primary" },
+  ACCEPTED: [
+    { label: "Ready for Pick-up", nextStatus: "READY", variant: "primary" },
+    { label: "Out for Delivery", nextStatus: "OUT_FOR_DELIVERY", variant: "secondary" },
     { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
   ],
   READY: [
-    { label: "Fulfill Order", nextStatus: "COMPLETED", variant: "primary" },
+    { label: "Fulfill (Picked Up)", nextStatus: "FULFILLED", variant: "primary" },
+    { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
+  ],
+  OUT_FOR_DELIVERY: [
+    { label: "Fulfill (Delivered)", nextStatus: "FULFILLED", variant: "primary" },
+    { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
+  ],
+  FULFILLED: [],
+  CANCELLED: [],
+  // Legacy transitions for existing orders
+  CONFIRMED: [
+    { label: "Accept Order", nextStatus: "ACCEPTED", variant: "primary" },
+    { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
+  ],
+  PREPARING: [
+    { label: "Ready for Pick-up", nextStatus: "READY", variant: "primary" },
     { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
   ],
   COMPLETED: [],
-  CANCELLED: [],
 };
 
 export default function AdminOrderDetailPage() {
@@ -312,8 +327,9 @@ export default function AdminOrderDetailPage() {
             <Printer className="w-4 h-4" />
             Invoice
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleDelete} className="text-red-500 hover:text-red-700 hover:bg-red-50">
-            <Trash2 className="w-4 h-4" />
+          <Button variant="outline" size="sm" onClick={handleDelete} className="text-red-600 border-red-300 hover:bg-red-50 gap-1">
+            <Trash2 className="w-3.5 h-3.5" />
+            Delete
           </Button>
           <OrderStatusBadge status={order.status} className="text-sm px-3 py-1" />
         </div>
@@ -329,7 +345,7 @@ export default function AdminOrderDetailPage() {
             <Button
               key={action.nextStatus}
               variant={action.variant}
-              size="sm"
+              size="md"
               onClick={() => handleStatusChange(action.nextStatus)}
               disabled={statusLoading}
             >

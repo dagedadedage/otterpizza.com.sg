@@ -27,7 +27,7 @@ function SuccessContent() {
         const res = await fetch(`/api/checkout/status?order=${orderNumber}`);
         if (res.ok) {
           const data = await res.json();
-          if (data.status === "CONFIRMED" || data.paymentStatus === "completed") {
+          if (data.status === "PAID" || data.status === "CONFIRMED" || data.paymentStatus === "completed") {
             setStatus("completed");
             setChecking(false);
             return;

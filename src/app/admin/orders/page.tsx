@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 const statusTabs = [
   { label: "All", value: "" },
   { label: "Pending", value: "PENDING" },
-  { label: "Confirmed", value: "CONFIRMED" },
-  { label: "Preparing", value: "PREPARING" },
+  { label: "Paid", value: "PAID" },
+  { label: "Accepted", value: "ACCEPTED" },
   { label: "Ready", value: "READY" },
-  { label: "Completed", value: "COMPLETED" },
+  { label: "Out for Delivery", value: "OUT_FOR_DELIVERY" },
+  { label: "Fulfilled", value: "FULFILLED" },
   { label: "Cancelled", value: "CANCELLED" },
 ];
 
@@ -83,15 +84,17 @@ export default function AdminOrdersPage() {
     setPage(newPage);
   };
 
-  const handleConfirm = async (id: number) => {
+  const handleConfirm = async (id: number, currentStatus?: string) => {
+    // PENDING -> PAID, PAID -> ACCEPTED
+    const nextStatus = currentStatus === "PAID" ? "ACCEPTED" : "PAID";
     try {
       await fetch(`/api/admin/orders/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({ status: "CONFIRMED", changedBy: 0 }),
+        body: JSON.stringify({ status: nextStatus, changedBy: 0 }),
       });
       fetchOrders();
-    } catch { alert("Failed to confirm order"); }
+    } catch { alert("Failed to update order"); }
   };
 
   const handleCancel = async (id: number) => {

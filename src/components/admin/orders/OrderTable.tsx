@@ -24,7 +24,7 @@ interface OrderTableProps {
   totalPages: number;
   total: number;
   onPageChange: (page: number) => void;
-  onConfirm?: (id: number) => void;
+  onConfirm?: (id: number, currentStatus?: string) => void;
   onCancel?: (id: number) => void;
   onDelete?: (id: number) => void;
   showStore?: boolean;
@@ -116,33 +116,43 @@ export function OrderTable({
                   <OrderStatusBadge status={order.status} />
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center justify-center gap-1">
-                    <Button variant="ghost" size="sm" asChild>
+                  <div className="flex items-center justify-center gap-2">
+                    <Button variant="outline" size="sm" asChild>
                       <Link href={`/admin/orders/${order.id}`}>
-                        <Eye className="w-4 h-4" />
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>View</span>
                       </Link>
                     </Button>
                     {order.status === "PENDING" && (
                       <>
                         <Button
-                          variant="ghost"
                           size="sm"
-                          onClick={() => onConfirm?.(order.id)}
-                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                          title="Confirm"
+                          onClick={() => onConfirm?.(order.id, order.status)}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
                         >
-                          <Check className="w-4 h-4" />
+                          <Check className="w-3.5 h-3.5" />
+                          Mark Paid
                         </Button>
                         <Button
-                          variant="ghost"
                           size="sm"
+                          variant="outline"
                           onClick={() => onCancel?.(order.id)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                          title="Cancel"
+                          className="text-red-600 border-red-300 hover:bg-red-50 gap-1"
                         >
-                          <X className="w-4 h-4" />
+                          <X className="w-3.5 h-3.5" />
+                          Cancel
                         </Button>
                       </>
+                    )}
+                    {order.status === "PAID" && (
+                      <Button
+                        size="sm"
+                        onClick={() => onConfirm?.(order.id, order.status)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white gap-1"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        Accept
+                      </Button>
                     )}
                     <Button
                       variant="ghost"

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { geocodeAddress, buildSearchAddress } from "@/lib/geocode";
 
 export class StoreService {
   static async listStores(includeInactive = false) {
@@ -27,6 +28,19 @@ export class StoreService {
     isActive?: boolean;
     sortOrder?: number;
   }) {
+    // Auto-geocode if no coordinates provided
+    let lat = data.latitude ? Number(data.latitude) : null;
+    let lng = data.longitude ? Number(data.longitude) : null;
+
+    if (!lat || !lng) {
+      const search = buildSearchAddress(data.address, data.unit, data.building, data.postalCode);
+      const geo = await geocodeAddress(search);
+      if (geo) {
+        lat = geo.latitude;
+        lng = geo.longitude;
+      }
+    }
+
     return prisma.store.create({
       data: {
         name: data.name,
@@ -37,8 +51,8 @@ export class StoreService {
         grabUrl: data.grabUrl || null,
         foodpandaUrl: data.foodpandaUrl || null,
         deliverooUrl: data.deliverooUrl || null,
-        latitude: data.latitude ? Number(data.latitude) : null,
-        longitude: data.longitude ? Number(data.longitude) : null,
+        latitude: lat,
+        longitude: lng,
         isActive: data.isActive ?? true,
         sortOrder: data.sortOrder ?? 0,
       },
@@ -66,6 +80,7 @@ export class StoreService {
     if (!existing) throw new Error("Store not found");
 
     const updateData: Record<string, unknown> = {};
+
     if (data.name !== undefined) updateData.name = data.name;
     if (data.address !== undefined) updateData.address = data.address;
     if (data.unit !== undefined) updateData.unit = data.unit;
@@ -81,6 +96,22 @@ export class StoreService {
     if (data.longitude !== undefined)
       updateData.longitude =
         data.longitude !== null ? Number(data.longitude) : null;
+
+    // Auto-geocode if address changed and no coordinates provided
+    const addressChanged = data.address || data.unit || data.building || data.postalCode;
+    if (addressChanged && !data.latitude && !data.longitude) {
+      const addr = data.address || existing.address;
+      const unit = data.unit || existing.unit;
+      const bldg = data.building || existing.building;
+      const pc = data.postalCode || existing.postalCode;
+      const search = buildSearchAddress(addr, unit, bldg, pc);
+      const geo = await geocodeAddress(search);
+      if (geo) {
+        updateData.latitude = geo.latitude;
+        updateData.longitude = geo.longitude;
+      }
+    }
+
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
     if (data.sortOrder !== undefined) updateData.sortOrder = data.sortOrder;
 

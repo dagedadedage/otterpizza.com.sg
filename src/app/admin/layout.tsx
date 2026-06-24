@@ -33,7 +33,7 @@ export default function AdminLayout({
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-warm-white">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -42,7 +42,7 @@ export default function AdminLayout({
   if (!session?.user) {
     router.push("/admin/login");
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-warm-white">
         <p className="text-muted">Redirecting to login...</p>
       </div>
     );
@@ -58,7 +58,7 @@ export default function AdminLayout({
 
   return (
     <AdminUserContext.Provider value={user}>
-      <div className="min-h-screen flex bg-gray-50">
+      <div className="min-h-screen flex bg-warm-white">
         {/* Desktop Sidebar */}
         <div className="hidden lg:flex">
           <AdminSidebar role={user.role} />

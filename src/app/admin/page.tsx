@@ -22,10 +22,11 @@ import { Button } from "@/components/ui/button";
 interface OrderStats {
   totalOrders: number;
   pendingOrders: number;
-  confirmedOrders: number;
-  preparingOrders: number;
+  paidOrders: number;
+  acceptedOrders: number;
   readyOrders: number;
-  completedOrders: number;
+  outForDeliveryOrders: number;
+  fulfilledOrders: number;
   cancelledOrders: number;
   todayOrders: number;
   todayRevenue: number;
@@ -111,37 +112,43 @@ export default function AdminDashboardPage() {
       color: "text-gray-600 bg-gray-100",
     },
     {
-      label: "Confirmed",
-      value: stats?.confirmedOrders ?? 0,
-      icon: CheckCircle2,
-      color: "text-blue-600 bg-blue-100",
+      label: "Paid",
+      value: stats?.paidOrders ?? 0,
+      icon: DollarSign,
+      color: "text-emerald-600 bg-emerald-100",
     },
     {
-      label: "Preparing",
-      value: stats?.preparingOrders ?? 0,
-      icon: ChefHat,
-      color: "text-amber-600 bg-amber-100",
+      label: "Accepted",
+      value: stats?.acceptedOrders ?? 0,
+      icon: CheckCircle2,
+      color: "text-blue-600 bg-blue-100",
     },
     {
       label: "Ready",
       value: stats?.readyOrders ?? 0,
       icon: PackageCheck,
+      color: "text-amber-600 bg-amber-100",
+    },
+    {
+      label: "Out for Delivery",
+      value: stats?.outForDeliveryOrders ?? 0,
+      icon: ShoppingCart,
+      color: "text-indigo-600 bg-indigo-100",
+    },
+    {
+      label: "Fulfilled",
+      value: stats?.fulfilledOrders ?? 0,
+      icon: CheckCircle2,
       color: "text-green-600 bg-green-100",
     },
     {
-      label: "Completed",
-      value: stats?.completedOrders ?? 0,
-      icon: CheckCircle2,
-      color: "text-slate-600 bg-slate-100",
-    },
-    {
-      label: "Today&apos;s Orders",
+      label: "Today's Orders",
       value: stats?.todayOrders ?? 0,
       icon: TrendingUp,
       color: "text-purple-600 bg-purple-100",
     },
     {
-      label: "Today&apos;s Revenue",
+      label: "Today's Revenue",
       value: formatPrice(stats?.todayRevenue ?? 0),
       icon: DollarSign,
       color: "text-green-600 bg-green-100",
@@ -173,7 +180,7 @@ export default function AdminDashboardPage() {
                   <p className="text-2xl font-bold text-dark">{card.value}</p>
                 </div>
                 <div
-                  className={`p-2.5 rounded-lg ${card.color} bg-opacity-20`}
+                  className={`p-2.5 rounded-lg ${card.color} opacity-80`}
                 >
                   <Icon className="w-5 h-5" />
                 </div>

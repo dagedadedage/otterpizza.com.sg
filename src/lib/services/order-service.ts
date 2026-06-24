@@ -96,19 +96,21 @@ export class OrderService {
     const [
       total,
       pending,
-      confirmed,
-      preparing,
+      paid,
+      accepted,
       ready,
-      completed,
+      outForDelivery,
+      fulfilled,
       cancelled,
       todayOrders,
     ] = await Promise.all([
       prisma.order.count(),
       prisma.order.count({ where: { status: "PENDING" } }),
-      prisma.order.count({ where: { status: "CONFIRMED" } }),
-      prisma.order.count({ where: { status: "PREPARING" } }),
+      prisma.order.count({ where: { status: "PAID" } }),
+      prisma.order.count({ where: { status: "ACCEPTED" } }),
       prisma.order.count({ where: { status: "READY" } }),
-      prisma.order.count({ where: { status: "COMPLETED" } }),
+      prisma.order.count({ where: { status: "OUT_FOR_DELIVERY" } }),
+      prisma.order.count({ where: { status: "FULFILLED" } }),
       prisma.order.count({ where: { status: "CANCELLED" } }),
       prisma.order.count({
         where: {
@@ -122,7 +124,7 @@ export class OrderService {
     const todayRevenueResult = await prisma.order.aggregate({
       _sum: { total: true },
       where: {
-        status: { in: ["COMPLETED", "READY", "CONFIRMED"] },
+        status: { in: ["FULFILLED", "READY", "OUT_FOR_DELIVERY", "ACCEPTED", "PAID"] },
         createdAt: {
           gte: new Date(new Date().setHours(0, 0, 0, 0)),
         },
@@ -132,10 +134,11 @@ export class OrderService {
     return {
       totalOrders: total,
       pendingOrders: pending,
-      confirmedOrders: confirmed,
-      preparingOrders: preparing,
+      paidOrders: paid,
+      acceptedOrders: accepted,
       readyOrders: ready,
-      completedOrders: completed,
+      outForDeliveryOrders: outForDelivery,
+      fulfilledOrders: fulfilled,
       cancelledOrders: cancelled,
       todayOrders,
       todayRevenue: Number(todayRevenueResult._sum.total || 0),

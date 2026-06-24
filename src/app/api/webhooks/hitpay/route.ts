@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       await prisma.order.update({
         where: { id: order.id },
         data: {
-          status: "CONFIRMED",
+          status: "PAID",
           paymentStatus: "completed",
         },
       });
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         data: {
           orderId: order.id,
           fromStatus: order.status,
-          toStatus: "CONFIRMED",
+          toStatus: "PAID",
           changedBy: 0,
           note: `Payment completed via HitPay webhook (status: ${paymentStatus})`,
         },

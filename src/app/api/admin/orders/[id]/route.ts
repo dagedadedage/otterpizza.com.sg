@@ -38,12 +38,17 @@ export async function PATCH(
     const body = await request.json();
 
     const validTransitions: Record<string, string[]> = {
-      PENDING: ["CONFIRMED", "CANCELLED"],
-      CONFIRMED: ["PREPARING", "CANCELLED"],
-      PREPARING: ["READY", "CANCELLED"],
-      READY: ["COMPLETED", "CANCELLED"],
-      COMPLETED: [],
+      PENDING: ["PAID", "CANCELLED"],
+      PAID: ["ACCEPTED", "CANCELLED"],
+      ACCEPTED: ["READY", "OUT_FOR_DELIVERY", "CANCELLED"],
+      READY: ["FULFILLED", "CANCELLED"],
+      OUT_FOR_DELIVERY: ["FULFILLED", "CANCELLED"],
+      FULFILLED: [],
       CANCELLED: [],
+      // Legacy transitions
+      CONFIRMED: ["ACCEPTED", "CANCELLED"],
+      PREPARING: ["READY", "CANCELLED"],
+      COMPLETED: [],
     };
 
     const order = await OrderService.getOrder(Number(id));

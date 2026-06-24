@@ -52,7 +52,7 @@ export function AdminHeader({ onToggleSidebar, user }: AdminHeaderProps) {
   const isDetailPage = segments.length > 2;
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-6 bg-white border-b border-border">
+    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-6 bg-gold/30 backdrop-blur-md border-b border-gold/30">
       <div className="flex items-center gap-3">
         {onToggleSidebar && (
           <Button

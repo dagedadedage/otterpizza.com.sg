@@ -137,6 +137,7 @@ async function main() {
     { name: "Buona Vista", address: "35 Rochester Drive", unit: "#01-08", building: "Rochester Mall", postalCode: "138639", latitude: 1.3061, longitude: 103.7874, grabUrl: "https://food.grab.com/sg/en/restaurant/otter-pizza-the-rochester-delivery/4-C4LTABE3GNNKRX", foodpandaUrl: "https://www.foodpanda.sg/restaurant/qzzp/otter-pizza-rochester-mall", sortOrder: 7 },
     { name: "Novena", address: "10 Sinaran Drive", unit: "#01-22", building: "Square 2", postalCode: "307506", latitude: 1.3205, longitude: 103.8444, grabUrl: "https://food.grab.com/sg/en/restaurant/otter-pizza-square-2-delivery/4-C6DAR2JWT8DWV6", foodpandaUrl: "https://www.foodpanda.sg/restaurant/krxm/otter-pizza-square-2", sortOrder: 8 },
     { name: "Bukit Timah", address: "1 Jalan Anak Bukit", unit: "#B1-43", building: "Bukit Timah Plaza", postalCode: "588996", latitude: 1.3388, longitude: 103.7767, grabUrl: "https://food.grab.com/sg/en/restaurant/otter-pizza-bukit-timah-plaza-delivery/4-C7BERTBGNCMJVA", foodpandaUrl: "https://www.foodpanda.sg/restaurant/f3xg/otter-pizza-bukit-timah-plaza", sortOrder: 9 },
+    { name: "Tuas", address: "35 Tuas Bay Walk", unit: "#00-00", building: "Westview Food Factory", postalCode: "636981", latitude: 1.3123, longitude: 103.6330, sortOrder: 10 },
   ];
 
   await prisma.store.deleteMany();
