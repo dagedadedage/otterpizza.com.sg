@@ -55,6 +55,22 @@ export const metadata: Metadata = {
     title: "Singapore Neighbourhood Pizzeria | Otter Pizza",
     description:
       "Fresh, handcrafted pizzas for delivery and pickup. Order online now!",
+    url: "https://otterpizza.com",
+    images: [
+      {
+        url: "https://otterpizza.com/images/logo.png",
+        width: 800,
+        height: 600,
+        alt: "Otter Pizza",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Singapore Neighbourhood Pizzeria | Otter Pizza",
+    description:
+      "Fresh, handcrafted pizzas for delivery and pickup. Order online now!",
+    images: ["https://otterpizza.com/images/logo.png"],
   },
 };
 
@@ -71,6 +87,39 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         <SessionProvider>
           <CartProvider>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "Restaurant",
+                  name: "Otter Pizza",
+                  description:
+                    "Singapore's neighbourhood pizzeria — fresh, handcrafted pizzas for delivery and pickup.",
+                  url: "https://otterpizza.com",
+                  logo: "https://otterpizza.com/images/logo.png",
+                  image: "https://otterpizza.com/images/logo.png",
+                  servesCuisine: "Pizza",
+                  priceRange: "$$",
+                  address: {
+                    "@type": "PostalAddress",
+                    streetAddress: "35 Tuas Bay Walk, #00-00 Westview Food Factory",
+                    addressLocality: "Singapore",
+                    postalCode: "636981",
+                    addressCountry: "SG",
+                  },
+                  contactPoint: {
+                    "@type": "ContactPoint",
+                    email: "admin@otterpizza.com.sg",
+                    contactType: "customer service",
+                  },
+                  sameAs: [
+                    "https://www.instagram.com/otterpizzasg",
+                    "https://www.facebook.com/otterpizzasg",
+                  ],
+                }),
+              }}
+            />
             <ConditionalNavbar />
             <main className="flex-1">{children}</main>
             <ConditionalFooter />
