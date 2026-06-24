@@ -427,7 +427,7 @@ export default function AdminOrderDetailPage() {
               {action.label}
             </Button>
           ))}
-          {order.paymentId && !["CANCELLED", "REFUNDED", "FULFILLED"].includes(order.status) && (
+          {!["CANCELLED", "REFUNDED", "FULFILLED"].includes(order.status) && (
             <Button
               variant="outline"
               size="md"

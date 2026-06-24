@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyWebhookSignature } from "@/lib/hitpay";
-import { sendOrderConfirmation } from "@/lib/email";
+import { sendOrderConfirmation, sendOrderCancelled } from "@/lib/email";
 
 /**
  * HitPay webhook handler.
@@ -13,13 +13,15 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.text();
     const signature = request.headers.get("x-signature") || "";
 
-    // Verify HMAC signature if present
-    if (signature) {
-      const isValid = verifyWebhookSignature(rawBody, signature);
-      if (!isValid) {
-        console.warn("[webhook] Invalid HMAC signature");
-        return NextResponse.json({ received: true }); // 200 to prevent retries
-      }
+    // Verify HMAC signature — required for all webhook requests
+    if (!signature) {
+      console.warn("[webhook] Missing HMAC signature — rejecting");
+      return NextResponse.json({ error: "Missing signature" }, { status: 401 });
+    }
+    const isValid = verifyWebhookSignature(rawBody, signature);
+    if (!isValid) {
+      console.warn("[webhook] Invalid HMAC signature");
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
     // Parse payload
@@ -167,6 +169,25 @@ export async function POST(request: NextRequest) {
           note: `Payment ${paymentStatus} via HitPay webhook`,
         },
       });
+
+      // Send cancellation email
+      const failedOrder = await prisma.order.findUnique({
+        where: { id: order.id },
+        include: { items: { include: { product: true } } },
+      });
+      if (failedOrder) {
+        sendOrderCancelled({
+          orderId: failedOrder.id,
+          orderNumber: failedOrder.orderNumber,
+          customerName: failedOrder.customerName,
+          customerEmail: failedOrder.customerEmail,
+          items: failedOrder.items.map((i: any) => ({ name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),
+          subtotal: failedOrder.subtotal, deliveryFee: failedOrder.deliveryFee, discount: failedOrder.discount,
+          gstAmount: failedOrder.gstAmount, total: failedOrder.total,
+          deliveryType: failedOrder.deliveryType, deliveryDate: failedOrder.deliveryDate,
+          deliveryTimeslot: failedOrder.deliveryTimeslot, deliveryAddress: failedOrder.deliveryAddress,
+        }, `Payment ${paymentStatus} — order automatically cancelled.`).catch((err) => console.error("[webhook] Email failed:", err));
+      }
 
       console.log(`[webhook] Order ${order.orderNumber} cancelled (payment ${paymentStatus})`);
     } else {

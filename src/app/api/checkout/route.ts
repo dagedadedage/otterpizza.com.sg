@@ -221,7 +221,7 @@ export async function POST(request: Request) {
       console.error("[checkout] Failed to create status log:", err);
     });
 
-    // --- Send pending payment email ---
+    // --- Send pending payment email (awaited, 2-min delay with status check) ---
     sendPendingPaymentReminder({
       orderId: order.id,
       orderNumber: order.orderNumber,

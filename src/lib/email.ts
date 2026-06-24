@@ -140,39 +140,45 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
 }
 
 export async function sendPendingPaymentReminder(data: OrderEmailData) {
-  // Delay 2 minutes — if customer pays within this window, they get Order Confirmed instead
+  // Wait 2 minutes, then check if order is still PENDING before sending
   const PAYMENT_WINDOW_MS = 2 * 60 * 1000;
-  const orderId = data.orderId;
+  await new Promise((resolve) => setTimeout(resolve, PAYMENT_WINDOW_MS));
 
-  setTimeout(async () => {
-    // Check if order is still PENDING before sending reminder
-    if (orderId) {
-      try {
-        const { prisma } = await import("@/lib/prisma");
-        const order = await prisma.order.findUnique({ where: { id: orderId }, select: { status: true } });
-        if (order && order.status !== "PENDING") {
-          console.log(`[email] Skipping pending reminder for ${data.orderNumber} — already ${order.status}`);
-          return;
-        }
-      } catch { /* proceed with send */ }
-    }
+  // Check if payment was completed during the window
+  if (data.orderId) {
+    try {
+      const { prisma } = await import("@/lib/prisma");
+      const order = await prisma.order.findUnique({ where: { id: data.orderId }, select: { status: true } });
+      if (order && order.status !== "PENDING") {
+        console.log(`[email] Skipping pending reminder for ${data.orderNumber} — now ${order.status}`);
+        return;
+      }
+    } catch { /* proceed with send */ }
+  }
 
-    const paymentButton = data.paymentUrl
-      ? `<div style="text-align:center;margin:24px 0">
-          <a href="${data.paymentUrl}" style="display:inline-block;background:#E85D2C;color:white;padding:14px 32px;border-radius:24px;text-decoration:none;font-weight:600;font-size:16px">💳 Make Payment</a>
-          <p style="color:#8B7355;font-size:12px;margin-top:8px">Click the button above to complete your payment securely via HitPay</p>
-         </div>`
-      : "";
-    await sendEmail(
-      data.customerEmail,
-      `💳 Payment Pending — ${data.orderNumber}`,
-      buildHtml(data, "💳 Payment Pending", "Your order has been received. Please complete your payment to confirm your order.") + paymentButton
-    );
-  }, PAYMENT_WINDOW_MS);
+  const paymentButton = data.paymentUrl
+    ? `<div style="text-align:center;margin:24px 0">
+        <a href="${data.paymentUrl}" style="display:inline-block;background:#E85D2C;color:white;padding:14px 32px;border-radius:24px;text-decoration:none;font-weight:600;font-size:16px">💳 Make Payment</a>
+        <p style="color:#8B7355;font-size:12px;margin-top:8px">Click the button above to complete your payment securely via HitPay</p>
+       </div>`
+    : "";
+  await sendEmail(
+    data.customerEmail,
+    `💳 Payment Pending — ${data.orderNumber}`,
+    buildHtml(data, "💳 Payment Pending", "Your order has been received. Please complete your payment to confirm your order.") + paymentButton
+  );
 }
 
 export async function sendReadyForPickup(data: OrderEmailData) {
   return sendEmail(data.customerEmail, `📦 Ready for Pick-up — ${data.orderNumber}`, buildHtml(data, "📦 Order Ready for Pick-up!", "Your order is ready for collection. Please come to our store to pick it up."));
+}
+
+export async function sendOrderCancelled(data: OrderEmailData, reason?: string) {
+  return sendEmail(data.customerEmail, `❌ Order Cancelled — ${data.orderNumber}`, buildHtml(data, "❌ Order Cancelled", reason || "Your order has been cancelled. If you have already paid, a refund will be processed."));
+}
+
+export async function sendOrderRefunded(data: OrderEmailData) {
+  return sendEmail(data.customerEmail, `💰 Order Refunded — ${data.orderNumber}`, buildHtml(data, "💰 Order Refunded", "Your payment has been refunded. Please allow 5-10 business days for the refund to appear."));
 }
 
 export async function sendOutForDelivery(data: OrderEmailData, trackingUrl?: string) {
