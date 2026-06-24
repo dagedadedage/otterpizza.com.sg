@@ -211,22 +211,25 @@ export default function AdminDashboardPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-warm-white/50">
-                  <th className="text-left px-6 py-3 font-medium text-muted">
+                  <th className="text-left px-4 py-3 font-medium text-muted">
+                    Date
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-muted">
                     Order #
                   </th>
-                  <th className="text-left px-6 py-3 font-medium text-muted">
+                  <th className="text-left px-4 py-3 font-medium text-muted">
                     Customer
                   </th>
-                  <th className="text-left px-6 py-3 font-medium text-muted">
-                    Store
+                  <th className="text-left px-4 py-3 font-medium text-muted">
+                    Type
                   </th>
-                  <th className="text-right px-6 py-3 font-medium text-muted">
+                  <th className="text-right px-4 py-3 font-medium text-muted">
                     Total
                   </th>
-                  <th className="text-center px-6 py-3 font-medium text-muted">
+                  <th className="text-center px-4 py-3 font-medium text-muted">
                     Status
                   </th>
-                  <th className="text-right px-6 py-3 font-medium text-muted">
+                  <th className="text-left px-4 py-3 font-medium text-muted">
                     Actions
                   </th>
                 </tr>
@@ -237,20 +240,28 @@ export default function AdminDashboardPage() {
                     key={order.id}
                     className="hover:bg-warm-white/30 transition-colors"
                   >
-                    <td className="px-6 py-3 font-mono text-sm font-medium">
+                    <td className="px-4 py-3 text-sm text-muted">
+                      {new Date(order.createdAt).toLocaleDateString("en-SG", {
+                        day: "numeric",
+                        month: "short",
+                      })}
+                    </td>
+                    <td className="px-4 py-3 font-mono text-sm font-medium">
                       {order.orderNumber}
                     </td>
-                    <td className="px-6 py-3 text-dark">{order.customerName}</td>
-                    <td className="px-6 py-3 text-muted">
-                      {order.store?.name || "—"}
+                    <td className="px-4 py-3 text-dark">{order.customerName}</td>
+                    <td className="px-4 py-3 text-muted text-xs">
+                      {(order as any).deliveryType === "pickup"
+                        ? "Pickup"
+                        : "Delivery"}
                     </td>
-                    <td className="px-6 py-3 text-right font-semibold">
+                    <td className="px-4 py-3 text-right font-semibold">
                       {formatPrice(Number(order.total))}
                     </td>
-                    <td className="px-6 py-3 text-center">
+                    <td className="px-4 py-3 text-center">
                       <OrderStatusBadge status={order.status} />
                     </td>
-                    <td className="px-6 py-3 text-right">
+                    <td className="px-4 py-3 text-left">
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`/admin/orders/${order.id}`}>View</Link>
                       </Button>
