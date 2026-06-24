@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
 import { ShieldCheck, Shield, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -104,9 +103,9 @@ export function AdminHeader({ onToggleSidebar, user }: AdminHeaderProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={async () => {
+              onClick={() => {
                 setLoggingOut(true);
-                await signOut({ callbackUrl: "/admin/login" });
+                window.location.href = "/api/admin/auth/logout";
               }}
               disabled={loggingOut}
               className="text-muted hover:text-red-600"
