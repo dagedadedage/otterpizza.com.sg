@@ -135,6 +135,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     },
   },
+  trustHost: true,
+  useSecureCookies: false, // We handle HTTPS via Nginx; prevents __Secure- prefix mismatch
   pages: {
     error: "/admin/login",
   },
