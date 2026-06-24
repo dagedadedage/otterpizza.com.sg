@@ -8,7 +8,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const result = requireRole(request, ["ADMIN"]);
+  const result = await requireRole(request, ["ADMIN"]);
   if ("error" in result) return result.error;
 
   try {

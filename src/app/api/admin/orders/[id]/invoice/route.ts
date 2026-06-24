@@ -7,7 +7,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const authError = checkAdminAuth(request);
+  const authError = await checkAdminAuth(request);
   if (authError) return authError;
 
   try {

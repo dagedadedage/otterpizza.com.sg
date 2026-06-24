@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 
 // GET - list all admin users (ADMIN only)
 export async function GET(request: NextRequest) {
-  const result = requireRole(request, ["ADMIN"]);
+  const result = await requireRole(request, ["ADMIN"]);
   if ("error" in result) return result.error;
 
   try {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
 // POST - add a new admin user (ADMIN only)
 export async function POST(request: NextRequest) {
-  const result = requireRole(request, ["ADMIN"]);
+  const result = await requireRole(request, ["ADMIN"]);
   if ("error" in result) return result.error;
 
   try {
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
         email: email.toLowerCase().trim(),
         name: name.trim(),
         role: role || "MANAGER",
-        googleId: "manual", // placeholder — will be updated on first Google sign-in
+        googleId: "manual", // placeholder â€” will be updated on first Google sign-in
       },
       select: {
         id: true,

@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { ProductService } from "@/lib/services/product-service";
 import { checkAdminAuth } from "@/lib/admin-auth";
 
 export async function GET(request: NextRequest) {
-  const authError = checkAdminAuth(request);
+  const authError = await checkAdminAuth(request);
   if (authError) return authError;
 
   try {
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const authError = checkAdminAuth(request);
+  const authError = await checkAdminAuth(request);
   if (authError) return authError;
 
   try {

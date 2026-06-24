@@ -3,12 +3,10 @@ import type { NextRequest } from "next/server";
 import { getUserFromRequest } from "@/lib/auth";
 
 /**
- * Check admin authentication via JWT session cookie.
- * Middleware handles the basic cookie check; this provides
- * a second verification that the token is valid.
+ * Check admin authentication via NextAuth session.
  */
-export function checkAdminAuth(request: NextRequest): NextResponse | null {
-  const user = getUserFromRequest(request);
+export async function checkAdminAuth(request: NextRequest): Promise<NextResponse | null> {
+  const user = await getUserFromRequest(request);
   if (user) return null;
 
   return NextResponse.json(
