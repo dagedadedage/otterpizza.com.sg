@@ -185,10 +185,13 @@ export async function POST(request: Request) {
       paymentUrl = hitpayResponse.url;
       hitpayPaymentId = hitpayResponse.id;
 
-      // Update order with HitPay payment request ID
+      // Update order with HitPay payment request ID and initial status
       await prisma.order.update({
         where: { id: order.id },
-        data: { paymentId: hitpayPaymentId },
+        data: {
+          paymentId: hitpayPaymentId,
+          paymentStatus: "pending",
+        },
       });
     } catch (hitpayError) {
       // If HITPAY_API_KEY is not configured, use a mock URL for development

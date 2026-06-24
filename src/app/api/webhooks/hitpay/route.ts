@@ -32,21 +32,41 @@ export async function POST(request: NextRequest) {
     const paymentId = (payload.payment_request_id as string) || (payload.id as string) || "";
     const paymentStatus = (payload.status as string) || "";
     const eventType = request.headers.get("hitpay-event-type") || payload.event_type as string || "";
+    const referenceNumber = payload.reference_number as string || "";
+    const chargeId = payload.charge_id as string || "";
 
-    console.log(`[webhook] Received: paymentId=${paymentId}, status=${paymentStatus}, event=${eventType}`);
+    console.log(`[webhook] Received: paymentId=${paymentId}, status=${paymentStatus}, event=${eventType}, ref=${referenceNumber}`);
 
-    if (!paymentId) {
-      console.warn("[webhook] No payment ID in payload");
+    if (!paymentId && !referenceNumber) {
+      console.warn("[webhook] No payment ID or reference in payload");
       return NextResponse.json({ received: true });
     }
 
-    // Find order by payment ID
-    const order = await prisma.order.findFirst({
-      where: { paymentId },
-    });
+    // Find order — try paymentId first, then reference number, then charge ID
+    let order = null;
+    if (paymentId) {
+      order = await prisma.order.findFirst({ where: { paymentId } });
+    }
+    if (!order && referenceNumber) {
+      order = await prisma.order.findFirst({ where: { orderNumber: referenceNumber } });
+      if (order) {
+        // Update the order with the correct paymentId if it was missing
+        if (!order.paymentId && paymentId) {
+          await prisma.order.update({
+            where: { id: order.id },
+            data: { paymentId },
+          });
+        }
+        console.log(`[webhook] Matched by reference: ${referenceNumber}`);
+      }
+    }
+    if (!order && chargeId) {
+      // HitPay may send charge ID instead of payment request ID
+      order = await prisma.order.findFirst({ where: { paymentId: chargeId } });
+    }
 
     if (!order) {
-      console.warn(`[webhook] No order found for paymentId: ${paymentId}`);
+      console.warn(`[webhook] No order found for paymentId=${paymentId} ref=${referenceNumber}`);
       return NextResponse.json({ received: true });
     }
 
