@@ -6,9 +6,12 @@ import { signToken, verifyToken } from "@/lib/auth";
 const AUTH_SECRET = process.env.AUTH_SECRET || "otter-pizza-dev-secret-change-in-production";
 
 function getWhitelist(): Record<string, string> {
+  const raw = process.env.GOOGLE_AUTH_WHITELIST || "{}";
   try {
-    return JSON.parse(process.env.GOOGLE_AUTH_WHITELIST || "{}");
-  } catch {
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error("[auth] Failed to parse GOOGLE_AUTH_WHITELIST:", e);
+    console.error("[auth] Raw value:", raw);
     return {};
   }
 }
