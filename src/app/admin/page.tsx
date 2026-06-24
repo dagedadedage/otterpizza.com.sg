@@ -28,6 +28,7 @@ interface OrderStats {
   outForDeliveryOrders: number;
   fulfilledOrders: number;
   cancelledOrders: number;
+  refundedOrders: number;
   todayOrders: number;
   todayRevenue: number;
 }
@@ -140,6 +141,18 @@ export default function AdminDashboardPage() {
       value: stats?.fulfilledOrders ?? 0,
       icon: CheckCircle2,
       color: "text-green-600 bg-green-100",
+    },
+    {
+      label: "Cancelled",
+      value: stats?.cancelledOrders ?? 0,
+      icon: Clock,
+      color: "text-red-600 bg-red-100",
+    },
+    {
+      label: "Refunded",
+      value: stats?.refundedOrders ?? 0,
+      icon: DollarSign,
+      color: "text-purple-600 bg-purple-100",
     },
     {
       label: "Today's Orders",

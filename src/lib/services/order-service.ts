@@ -102,6 +102,7 @@ export class OrderService {
       outForDelivery,
       fulfilled,
       cancelled,
+      refunded,
       todayOrders,
     ] = await Promise.all([
       prisma.order.count(),
@@ -112,6 +113,7 @@ export class OrderService {
       prisma.order.count({ where: { status: "OUT_FOR_DELIVERY" } }),
       prisma.order.count({ where: { status: "FULFILLED" } }),
       prisma.order.count({ where: { status: "CANCELLED" } }),
+      prisma.order.count({ where: { status: "REFUNDED" } }),
       prisma.order.count({
         where: {
           createdAt: {
@@ -140,6 +142,7 @@ export class OrderService {
       outForDeliveryOrders: outForDelivery,
       fulfilledOrders: fulfilled,
       cancelledOrders: cancelled,
+      refundedOrders: refunded,
       todayOrders,
       todayRevenue: Number(todayRevenueResult._sum.total || 0),
     };

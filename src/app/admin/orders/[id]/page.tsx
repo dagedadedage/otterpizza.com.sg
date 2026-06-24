@@ -6,6 +6,7 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { OrderStatusBadge } from "@/components/admin/orders/OrderStatusBadge";
 import { OrderTimeline } from "@/components/admin/orders/OrderTimeline";
+import { MarkAsPaidDialog, type PaymentInfo } from "@/components/admin/orders/MarkAsPaidDialog";
 import {
   ArrowLeft,
   Loader2,
@@ -98,9 +99,9 @@ interface OrderData {
   updatedAt: string;
 }
 
-const statusTransitions: Record<string, { label: string; nextStatus: string; variant: "primary" | "secondary" | "outline" }[]> = {
+const statusTransitions: Record<string, { label: string; nextStatus: string; variant: "primary" | "secondary" | "outline"; needsPaymentInfo?: boolean }[]> = {
   PENDING: [
-    { label: "Mark as Paid", nextStatus: "PAID", variant: "primary" },
+    { label: "Mark as Paid", nextStatus: "PAID", variant: "primary", needsPaymentInfo: true },
     { label: "Cancel Order", nextStatus: "CANCELLED", variant: "outline" },
   ],
   PAID: [
@@ -201,10 +202,37 @@ export default function AdminOrderDetailPage() {
     }
   };
 
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [refunding, setRefunding] = useState(false);
 
   const handleRefund = async () => {
-    if (!confirm("Refund this payment? This cannot be undone.")) return;
+    if (!order) return;
+    const isManualPayment = order.paymentStatus === "manual" || order.paymentMethod === "Bank Transfer" || order.paymentMethod === "PayNow" || order.paymentMethod === "Cash" || order.paymentMethod === "Other";
+
+    if (isManualPayment) {
+      if (!confirm("This order was paid manually. Mark it as refunded without calling HitPay?")) return;
+      setRefunding(true);
+      try {
+        const res = await fetch(`/api/admin/orders/${params.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ status: "REFUNDED", changedBy: 0, note: "Manual payment refunded" }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || "Refund failed");
+        }
+        await fetchOrder();
+      } catch (err: any) {
+        alert(err.message);
+      } finally {
+        setRefunding(false);
+      }
+      return;
+    }
+
+    if (!confirm("Refund this payment via HitPay? This cannot be undone.")) return;
     setRefunding(true);
     try {
       const res = await fetch(`/api/admin/orders/${params.id}/refund`, {
@@ -369,7 +397,13 @@ export default function AdminOrderDetailPage() {
               key={action.nextStatus}
               variant={action.variant}
               size="md"
-              onClick={() => handleStatusChange(action.nextStatus)}
+              onClick={() => {
+                if (action.needsPaymentInfo) {
+                  setShowPaymentDialog(true);
+                } else {
+                  handleStatusChange(action.nextStatus);
+                }
+              }}
               disabled={statusLoading}
             >
               {statusLoading ? (
@@ -394,6 +428,41 @@ export default function AdminOrderDetailPage() {
           )}
         </div>
       )}
+
+      {/* Payment Info Dialog for Mark as Paid */}
+      <MarkAsPaidDialog
+        open={showPaymentDialog}
+        onClose={() => setShowPaymentDialog(false)}
+        loading={statusLoading}
+        onConfirm={async (info: PaymentInfo) => {
+          setShowPaymentDialog(false);
+          setStatusLoading(true);
+          const body: Record<string, unknown> = {
+            status: "PAID",
+            changedBy: 0,
+            paymentMethod: info.paymentMethod,
+            paymentReference: info.referenceNumber,
+            paymentNote: info.note,
+          };
+          try {
+            const res = await fetch(`/api/admin/orders/${params.id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify(body),
+            });
+            if (!res.ok) {
+              const err = await res.json();
+              throw new Error(err.error || "Failed to update");
+            }
+            await fetchOrder();
+          } catch (err: any) {
+            alert(err.message);
+          } finally {
+            setStatusLoading(false);
+          }
+        }}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Order Items */}
