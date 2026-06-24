@@ -50,6 +50,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
+    // Handle refund event (charge.updated with refunded_amount)
+    const refundedAmount = payload.refunded_amount as number | undefined;
+    if (refundedAmount && refundedAmount > 0) {
+      const currentStatus = order.status;
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: "REFUNDED",
+          paymentStatus: "refunded",
+        },
+      });
+      await prisma.orderStatusLog.create({
+        data: {
+          orderId: order.id,
+          fromStatus: currentStatus,
+          toStatus: "REFUNDED",
+          changedBy: 0,
+          note: `Payment refunded via HitPay webhook (amount: $${refundedAmount})`,
+        },
+      });
+      console.log(`[webhook] Order ${order.orderNumber} refunded (amount: ${refundedAmount})`);
+      return NextResponse.json({ received: true });
+    }
+
     // If order already processed, skip
     if (order.status !== "PENDING") {
       console.log(`[webhook] Order ${order.orderNumber} already ${order.status}, skipping`);

@@ -201,6 +201,29 @@ export default function AdminOrderDetailPage() {
     }
   };
 
+  const [refunding, setRefunding] = useState(false);
+
+  const handleRefund = async () => {
+    if (!confirm("Refund this payment? This cannot be undone.")) return;
+    setRefunding(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${params.id}/refund`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Refund failed");
+      }
+      await fetchOrder();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setRefunding(false);
+    }
+  };
+
   const handleAddNote = async () => {
     if (!noteText.trim()) return;
     setNoteLoading(true);
@@ -355,6 +378,20 @@ export default function AdminOrderDetailPage() {
               {action.label}
             </Button>
           ))}
+          {order.paymentId && ["PAID", "ACCEPTED", "READY"].includes(order.status) && (
+            <Button
+              variant="outline"
+              size="md"
+              onClick={handleRefund}
+              disabled={refunding}
+              className="text-purple-600 border-purple-300 hover:bg-purple-50"
+            >
+              {refunding ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : null}
+              Refund Payment
+            </Button>
+          )}
         </div>
       )}
 

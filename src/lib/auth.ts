@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 const AUTH_SECRET = process.env.AUTH_SECRET || "otter-pizza-dev-secret-change-in-production";
 const COOKIE_NAME = "otter-admin-token";
-const TOKEN_EXPIRY_MS = 8 * 60 * 60 * 1000; // 8 hours
+const TOKEN_EXPIRY_MS = 15 * 24 * 60 * 60 * 1000; // 15 days
 
 export interface AdminUserPayload {
   userId: number;
