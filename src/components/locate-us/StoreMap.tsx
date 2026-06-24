@@ -74,22 +74,12 @@ export default function StoreMap({ stores }: StoreMapProps) {
           icon: merlionIcon,
         }).addTo(mapRef.current!);
 
-        // Create a custom label below the marker (clickable)
-        const labelIcon = L.divIcon({
-          className: "store-marker-label-wrapper",
-          html: `<div class="store-marker-label">${store.name}</div>`,
-          iconSize: [120, 20],
-          iconAnchor: [60, -8],
-        });
-
-        const label = L.marker([store.latitude, store.longitude], {
-          icon: labelIcon,
-          interactive: true,
-        }).addTo(mapRef.current!);
-
-        // Clicking the label opens the marker popup
-        label.on("click", () => {
-          marker.openPopup();
+        // Store name label beside marker
+        marker.bindTooltip(store.name, {
+          permanent: true,
+          direction: "right",
+          offset: [8, -20],
+          className: "store-marker-label",
         });
 
         const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(
@@ -108,7 +98,7 @@ export default function StoreMap({ stores }: StoreMapProps) {
 
         marker.bindPopup(popupContent);
 
-        return { marker, label };
+        return marker;
       });
 
       markersRef.current = newMarkers;
