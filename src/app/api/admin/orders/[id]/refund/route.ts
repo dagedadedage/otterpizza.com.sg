@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { refundPayment } from "@/lib/hitpay";
 import { requireRole } from "@/lib/auth";
 
-// POST - refund an order via HitPay
+// POST - mark an order as refunded
+// Note: HitPay does not support programmatic refunds via REST API.
+// The admin must process the actual refund in the HitPay dashboard separately:
+// https://dashboard.hit-pay.com
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -22,33 +24,11 @@ export async function POST(
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    if (!order.paymentId) {
-      return NextResponse.json(
-        { error: "Order has no payment ID — cannot refund" },
-        { status: 400 }
-      );
-    }
-
     if (order.status === "REFUNDED") {
       return NextResponse.json(
         { error: "Order has already been refunded" },
         { status: 400 }
       );
-    }
-
-    // Call HitPay refund API (best-effort)
-    let refundNote = "";
-    try {
-      await refundPayment(order.paymentId, refundAmount);
-      refundNote = refundAmount
-        ? `Partial refund of $${refundAmount.toFixed(2)} via HitPay`
-        : "Full refund via HitPay";
-    } catch (err: any) {
-      console.error("[refund] HitPay refund error:", err);
-      // Proceed with local refund even if HitPay fails
-      refundNote = refundAmount
-        ? `Partial refund of $${refundAmount.toFixed(2)} — HitPay call failed: ${err.message}`
-        : `Full refund — HitPay call failed: ${err.message}`;
     }
 
     // Update order status
@@ -60,13 +40,17 @@ export async function POST(
       },
     });
 
+    const amountNote = refundAmount
+      ? `Partial refund of $${refundAmount.toFixed(2)}`
+      : "Full refund";
+
     await prisma.orderStatusLog.create({
       data: {
         orderId,
         fromStatus: order.status,
         toStatus: "REFUNDED",
         changedBy: result.user.userId,
-        note: refundNote,
+        note: `${amountNote}. Process actual refund at https://dashboard.hit-pay.com if paid via HitPay.`,
       },
     });
 

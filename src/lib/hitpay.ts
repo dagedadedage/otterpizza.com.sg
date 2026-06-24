@@ -115,28 +115,21 @@ export function verifyWebhookSignature(
   }
 }
 
+/**
+ * HitPay does not support programmatic refunds via REST API.
+ * Refunds must be processed manually through the HitPay dashboard:
+ * https://dashboard.hit-pay.com
+ *
+ * This function is kept as a no-op — the order status is updated
+ * to REFUNDED locally, and the admin is instructed to process
+ * the refund in the HitPay dashboard separately.
+ */
 export async function refundPayment(
   paymentRequestId: string,
   amount?: number
 ): Promise<void> {
-  const body = new URLSearchParams();
-  if (amount) body.append("amount", amount.toFixed(2));
-
-  const res = await fetch(
-    `${HITPAY_BASE_URL}/payment-requests/${paymentRequestId}/refund`,
-    {
-      method: "POST",
-      headers: {
-        "X-BUSINESS-API-KEY": HITPAY_API_KEY,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "X-Requested-With": "XMLHttpRequest",
-      },
-      body: body.toString(),
-    }
+  // No-op: HitPay has no refund API. Refunds are manual via dashboard.
+  console.log(
+    `[hitpay] Refund requested for ${paymentRequestId} (amount: ${amount}). Process manually at https://dashboard.hit-pay.com`
   );
-
-  if (!res.ok) {
-    const error = await res.text();
-    throw new Error(`HitPay refund error: ${res.status} ${error}`);
-  }
 }
