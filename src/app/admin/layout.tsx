@@ -31,6 +31,8 @@ export default function AdminLayout({
     return <>{children}</>;
   }
 
+  // Show loading spinner while session is being fetched
+  // SessionProvider with refetchOnWindowFocus=false prevents unnecessary refetches
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">

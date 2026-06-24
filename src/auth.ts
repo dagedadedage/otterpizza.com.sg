@@ -99,6 +99,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
+  session: {
+    maxAge: 15 * 24 * 60 * 60, // 15 days
+  },
   jwt: {
     maxAge: 15 * 24 * 60 * 60, // 15 days
     // Use our existing JWT format so verifyToken() can decode the session cookie
