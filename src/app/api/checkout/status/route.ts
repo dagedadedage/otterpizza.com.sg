@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getPaymentStatus } from "@/lib/hitpay";
+import { sendOrderConfirmation } from "@/lib/email";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -26,9 +27,10 @@ export async function GET(request: NextRequest) {
         const hitpay = await getPaymentStatus(order.paymentId);
         if (["completed", "succeeded", "paid"].includes(hitpay.status)) {
           // Webhook missed — update order now
-          await prisma.order.update({
+          const fullOrder = await prisma.order.update({
             where: { id: order.id },
             data: { status: "PAID", paymentStatus: "completed" },
+            include: { items: { include: { product: true } } },
           });
           await prisma.orderStatusLog.create({
             data: {
@@ -39,6 +41,23 @@ export async function GET(request: NextRequest) {
               note: "Payment confirmed via HitPay API (webhook fallback)",
             },
           });
+          // Send confirmation email
+          sendOrderConfirmation({
+            orderId: fullOrder.id,
+            orderNumber: fullOrder.orderNumber,
+            customerName: fullOrder.customerName,
+            customerEmail: fullOrder.customerEmail,
+            items: fullOrder.items.map((i: any) => ({ name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),
+            subtotal: fullOrder.subtotal,
+            deliveryFee: fullOrder.deliveryFee,
+            discount: fullOrder.discount,
+            gstAmount: fullOrder.gstAmount,
+            total: fullOrder.total,
+            deliveryType: fullOrder.deliveryType,
+            deliveryDate: fullOrder.deliveryDate,
+            deliveryTimeslot: fullOrder.deliveryTimeslot,
+            deliveryAddress: fullOrder.deliveryAddress,
+          }).catch((err: any) => console.error("[status] Email failed:", err));
           return NextResponse.json({ status: "PAID", paymentStatus: "completed" });
         }
         return NextResponse.json({ status: "PENDING", paymentStatus: hitpay.status });
