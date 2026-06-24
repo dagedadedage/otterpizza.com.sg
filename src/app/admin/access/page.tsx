@@ -4,12 +4,14 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Loader2,
   AlertCircle,
+  Plus,
   Shield,
   ShieldCheck,
   Trash2,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface AdminUserRow {
   id: number;
@@ -27,6 +29,13 @@ export default function AccessControlPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // New user form
+  const [showForm, setShowForm] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newRole, setNewRole] = useState("MANAGER");
+  const [creating, setCreating] = useState(false);
 
   // Edit state
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -59,6 +68,38 @@ export default function AccessControlPage() {
   const showSuccess = (msg: string) => {
     setSuccess(msg);
     setTimeout(() => setSuccess(null), 3000);
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreating(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: newEmail,
+          name: newName,
+          role: newRole,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to create user");
+      }
+      setShowForm(false);
+      setNewEmail("");
+      setNewName("");
+      setNewRole("MANAGER");
+      showSuccess("User added — they can now sign in with Google");
+      fetchUsers();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleUpdateRole = async (id: number, role: string) => {
@@ -132,10 +173,20 @@ export default function AccessControlPage() {
         <div>
           <h2 className="text-2xl font-bold text-dark">Access Control</h2>
           <p className="text-sm text-muted mt-1">
-            Users are automatically added when they sign in with Google.
-            Manage roles and access below.
+            Manage admin users. Added users can sign in with their Google
+            account — their name will update automatically on first sign-in.
           </p>
         </div>
+        {!showForm && (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setShowForm(true)}
+          >
+            <Plus className="w-4 h-4" />
+            Add User
+          </Button>
+        )}
       </div>
 
       {error && (
@@ -152,6 +203,87 @@ export default function AccessControlPage() {
         <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm">
           {success}
         </div>
+      )}
+
+      {/* New User Form */}
+      {showForm && (
+        <form
+          onSubmit={handleCreate}
+          className="bg-white rounded-xl border border-border p-6 space-y-4"
+        >
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-dark">Add User</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              type="button"
+              onClick={() => setShowForm(false)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          <p className="text-xs text-muted">
+            Users sign in via Google OAuth — no password needed. The name
+            entered here will be updated to their Google profile name on
+            first sign-in.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-dark mb-1">
+                Email (Google account)
+              </label>
+              <Input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="name@otter-group.com"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-dark mb-1">
+                Display Name
+              </label>
+              <Input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Full name"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-dark mb-1">
+                Role
+              </label>
+              <select
+                value={newRole}
+                onChange={(e) => setNewRole(e.target.value)}
+                className="w-full h-10 rounded-lg border border-border bg-warm-white px-3 text-sm text-dark focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="MANAGER">Manager</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => setShowForm(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="primary" size="sm" type="submit" disabled={creating}>
+              {creating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Plus className="w-4 h-4" />
+              )}
+              Add User
+            </Button>
+          </div>
+        </form>
       )}
 
       {/* Users Table */}
@@ -233,7 +365,11 @@ export default function AccessControlPage() {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                      {user.googleId ? "Google" : "Password"}
+                      {user.googleId && user.googleId !== "manual" && user.googleId !== "whitelist"
+                        ? "Google"
+                        : user.googleId === "whitelist" || user.googleId === "manual"
+                          ? "Google"
+                          : "Password"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center">
@@ -271,8 +407,8 @@ export default function AccessControlPage() {
                     colSpan={7}
                     className="px-4 py-8 text-center text-muted"
                   >
-                    No admin users yet. Users will appear here after their
-                    first Google sign-in.
+                    No admin users yet. Add a user or they will appear after
+                    their first Google sign-in.
                   </td>
                 </tr>
               )}

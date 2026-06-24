@@ -29,6 +29,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account?.provider === "google") {
         const email = profile?.email?.toLowerCase();
         if (!email) return false;
+
+        // Check if user exists and is active in the database
+        const dbUser = await prisma.adminUser.findUnique({
+          where: { email },
+          select: { isActive: true },
+        });
+
+        // If user exists in DB and is active, allow sign-in
+        if (dbUser?.isActive) return true;
+
+        // Fallback: check whitelist env var for first-time sign-in
         const whitelist = getWhitelist();
         return email in whitelist;
       }
