@@ -160,11 +160,19 @@ export class ProductService {
   static async deleteProduct(id: number) {
     const product = await prisma.product.findUnique({ where: { id } });
     if (!product) throw new Error("Product not found");
-    // Soft delete: set out of stock and hide
-    return prisma.product.update({
-      where: { id },
-      data: { inStock: false, isFeatured: false, sortOrder: 9999 },
-    });
+
+    // Check if product is referenced in any orders
+    const orderItemCount = await prisma.orderItem.count({ where: { productId: id } });
+    if (orderItemCount > 0) {
+      // Soft delete: product has order history, hide but preserve
+      return prisma.product.update({
+        where: { id },
+        data: { inStock: false, isFeatured: false, sortOrder: 9999 },
+      });
+    }
+
+    // Hard delete: no order history, safe to remove
+    return prisma.product.delete({ where: { id } });
   }
 
   static async bulkUpdatePrice(
