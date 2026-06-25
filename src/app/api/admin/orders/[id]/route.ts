@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { OrderService } from "@/lib/services/order-service";
 import { checkAdminAuth } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-import { sendReadyForPickup, sendOutForDelivery, sendOrderCancelled, sendOrderRefunded } from "@/lib/email";
+import { sendReadyForPickup, sendOutForDelivery, sendOrderCancelled, sendOrderRefunded, sendOrderConfirmation } from "@/lib/email";
 
 export async function GET(
   request: NextRequest,
@@ -110,7 +110,7 @@ export async function PATCH(
       );
 
       // Send status notification emails (after tracking URL is saved)
-      if (body.status === "READY" || body.status === "OUT_FOR_DELIVERY" || body.status === "CANCELLED" || body.status === "REFUNDED") {
+      if (body.status === "PAID" || body.status === "READY" || body.status === "OUT_FOR_DELIVERY" || body.status === "CANCELLED" || body.status === "REFUNDED") {
         // Update tracking URL first if provided
         if (body.deliveryTrackingUrl !== undefined) {
           await OrderService.updateTrackingUrl(Number(id), body.deliveryTrackingUrl || null);
@@ -128,7 +128,9 @@ export async function PATCH(
             deliveryType: fullOrder.deliveryType, deliveryDate: fullOrder.deliveryDate,
             deliveryTimeslot: fullOrder.deliveryTimeslot, deliveryAddress: fullOrder.deliveryAddress,
           };
-          if (body.status === "READY") {
+          if (body.status === "PAID") {
+            sendOrderConfirmation(emailData).catch((err) => console.error("[orders] Email failed:", err));
+          } else if (body.status === "READY") {
             sendReadyForPickup(emailData).catch((err) => console.error("[orders] Email failed:", err));
           } else if (body.status === "OUT_FOR_DELIVERY") {
             sendOutForDelivery(emailData, fullOrder.deliveryTrackingUrl || undefined).catch((err) => console.error("[orders] Email failed:", err));

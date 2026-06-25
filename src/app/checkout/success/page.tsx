@@ -21,7 +21,7 @@ function SuccessContent() {
     }
 
     let attempts = 0;
-    const maxAttempts = 10;
+    const maxAttempts = 5;
 
     const checkStatus = async () => {
       try {
@@ -42,7 +42,7 @@ function SuccessContent() {
       }
     };
 
-    // Check immediately, then every 3 seconds
+    // Check immediately, then every 2 seconds
     checkStatus();
     const interval = setInterval(() => {
       if (attempts >= maxAttempts) {
@@ -51,7 +51,7 @@ function SuccessContent() {
         return;
       }
       checkStatus();
-    }, 3000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [orderNumber]);
@@ -75,13 +75,13 @@ function SuccessContent() {
           </div>
 
           <h1 className="mb-2 text-2xl font-bold text-dark">
-            {isCompleted ? "Order Confirmed!" : "Payment Processing"}
+            {isCompleted ? "Order Confirmed!" : "Payment Not Completed"}
           </h1>
 
           <p className="mb-2 text-muted">
             {isCompleted
               ? "Thank you for your order! We have received it and will start preparing it soon."
-              : "Your payment is being processed. You will receive a confirmation shortly."}
+              : "Your order has been received but payment was not completed. Please complete your payment to confirm your order. A payment link will be sent to your email."}
           </p>
 
           {orderNumber && (
