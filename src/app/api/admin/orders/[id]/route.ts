@@ -150,9 +150,34 @@ export async function PATCH(
       }
     }
 
-    // Update remaining fields (tracking URL if not already handled above)
-    if (body.deliveryTrackingUrl !== undefined && body.status !== "READY" && body.status !== "OUT_FOR_DELIVERY" && body.status !== "CANCELLED" && body.status !== "REFUNDED") {
+    // Update tracking URL and auto-transition delivery orders to Out for Delivery
+    if (body.deliveryTrackingUrl !== undefined && !body.status) {
       await OrderService.updateTrackingUrl(Number(id), body.deliveryTrackingUrl || null);
+
+      // Auto-transition: setting tracking URL on a delivery order → Out for Delivery
+      const autoDeliverStatuses = ["PAID", "ACCEPTED", "READY"];
+      if (autoDeliverStatuses.includes(order.status) && order.deliveryType === "delivery") {
+        const note = body.note as string || "Tracking URL added — auto-transitioned to Out for Delivery";
+        await OrderService.updateStatus(Number(id), "OUT_FOR_DELIVERY", body.changedBy || 0, note);
+
+        // Send delivery email
+        const fullOrder = await OrderService.getOrder(Number(id));
+        if (fullOrder) {
+          const emailData = {
+            orderId: fullOrder.id,
+            orderNumber: fullOrder.orderNumber,
+            publicToken: (fullOrder as any).publicToken,
+            customerName: fullOrder.customerName,
+            customerEmail: fullOrder.customerEmail,
+            items: (fullOrder as any).items?.map((i: any) => ({ sku: i.product?.sku || "", name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })) || [],
+            subtotal: fullOrder.subtotal, deliveryFee: fullOrder.deliveryFee, discount: fullOrder.discount,
+            gstAmount: fullOrder.gstAmount, total: fullOrder.total,
+            deliveryType: fullOrder.deliveryType, deliveryDate: fullOrder.deliveryDate,
+            deliveryTimeslot: fullOrder.deliveryTimeslot, deliveryAddress: fullOrder.deliveryAddress,
+          };
+          sendOutForDelivery(emailData, body.deliveryTrackingUrl || undefined).catch((err) => console.error("[orders] Email failed:", err));
+        }
+      }
     }
 
     if (body.note && !body.status) {
