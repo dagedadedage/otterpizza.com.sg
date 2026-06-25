@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { formatPrice } from "@/lib/utils";
-import { calculatePromotions } from "@/lib/promotions";
+import { calculatePromotions, type PromoTier } from "@/lib/promotions";
 import { getSubtotal } from "@/lib/cart-utils";
 import { calculateGst, GST_DEFAULTS } from "@/lib/gst-utils";
 import type { CartItem } from "@/lib/cart-utils";
@@ -11,15 +11,22 @@ interface CartSummaryProps {
   items: CartItem[];
 }
 
+const FALLBACK_TIERS: PromoTier[] = [
+  { type: "FREE_DELIVERY", minAmount: 50, value: 0, name: "Free Delivery", description: "FREE DELIVERY" },
+  { type: "PERCENTAGE_DISCOUNT", minAmount: 150, value: 5, name: "5% Off", description: "5% OFF + FREE DELIVERY" },
+  { type: "PERCENTAGE_DISCOUNT", minAmount: 250, value: 10, name: "10% Off", description: "10% OFF + FREE DELIVERY" },
+];
+
 export default function CartSummary({ items }: CartSummaryProps) {
   const subtotal = getSubtotal(items);
-  const promo = calculatePromotions(items);
-  const baseAmount = subtotal - promo.discountAmount;
 
   const [gstRate, setGstRate] = useState(GST_DEFAULTS.rate);
   const [gstMode, setGstMode] = useState<"INCLUSIVE" | "EXCLUSIVE">(GST_DEFAULTS.mode);
-  // Delivery fee from DB (fetched once). Promo overrides to 0 at $50/$150/$250.
   const [dbDeliveryFee, setDbDeliveryFee] = useState(0);
+  const [promoTiers, setPromoTiers] = useState<PromoTier[]>(FALLBACK_TIERS);
+
+  const promo = calculatePromotions(items, promoTiers);
+  const baseAmount = subtotal - promo.discountAmount;
   const displayFee = promo.type !== "none" ? 0 : dbDeliveryFee;
 
   useEffect(() => {
@@ -34,6 +41,12 @@ export default function CartSummary({ items }: CartSummaryProps) {
       .then((res) => res.json())
       .then((data) => {
         if (data.fee !== undefined) setDbDeliveryFee(data.fee);
+      })
+      .catch(() => {});
+    fetch("/api/promotions")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) setPromoTiers(data);
       })
       .catch(() => {});
   }, []);

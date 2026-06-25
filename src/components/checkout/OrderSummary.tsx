@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
-import { calculatePromotions } from "@/lib/promotions";
+import { calculatePromotions, type PromoTier } from "@/lib/promotions";
 import { getItemPrice, getSubtotal } from "@/lib/cart-utils";
 import { calculateGst, GST_DEFAULTS } from "@/lib/gst-utils";
 import type { CartItem } from "@/lib/cart-utils";
@@ -12,14 +12,23 @@ interface OrderSummaryProps {
   items: CartItem[];
 }
 
+const FALLBACK_TIERS: PromoTier[] = [
+  { type: "FREE_DELIVERY", minAmount: 50, value: 0, name: "Free Delivery", description: "FREE DELIVERY" },
+  { type: "PERCENTAGE_DISCOUNT", minAmount: 150, value: 5, name: "5% Off", description: "5% OFF + FREE DELIVERY" },
+  { type: "PERCENTAGE_DISCOUNT", minAmount: 250, value: 10, name: "10% Off", description: "10% OFF + FREE DELIVERY" },
+];
+
 export default function OrderSummary({ items }: OrderSummaryProps) {
   const subtotal = getSubtotal(items);
-  const promo = calculatePromotions(items);
-  const baseAmount = subtotal - promo.discountAmount;
 
   const [gstRate, setGstRate] = useState(GST_DEFAULTS.rate);
   const [gstMode, setGstMode] = useState<"INCLUSIVE" | "EXCLUSIVE">(GST_DEFAULTS.mode);
-  const [deliveryFee, setDeliveryFee] = useState(promo.deliveryFee);
+  const [dbDeliveryFee, setDbDeliveryFee] = useState(0);
+  const [promoTiers, setPromoTiers] = useState<PromoTier[]>(FALLBACK_TIERS);
+
+  const promo = calculatePromotions(items, promoTiers);
+  const baseAmount = subtotal - promo.discountAmount;
+  const displayFee = promo.type !== "none" ? 0 : dbDeliveryFee;
 
   useEffect(() => {
     fetch("/api/gst")
@@ -32,15 +41,20 @@ export default function OrderSummary({ items }: OrderSummaryProps) {
     fetch("/api/delivery")
       .then((res) => res.json())
       .then((data) => {
-        if (data.fee !== undefined && promo.deliveryFee > 0) setDeliveryFee(data.fee);
+        if (data.fee !== undefined) setDbDeliveryFee(data.fee);
+      })
+      .catch(() => {});
+    fetch("/api/promotions")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) setPromoTiers(data);
       })
       .catch(() => {});
   }, []);
 
   const gstAmount = calculateGst(baseAmount, gstRate, gstMode);
-  // INCLUSIVE: GST already in prices, don't add to total. EXCLUSIVE: add GST on top.
   const gstAddon = gstMode === "EXCLUSIVE" ? gstAmount : 0;
-  const finalTotal = baseAmount + deliveryFee + gstAddon;
+  const finalTotal = baseAmount + displayFee + gstAddon;
 
   if (items.length === 0) {
     return (
@@ -113,10 +127,10 @@ export default function OrderSummary({ items }: OrderSummaryProps) {
         <div className="flex items-center justify-between text-muted">
           <span>Delivery Fee</span>
           <span>
-            {deliveryFee === 0 && promo.type !== "none" ? (
+            {displayFee === 0 ? (
               <span className="text-green-700">FREE</span>
             ) : (
-              formatPrice(deliveryFee)
+              formatPrice(displayFee)
             )}
           </span>
         </div>

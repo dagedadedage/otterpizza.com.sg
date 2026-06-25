@@ -84,7 +84,21 @@ export async function POST(request: Request) {
       quantity: item.quantity,
     }));
 
-    const promo = calculatePromotions(cartItems);
+    // Fetch promo tiers from DB and calculate applicable promotion
+    let promoTiers: any[] = [];
+    try {
+      promoTiers = await prisma.promotion.findMany({
+        where: { isActive: true },
+        orderBy: { minAmount: "asc" },
+      });
+    } catch { /* use empty tiers = no promos */ }
+    const promo = calculatePromotions(cartItems, promoTiers.map(t => ({
+      type: t.type,
+      minAmount: Number(t.minAmount),
+      value: Number(t.value),
+      name: t.name,
+      description: t.description,
+    })));
 
     // Delivery fee: 0 if promo applies, otherwise from DB setting
     let deliveryFee = 0;

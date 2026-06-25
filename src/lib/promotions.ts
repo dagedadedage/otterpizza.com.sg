@@ -2,13 +2,6 @@ import type { CartItem } from "@/lib/cart-utils";
 import { getSubtotal } from "@/lib/cart-utils";
 
 export interface AppliedPromo {
-  type: "free_delivery" | "percentage" | "none";
-  description: string;
-  discountAmount: number;
-  deliveryFee: number;
-}
-
-export interface AppliedPromo {
   type: "percentage" | "free_delivery" | "none";
   description: string;
   discountAmount: number;
@@ -16,34 +9,51 @@ export interface AppliedPromo {
   nextTier?: { amount: number; label: string };
 }
 
-const TIERS = [
-  { threshold: 250, type: "percentage" as const, discount: 0.10, label: "10% OFF + FREE DELIVERY" },
-  { threshold: 150, type: "percentage" as const, discount: 0.05, label: "5% OFF + FREE DELIVERY" },
-  { threshold: 50,  type: "free_delivery" as const, discount: 0, label: "FREE DELIVERY" },
-];
+export interface PromoTier {
+  type: string; // "FREE_DELIVERY" | "PERCENTAGE_DISCOUNT"
+  minAmount: number;
+  value: number; // percentage (10 = 10%) or 0 for free delivery
+  name: string;
+  description: string | null;
+}
 
-export function calculatePromotions(items: CartItem[]): AppliedPromo {
+function formatLabel(tier: PromoTier): string {
+  if (tier.type === "PERCENTAGE_DISCOUNT") {
+    return `${tier.value}% OFF + FREE DELIVERY`;
+  }
+  return tier.description || tier.name || "FREE DELIVERY";
+}
+
+/**
+ * Calculate applicable promotion from DB-fetched tiers.
+ * Tiers should be sorted ascending by minAmount (lowest first).
+ */
+export function calculatePromotions(items: CartItem[], tiers: PromoTier[]): AppliedPromo {
   const subtotal = getSubtotal(items);
 
-  for (const tier of TIERS) {
-    if (subtotal >= tier.threshold) {
+  // Sort descending (highest threshold first) to find the best matching tier
+  const sorted = [...tiers].sort((a, b) => b.minAmount - a.minAmount);
+
+  for (const tier of sorted) {
+    if (subtotal >= tier.minAmount) {
+      const discount = tier.type === "PERCENTAGE_DISCOUNT" ? subtotal * (tier.value / 100) : 0;
       return {
-        type: tier.type,
-        description: tier.label,
-        discountAmount: subtotal * tier.discount,
+        type: tier.type === "PERCENTAGE_DISCOUNT" ? "percentage" : "free_delivery",
+        description: formatLabel(tier),
+        discountAmount: discount,
         deliveryFee: 0,
         nextTier: undefined,
       };
     }
   }
 
-  // No promo yet: find the next tier to nudge toward
-  const next = TIERS.findLast((t) => subtotal < t.threshold);
+  // No promo yet: find the next tier to nudge toward (lowest threshold above current)
+  const next = sorted.findLast((t) => subtotal < t.minAmount);
   return {
     type: "none",
     description: "",
     discountAmount: 0,
-    deliveryFee: 0, // DB delivery fee will be applied by CartSummary
-    nextTier: next ? { amount: next.threshold - subtotal, label: next.label } : undefined,
+    deliveryFee: 0,
+    nextTier: next ? { amount: next.minAmount - subtotal, label: formatLabel(next) } : undefined,
   };
 }
