@@ -11,13 +11,9 @@ import { sendOrderConfirmation, sendOrderCancelled } from "@/lib/email";
 export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text();
-    const signature = request.headers.get("hmac-sha256") ||
+    const signature = request.headers.get("hitpay-signature") ||
+      request.headers.get("hmac-sha256") ||
       request.headers.get("x-signature") || "";
-
-    // Log all headers for debugging (remove after confirmed working)
-    const headerList: string[] = [];
-    request.headers.forEach((val, key) => { if (key.startsWith("h") || key.startsWith("x")) headerList.push(`${key}: ${val.substring(0, 30)}`); });
-    console.log("[webhook] Headers:", headerList.join(", "));
 
     // Verify HMAC signature — required for all webhook requests
     if (!signature) {
