@@ -174,6 +174,8 @@ export async function PATCH(
             gstAmount: fullOrder.gstAmount, total: fullOrder.total,
             deliveryType: fullOrder.deliveryType, deliveryDate: fullOrder.deliveryDate,
             deliveryTimeslot: fullOrder.deliveryTimeslot, deliveryAddress: fullOrder.deliveryAddress,
+            paymentMethod: (fullOrder as any).paymentMethod || null,
+            paymentNote: "Tracking URL added — auto-transitioned to Out for Delivery",
           };
           sendOutForDelivery(emailData, body.deliveryTrackingUrl || undefined).catch((err) => console.error("[orders] Email failed:", err));
         }

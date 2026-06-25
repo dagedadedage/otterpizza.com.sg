@@ -158,7 +158,7 @@ export async function sendPendingPaymentReminder(data: OrderEmailData) {
         console.log(`[email] Skipping pending reminder for ${data.orderNumber} — now ${order.status}`);
         return;
       }
-    } catch { /* proceed with send */ }
+    } catch (e) { console.warn("[email] Pending reminder status check failed, proceeding:", e); }
   }
 
   const paymentButton = data.paymentUrl

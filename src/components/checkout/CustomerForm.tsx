@@ -178,15 +178,15 @@ export default function CustomerForm({
     if (deliveryType === "pickup" && !storeId) {
       errors.storeId = "Please select a store for pick-up";
     }
+    if (!deliveryTimeslot) {
+      errors.deliveryTimeslot = "Please select a timeslot";
+    }
     if (deliveryType === "delivery") {
       if (!deliveryAddress.trim()) {
         errors.deliveryAddress = "Delivery address is required";
       }
       if (!deliveryPostalCode.trim()) {
         errors.deliveryPostalCode = "Postal code is required";
-      }
-      if (!deliveryTimeslot) {
-        errors.deliveryTimeslot = "Please select a delivery timeslot";
       }
     }
     setValidationErrors(errors);

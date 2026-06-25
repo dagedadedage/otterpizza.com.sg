@@ -1,9 +1,16 @@
 import crypto from "crypto";
 
-const HITPAY_API_KEY = process.env.HITPAY_API_KEY!;
-const HITPAY_WEBHOOK_SALT = process.env.HITPAY_WEBHOOK_SALT!;
+const HITPAY_API_KEY = process.env.HITPAY_API_KEY || "";
+const HITPAY_WEBHOOK_SALT = process.env.HITPAY_WEBHOOK_SALT || "";
 const HITPAY_BASE_URL =
   process.env.HITPAY_BASE_URL || "https://api.sandbox.hit-pay.com/v1";
+
+function requireApiKey(): string {
+  if (!HITPAY_API_KEY) {
+    throw new Error("HITPAY_API_KEY environment variable is not set. Payment processing is disabled.");
+  }
+  return HITPAY_API_KEY;
+}
 
 export interface CreatePaymentParams {
   amount: number;
@@ -61,7 +68,7 @@ export async function createPaymentRequest(
   const res = await fetch(`${HITPAY_BASE_URL}/payment-requests`, {
     method: "POST",
     headers: {
-      "X-BUSINESS-API-KEY": HITPAY_API_KEY,
+      "X-BUSINESS-API-KEY": requireApiKey(),
       "Content-Type": "application/x-www-form-urlencoded",
       "X-Requested-With": "XMLHttpRequest",
     },
@@ -83,7 +90,7 @@ export async function getPaymentStatus(
     `${HITPAY_BASE_URL}/payment-requests/${paymentRequestId}`,
     {
       headers: {
-        "X-BUSINESS-API-KEY": HITPAY_API_KEY,
+        "X-BUSINESS-API-KEY": requireApiKey(),
         "X-Requested-With": "XMLHttpRequest",
       },
     }

@@ -59,21 +59,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate each item has valid fields and is in stock
+    // Validate each item has valid fields
     for (const item of body.items) {
       if (!item.productId || item.quantity < 1 || item.unitPrice < 0) {
         return NextResponse.json(
           { error: "Invalid item data" },
-          { status: 400 },
-        );
-      }
-      const product = await prisma.product.findUnique({
-        where: { id: item.productId },
-        select: { inStock: true, name: true },
-      });
-      if (!product || !product.inStock) {
-        return NextResponse.json(
-          { error: `${product?.name || "Item"} is currently out of stock` },
           { status: 400 },
         );
       }
@@ -103,7 +93,7 @@ export async function POST(request: Request) {
       if (deliverySetting && promo.deliveryFee > 0) {
         deliveryFee = deliverySetting.fee;
       }
-    } catch { /* use default */ }
+    } catch (e) { console.warn("[checkout] Delivery setting fetch failed:", e); }
 
     const baseAmount = subtotal - promo.discountAmount;
 
@@ -123,8 +113,8 @@ export async function POST(request: Request) {
           gstAmount = Math.round(baseAmount * gstRate / (100 + gstRate) * 100) / 100;
         }
       }
-    } catch {
-      // GST setting not found or error — use defaults
+    } catch (e) {
+      console.warn("[checkout] GST setting fetch failed, using defaults:", e);
     }
 
     // INCLUSIVE: GST already in prices, don't add. EXCLUSIVE: add GST on top.
@@ -143,40 +133,59 @@ export async function POST(request: Request) {
 
     const publicToken = crypto.randomUUID();
 
-    // --- Create order in database ---
-    const order = await prisma.order.create({
-      data: {
-        orderNumber,
-        publicToken,
-        customerName: body.customerName.trim(),
-        customerEmail: body.customerEmail.trim(),
-        customerPhone: body.customerPhone?.trim() || null,
-        storeId: body.storeId || null,
-        deliveryType: body.deliveryType || null,
-        deliveryDate: body.deliveryDate || null,
-        deliveryAddress: body.deliveryAddress?.trim() || null,
-        deliveryUnit: body.deliveryUnit?.trim() || null,
-        deliveryPostalCode: body.deliveryPostalCode?.trim() || null,
-        deliveryTimeslot: body.deliveryTimeslot || null,
-        notes: body.notes?.trim() || null,
-        subtotal,
-        discount: promo.discountAmount,
-        deliveryFee: deliveryFee,
-        gstAmount,
-        gstRate,
-        total,
-        status: "PENDING",
-        items: {
-          create: body.items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            totalPrice: item.totalPrice,
-          })),
-        },
-      },
-      include: { items: { include: { product: true } } },
-    });
+    // Atomic: stock check + order creation in transaction to prevent oversell
+    let order: any;
+    try {
+      order = await prisma.$transaction(async (tx) => {
+        for (const item of body.items) {
+          const product = await tx.product.findUnique({
+            where: { id: item.productId },
+            select: { inStock: true, name: true },
+          });
+          if (!product || !product.inStock) {
+            throw new Error(`${product?.name || "Item"} is currently out of stock`);
+          }
+        }
+        return tx.order.create({
+          data: {
+            orderNumber,
+            publicToken,
+            customerName: body.customerName.trim(),
+            customerEmail: body.customerEmail.trim(),
+            customerPhone: body.customerPhone?.trim() || null,
+            storeId: body.storeId || null,
+            deliveryType: body.deliveryType || null,
+            deliveryDate: body.deliveryDate || null,
+            deliveryAddress: body.deliveryAddress?.trim() || null,
+            deliveryUnit: body.deliveryUnit?.trim() || null,
+            deliveryPostalCode: body.deliveryPostalCode?.trim() || null,
+            deliveryTimeslot: body.deliveryTimeslot || null,
+            notes: body.notes?.trim() || null,
+            subtotal,
+            discount: promo.discountAmount,
+            deliveryFee: deliveryFee,
+            gstAmount,
+            gstRate,
+            total,
+            status: "PENDING",
+            items: {
+              create: body.items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                totalPrice: item.totalPrice,
+              })),
+            },
+          },
+          include: { items: { include: { product: true } } },
+        });
+      });
+    } catch (e: any) {
+      return NextResponse.json(
+        { error: e?.message || "Failed to create order" },
+        { status: 400 },
+      );
+    }
 
     // --- Call HitPay to create payment request ---
     let paymentUrl: string | null = null;
