@@ -56,7 +56,7 @@ function MovingSet({ delay, className }: { delay?: string; className?: string })
 
 export function ScooterHero() {
   return (
-    <section className="relative min-h-[85vh] lg:min-h-screen flex flex-col bg-cream overflow-hidden">
+    <section className="relative min-h-[calc(85vh+5rem)] lg:min-h-[calc(100vh+5rem)] flex flex-col bg-cream overflow-hidden pt-20">
       {/* Floating decorative elements — static background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Scattered pizza/dot decorations */}
