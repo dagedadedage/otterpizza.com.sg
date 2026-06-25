@@ -34,6 +34,8 @@ export interface OrderEmailData {
   gstRate?: number;
   paymentUrl?: string | null;
   orderId?: number;
+  paymentMethod?: string | null;
+  paymentNote?: string | null;
 }
 
 function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): string {
@@ -59,6 +61,10 @@ function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): st
     <div style="background:white;border:1px solid #E8D5C4;border-top:none;border-radius:0 0 12px 12px;padding:20px">
       <p style="color:#2D1B14;font-weight:600;margin:0 0 8px 0">Hi ${data.customerName},</p>
       ${deliveryInfo ? `<p style="color:#8B7355;margin:0 0 12px 0;font-size:13px">${deliveryInfo}</p>` : ""}
+      ${data.paymentMethod ? `<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;margin-bottom:16px">
+        <p style="color:#166534;font-weight:600;margin:0 0 4px 0;font-size:13px">💳 Payment Information</p>
+        <p style="color:#166534;margin:0;font-size:13px">${data.paymentMethod}${data.paymentNote ? ` — ${data.paymentNote}` : ""}</p>
+      </div>` : ""}
       <table style="width:100%;border-collapse:collapse">
         <tr style="border-bottom:1px solid #E8D5C4"><th style="text-align:left;padding:8px;font-size:12px;color:#8B7355">Item</th><th style="text-align:center;padding:8px;font-size:12px;color:#8B7355">Qty</th><th style="text-align:right;padding:8px;font-size:12px;color:#8B7355">Price</th></tr>
         ${data.items.map(i => `<tr style="border-bottom:1px solid #E8D5C4"><td style="padding:8px;font-size:13px;color:#2D1B14">${i.name}</td><td style="text-align:center;padding:8px;font-size:13px;color:#2D1B14">${i.quantity}</td><td style="text-align:right;padding:8px;font-size:13px;color:#2D1B14">${formatPrice(i.totalPrice)}</td></tr>`).join("")}

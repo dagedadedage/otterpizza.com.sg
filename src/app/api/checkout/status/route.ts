@@ -57,6 +57,8 @@ export async function GET(request: NextRequest) {
             deliveryDate: fullOrder.deliveryDate,
             deliveryTimeslot: fullOrder.deliveryTimeslot,
             deliveryAddress: fullOrder.deliveryAddress,
+            paymentMethod: "PayNow / Card via HitPay",
+            paymentNote: `Payment ID: ${order.paymentId}`,
           }).catch((err: any) => console.error("[status] Email failed:", err));
           return NextResponse.json({ status: "PAID", paymentStatus: "completed" });
         }

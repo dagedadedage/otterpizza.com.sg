@@ -147,6 +147,8 @@ export async function POST(request: NextRequest) {
         deliveryDate: updatedOrder.deliveryDate,
         deliveryTimeslot: updatedOrder.deliveryTimeslot,
         deliveryAddress: updatedOrder.deliveryAddress,
+        paymentMethod: "PayNow / Card via HitPay",
+        paymentNote: `Payment ID: ${paymentId}`,
       }).catch((err) => console.error("[webhook] Email failed:", err));
 
       console.log(`[webhook] Order ${order.orderNumber} auto-confirmed (payment ${paymentStatus})`);

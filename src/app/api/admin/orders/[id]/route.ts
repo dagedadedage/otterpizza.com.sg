@@ -117,6 +117,10 @@ export async function PATCH(
         }
         const fullOrder = await OrderService.getOrder(Number(id));
         if (fullOrder) {
+          const paymentLabel = (fullOrder as any).paymentMethod === "Bank Transfer" ? "Bank Transfer" :
+            (fullOrder as any).paymentMethod === "PayNow" ? "PayNow" :
+            (fullOrder as any).paymentMethod === "Cash" ? "Cash" :
+            (fullOrder as any).paymentMethod || null;
           const emailData = {
             orderId: fullOrder.id,
             orderNumber: fullOrder.orderNumber,
@@ -127,6 +131,8 @@ export async function PATCH(
             gstAmount: fullOrder.gstAmount, total: fullOrder.total,
             deliveryType: fullOrder.deliveryType, deliveryDate: fullOrder.deliveryDate,
             deliveryTimeslot: fullOrder.deliveryTimeslot, deliveryAddress: fullOrder.deliveryAddress,
+            paymentMethod: paymentLabel,
+            paymentNote: body.status === "PAID" ? (note as string || null) : null,
           };
           if (body.status === "PAID") {
             sendOrderConfirmation(emailData).catch((err) => console.error("[orders] Email failed:", err));

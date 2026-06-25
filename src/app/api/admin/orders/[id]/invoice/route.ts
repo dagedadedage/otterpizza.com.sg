@@ -96,7 +96,9 @@ export async function GET(
       Order #: ${order.orderNumber}<br>
       Date: ${orderDate}<br>
       Type: ${isDelivery ? "Delivery" : "Self Pick-up"}<br>
-      Status: ${order.status}
+      Status: ${order.status}<br>
+	      ${order.paymentMethod ? `Payment: ${order.paymentMethod}<br>` : ""}
+	      ${order.paymentStatus && order.paymentStatus !== "manual" ? `Ref: ${order.paymentStatus}<br>` : ""}
     </div>
   </div>
 </div>
