@@ -7,11 +7,15 @@ export class ProductService {
     search?: string;
     page?: number;
     limit?: number;
+    excludeObsolete?: boolean;
   }) {
-    const { categoryId, inStock, search, page = 1, limit = 50 } = filters;
+    const { categoryId, inStock, search, page = 1, limit = 50, excludeObsolete } = filters;
     const where: Record<string, unknown> = {};
     if (categoryId) where.categoryId = categoryId;
     if (inStock !== undefined) where.inStock = inStock;
+    if (excludeObsolete) {
+      where.category = { slug: { not: "obsolete" } };
+    }
     if (search) {
       where.OR = [
         { name: { contains: search } },

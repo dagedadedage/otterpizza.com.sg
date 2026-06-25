@@ -31,6 +31,7 @@ export default function AdminMenuPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [showObsolete, setShowObsolete] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -39,6 +40,7 @@ export default function AdminMenuPage() {
       const params = new URLSearchParams();
       if (searchQuery) params.set("search", searchQuery);
       if (selectedCategory) params.set("categoryId", String(selectedCategory));
+      if (showObsolete) params.set("showObsolete", "1");
       params.set("page", String(page));
       params.set("limit", "50");
 
@@ -67,7 +69,7 @@ export default function AdminMenuPage() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, selectedCategory, page]);
+  }, [searchQuery, selectedCategory, page, showObsolete]);
 
   useEffect(() => {
     fetchProducts();
@@ -114,10 +116,21 @@ export default function AdminMenuPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-dark">Menu Management</h2>
-        <Button variant="outline" size="sm" onClick={fetchProducts}>
-          <RefreshCw className="w-4 h-4" />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={showObsolete}
+              onChange={(e) => { setShowObsolete(e.target.checked); setPage(1); }}
+              className="cursor-pointer"
+            />
+            Show Obsolete
+          </label>
+          <Button variant="outline" size="sm" onClick={fetchProducts}>
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {error && (

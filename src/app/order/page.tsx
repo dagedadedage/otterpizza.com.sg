@@ -35,8 +35,10 @@ function serializeDecimal(value: unknown): number {
 async function getMenuData(): Promise<SerializedCategory[]> {
   try {
     const categories = await prisma.category.findMany({
+      where: { slug: { not: "obsolete" } },
       include: {
         products: {
+          where: { inStock: true },
           orderBy: { sortOrder: "asc" },
         },
       },
