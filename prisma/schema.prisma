@@ -84,6 +84,7 @@ model Order {
   deliveryTimeslot String?
   deliveryTrackingUrl String?
   notes         String?
+  publicToken   String?           @unique
   statusLogs    OrderStatusLog[]
   adminNotes    OrderNote[]
   createdAt     DateTime         @default(now())

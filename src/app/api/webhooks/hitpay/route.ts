@@ -135,6 +135,7 @@ export async function POST(request: NextRequest) {
       sendOrderConfirmation({
         orderId: updatedOrder.id,
         orderNumber: updatedOrder.orderNumber,
+        publicToken: (updatedOrder as any).publicToken,
         customerName: updatedOrder.customerName,
         customerEmail: updatedOrder.customerEmail,
         items: updatedOrder.items.map((i) => ({ sku: (i as any).product?.sku || "", name: (i as any).product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),
@@ -181,6 +182,7 @@ export async function POST(request: NextRequest) {
         sendOrderCancelled({
           orderId: failedOrder.id,
           orderNumber: failedOrder.orderNumber,
+          publicToken: (failedOrder as any).publicToken,
           customerName: failedOrder.customerName,
           customerEmail: failedOrder.customerEmail,
           items: failedOrder.items.map((i: any) => ({ sku: (i as any).product?.sku || "", name: (i as any).product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),

@@ -1,20 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkAdminAuth } from "@/lib/admin-auth";
 
-// Admin-only endpoint — customers use /api/invoice/[token]
+// Public endpoint — accessed via unique token (emailed to customer)
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  _request: NextRequest,
+  { params }: { params: Promise<{ token: string }> }
 ) {
-  const authError = await checkAdminAuth(request);
-  if (authError) return authError;
-
   try {
-    const { id } = await params;
+    const { token } = await params;
     const order = await prisma.order.findUnique({
-      where: { id: Number(id) },
+      where: { publicToken: token },
       include: {
         items: { include: { product: true } },
         store: true,
@@ -22,7 +18,7 @@ export async function GET(
     });
 
     if (!order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
 
     const formatPrice = (n: number) => `$${n.toFixed(2)}`;
@@ -36,8 +32,6 @@ export async function GET(
     });
 
     const isDelivery = order.deliveryType === "delivery";
-    const gstMode = order.gstAmount > 0 && order.total === order.subtotal - order.discount + order.deliveryFee
-      ? "INCLUSIVE" : "EXCLUSIVE";
 
     const invoiceHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -65,7 +59,6 @@ export async function GET(
   .totals-divider { border-top: 1px solid #ddd; margin: 8px 0; }
   .totals-total { font-size: 16px; font-weight: 700; }
   .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #eee; font-size: 10px; color: #999; text-align: center; line-height: 1.6; }
-  .gst-note { font-size: 10px; color: #999; margin-top: 4px; text-align: right; }
   @media print { body { padding: 20px; } }
 </style>
 </head>
@@ -101,8 +94,8 @@ export async function GET(
       Date: ${orderDate}<br>
       Type: ${isDelivery ? "Delivery" : "Self Pick-up"}<br>
       Status: ${order.status}<br>
-	      ${order.paymentMethod ? `Payment: ${order.paymentMethod}<br>` : ""}
-	      ${order.paymentStatus && order.paymentStatus !== "manual" ? `Ref: ${order.paymentStatus}<br>` : ""}
+      ${order.paymentMethod ? `Payment: ${order.paymentMethod}<br>` : ""}
+      ${order.paymentStatus && order.paymentStatus !== "manual" ? `Ref: ${order.paymentStatus}<br>` : ""}
     </div>
   </div>
 </div>

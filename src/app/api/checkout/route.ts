@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { formatPrice, generateOrderNumber } from "@/lib/utils";
 import { createPaymentRequest } from "@/lib/hitpay";
@@ -130,10 +131,13 @@ export async function POST(request: Request) {
     // --- Generate order number ---
     const orderNumber = generateOrderNumber();
 
+    const publicToken = crypto.randomUUID();
+
     // --- Create order in database ---
     const order = await prisma.order.create({
       data: {
         orderNumber,
+        publicToken,
         customerName: body.customerName.trim(),
         customerEmail: body.customerEmail.trim(),
         customerPhone: body.customerPhone?.trim() || null,
@@ -225,6 +229,7 @@ export async function POST(request: Request) {
     sendPendingPaymentReminder({
       orderId: order.id,
       orderNumber: order.orderNumber,
+      publicToken: order.publicToken,
       customerName: order.customerName,
       customerEmail: order.customerEmail,
       paymentUrl,

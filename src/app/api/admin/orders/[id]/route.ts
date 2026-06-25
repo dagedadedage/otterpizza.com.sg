@@ -124,6 +124,7 @@ export async function PATCH(
           const emailData = {
             orderId: fullOrder.id,
             orderNumber: fullOrder.orderNumber,
+            publicToken: (fullOrder as any).publicToken,
             customerName: fullOrder.customerName,
             customerEmail: fullOrder.customerEmail,
             items: (fullOrder as any).items?.map((i: any) => ({ sku: i.product?.sku || "", name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })) || [],

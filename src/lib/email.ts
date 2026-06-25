@@ -36,6 +36,7 @@ export interface OrderEmailData {
   orderId?: number;
   paymentMethod?: string | null;
   paymentNote?: string | null;
+  publicToken?: string | null;
 }
 
 function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): string {
@@ -134,7 +135,7 @@ async function sendEmail(to: string, subject: string, html: string, replyTo?: st
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://otterpizza.com";
-  const invoiceUrl = data.orderId ? `${appUrl}/api/admin/orders/${data.orderId}/invoice` : null;
+  const invoiceUrl = data.publicToken ? `${appUrl}/api/invoice/${data.publicToken}` : null;
   const invoiceButton = invoiceUrl
     ? `<div style="text-align:center;margin:24px 0">
         <a href="${invoiceUrl}" style="display:inline-block;background:#2D1B14;color:white;padding:12px 28px;border-radius:24px;text-decoration:none;font-weight:600;font-size:14px">📄 Download Invoice</a>
