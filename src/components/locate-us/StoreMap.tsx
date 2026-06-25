@@ -100,12 +100,15 @@ export default function StoreMap({ stores }: StoreMapProps) {
 
       markersRef.current = newMarkers;
 
-      // Fit to Singapore main island boundary
+      // Fit to Singapore main island boundary, then zoom in one step
       const SG_BOUNDS: [[number, number], [number, number]] = [
         [1.2000, 103.6000], // SW corner (Tuas/Sentosa)
         [1.4708, 104.0500], // NE corner (Woodlands/Changi)
       ];
       mapRef.current.fitBounds(SG_BOUNDS);
+      mapRef.current.once("zoomend", () => {
+        mapRef.current?.setZoom((mapRef.current?.getZoom() ?? 11) + 1);
+      });
       mapRef.current.setMinZoom(10);
       mapRef.current.setMaxBounds(SG_BOUNDS);
     }
