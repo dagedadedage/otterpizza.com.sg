@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: ProductDetailPageProps) {
   const { slug } = await params;
   const product = await prisma.product.findUnique({
     where: { slug },
-    select: { name: true, description: true },
+    select: { name: true, description: true, imageUrl: true },
   });
 
   if (!product) return { title: "Product Not Found" };
@@ -41,6 +41,11 @@ export async function generateMetadata({ params }: ProductDetailPageProps) {
   return {
     title: product.name,
     description: product.description || `${product.name} — Otter Pizza`,
+    openGraph: {
+      title: product.name,
+      description: product.description || `${product.name} — Otter Pizza`,
+      images: product.imageUrl ? [{ url: product.imageUrl }] : [],
+    },
   };
 }
 
@@ -172,6 +177,29 @@ export default async function ProductDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Product structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.name,
+            description: product.description || "",
+            image: product.imageUrl || "https://otterpizza.com.sg/images/logo.png",
+            sku: product.sku,
+            offers: {
+              "@type": "Offer",
+              price: currentPrice,
+              priceCurrency: "SGD",
+              availability: product.inStock
+                ? "https://schema.org/InStock"
+                : "https://schema.org/OutOfStock",
+            },
+          }),
+        }}
+      />
     </div>
   );
 }

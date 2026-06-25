@@ -14,6 +14,7 @@ interface StoreData {
   longitude: number | null;
   grabUrl: string | null;
   foodpandaUrl: string | null;
+  deliverooUrl: string | null;
 }
 
 async function getStores(): Promise<StoreData[]> {
@@ -125,7 +126,18 @@ export default async function LocateUsPage() {
                       Foodpanda
                     </a>
                   ) : null}
-                  {!store.grabUrl && !store.foodpandaUrl && (
+                  {store.deliverooUrl ? (
+                    <a
+                      href={store.deliverooUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center rounded-full bg-[#00CCBC] px-3 py-1 text-xs font-semibold text-white hover:bg-[#00A99C] transition-colors"
+                      aria-label={`Order ${store.name} on Deliveroo`}
+                    >
+                      Deliveroo
+                    </a>
+                  ) : null}
+                  {!store.grabUrl && !store.foodpandaUrl && !store.deliverooUrl && (
                     <span className="text-[10px] text-muted/60">
                       Order via website
                     </span>
@@ -165,6 +177,41 @@ export default async function LocateUsPage() {
           </div>
         </section>
       </div>
+
+      {/* LocalBusiness structured data for each store */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            stores
+              .filter((s) => s.latitude != null && s.longitude != null)
+              .map((store) => ({
+                "@context": "https://schema.org",
+                "@type": "LocalBusiness",
+                name: `Otter Pizza | ${store.name}`,
+                description: "Neighbourhood pizzeria serving fresh, handcrafted pizzas",
+                image: "https://otterpizza.com.sg/images/logo.png",
+                address: {
+                  "@type": "PostalAddress",
+                  streetAddress: `${store.address}${store.unit ? ", " + store.unit : ""}`,
+                  addressLocality: "Singapore",
+                  postalCode: store.postalCode,
+                  addressCountry: "SG",
+                },
+                geo: {
+                  "@type": "GeoCoordinates",
+                  latitude: store.latitude,
+                  longitude: store.longitude,
+                },
+                sameAs: [store.grabUrl, store.foodpandaUrl, store.deliverooUrl].filter(Boolean),
+                parentOrganization: {
+                  "@type": "Organization",
+                  name: "Otter Pizza Pte Ltd",
+                },
+              }))
+          ),
+        }}
+      />
     </div>
   );
 }

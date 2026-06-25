@@ -122,6 +122,41 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Restaurant structured data (homepage only) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Restaurant",
+            name: "Otter Pizza",
+            description:
+              "Singapore's neighbourhood pizzeria — fresh, handcrafted pizzas for delivery and pickup.",
+            url: "https://otterpizza.com.sg",
+            logo: "https://otterpizza.com.sg/images/logo.png",
+            image: "https://otterpizza.com.sg/images/logo.png",
+            servesCuisine: "Pizza",
+            priceRange: "$$",
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: "35 Tuas Bay Walk, #00-00 Westview Food Factory",
+              addressLocality: "Singapore",
+              postalCode: "636981",
+              addressCountry: "SG",
+            },
+            contactPoint: {
+              "@type": "ContactPoint",
+              email: "admin@otterpizza.com.sg",
+              contactType: "customer service",
+            },
+            sameAs: [
+              "https://www.instagram.com/otterpizzasg",
+              "https://www.facebook.com/otterpizzasg",
+            ],
+          }),
+        }}
+      />
     </div>
   );
 }
