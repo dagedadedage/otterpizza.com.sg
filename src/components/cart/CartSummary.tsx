@@ -20,6 +20,11 @@ export default function CartSummary({ items }: CartSummaryProps) {
   const [gstMode, setGstMode] = useState<"INCLUSIVE" | "EXCLUSIVE">(GST_DEFAULTS.mode);
   const [deliveryFee, setDeliveryFee] = useState(promo.deliveryFee);
 
+  // Sync delivery fee when promo changes (e.g., crossing $60/$200/$500 thresholds)
+  useEffect(() => {
+    setDeliveryFee(promo.deliveryFee);
+  }, [promo.deliveryFee]);
+
   useEffect(() => {
     fetch("/api/gst")
       .then((res) => res.json())
@@ -34,7 +39,7 @@ export default function CartSummary({ items }: CartSummaryProps) {
         if (data.fee !== undefined && promo.deliveryFee > 0) setDeliveryFee(data.fee);
       })
       .catch(() => {});
-  }, []);
+  }, [promo.deliveryFee]);
 
   const gstAmount = calculateGst(baseAmount, gstRate, gstMode);
   // INCLUSIVE: GST already in prices, don't add to total. EXCLUSIVE: add GST on top.
