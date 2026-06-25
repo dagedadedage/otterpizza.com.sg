@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
+import { sendOrderRefunded } from "@/lib/email";
 
 // POST - mark an order as refunded
 // Note: HitPay does not support programmatic refunds via REST API.
@@ -53,6 +54,32 @@ export async function POST(
         note: `${amountNote}. Process actual refund at https://dashboard.hit-pay.com if paid via HitPay.`,
       },
     });
+
+    // Send refund email to customer
+    try {
+      const fullOrder = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: { items: { include: { product: true } } },
+      });
+      if (fullOrder) {
+        sendOrderRefunded({
+          orderId: fullOrder.id,
+          orderNumber: fullOrder.orderNumber,
+          publicToken: fullOrder.publicToken,
+          customerName: fullOrder.customerName,
+          customerEmail: fullOrder.customerEmail,
+          items: fullOrder.items.map((i: any) => ({ sku: i.product?.sku || "", name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),
+          subtotal: fullOrder.subtotal, deliveryFee: fullOrder.deliveryFee, discount: fullOrder.discount,
+          gstAmount: fullOrder.gstAmount, total: fullOrder.total,
+          deliveryType: fullOrder.deliveryType, deliveryDate: fullOrder.deliveryDate,
+          deliveryTimeslot: fullOrder.deliveryTimeslot, deliveryAddress: fullOrder.deliveryAddress,
+          paymentMethod: fullOrder.paymentMethod,
+          paymentNote: amountNote,
+        }).catch((err) => console.error("[refund] Email failed:", err));
+      }
+    } catch (err) {
+      console.error("[refund] Email error:", err);
+    }
 
     return NextResponse.json({
       success: true,
