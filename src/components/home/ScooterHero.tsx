@@ -41,11 +41,6 @@ function MovingSet({ delay, className }: { delay?: string; className?: string })
           <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 text-gold text-sm lg:text-base">✦</span>
           <span className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary text-sm lg:text-base">✦</span>
           <span className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 text-primary text-base lg:text-xl">✦</span>
-          {/* Extra diagonal sparkles */}
-          <span className="absolute top-[15%] left-[15%] -translate-x-1/2 -translate-y-1/2 text-gold text-xs lg:text-sm">✦</span>
-          <span className="absolute top-[15%] right-[15%] translate-x-1/2 -translate-y-1/2 text-primary text-xs lg:text-sm">✦</span>
-          <span className="absolute bottom-[15%] left-[15%] -translate-x-1/2 translate-y-1/2 text-primary text-xs lg:text-sm">✦</span>
-          <span className="absolute bottom-[15%] right-[15%] translate-x-1/2 translate-y-1/2 text-gold text-xs lg:text-sm">✦</span>
         </div>
 
         {/* Large Order Now button — 30% smaller on mobile */}
