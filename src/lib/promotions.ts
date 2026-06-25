@@ -34,15 +34,18 @@ export function calculatePromotions(items: CartItem[], tiers: PromoTier[]): Appl
   // Sort descending (highest threshold first) to find the best matching tier
   const sorted = [...tiers].sort((a, b) => b.minAmount - a.minAmount);
 
-  for (const tier of sorted) {
+  for (let i = 0; i < sorted.length; i++) {
+    const tier = sorted[i];
     if (subtotal >= tier.minAmount) {
       const discount = tier.type === "PERCENTAGE_DISCOUNT" ? subtotal * (tier.value / 100) : 0;
+      // Find the next tier above this one (if any)
+      const next = i > 0 ? sorted[i - 1] : null;
       return {
         type: tier.type === "PERCENTAGE_DISCOUNT" ? "percentage" : "free_delivery",
         description: formatLabel(tier),
         discountAmount: discount,
         deliveryFee: 0,
-        nextTier: undefined,
+        nextTier: next ? { amount: next.minAmount - subtotal, label: formatLabel(next) } : undefined,
       };
     }
   }
