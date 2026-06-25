@@ -27,20 +27,25 @@ function MovingSet({ delay, className }: { delay?: string; className?: string })
       <div className="relative shrink-0 flex items-center justify-center">
         {/* Outer pulsing ring */}
         <div
-          className="absolute w-28 h-28 lg:w-40 lg:h-40 rounded-full border-2 border-gold/30"
+          className="absolute w-36 h-36 lg:w-52 lg:h-52 rounded-full border-[3px] border-gold/50"
           style={{ animation: "pulse-ring 2s ease-out infinite" }}
         />
         <div
-          className="absolute w-[6.5rem] h-[6.5rem] lg:w-36 lg:h-36 rounded-full border border-gold/20"
+          className="absolute w-32 h-32 lg:w-48 lg:h-48 rounded-full border-2 border-gold/35"
           style={{ animation: "pulse-ring 2s ease-out 0.3s infinite" }}
         />
 
         {/* Sparkle dots around ring */}
-        <div className="absolute w-28 h-28 lg:w-40 lg:h-40 rounded-full" style={{ animation: "fairy-ring-spin 10s linear infinite" }}>
-          <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gold text-sm lg:text-lg">✦</span>
-          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 text-gold text-xs lg:text-sm">✦</span>
-          <span className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary text-xs lg:text-sm">✦</span>
-          <span className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 text-primary text-sm lg:text-lg">✦</span>
+        <div className="absolute w-36 h-36 lg:w-52 lg:h-52 rounded-full" style={{ animation: "fairy-ring-spin 10s linear infinite" }}>
+          <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gold text-base lg:text-xl">✦</span>
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 text-gold text-sm lg:text-base">✦</span>
+          <span className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary text-sm lg:text-base">✦</span>
+          <span className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 text-primary text-base lg:text-xl">✦</span>
+          {/* Extra diagonal sparkles */}
+          <span className="absolute top-[15%] left-[15%] -translate-x-1/2 -translate-y-1/2 text-gold text-xs lg:text-sm">✦</span>
+          <span className="absolute top-[15%] right-[15%] translate-x-1/2 -translate-y-1/2 text-primary text-xs lg:text-sm">✦</span>
+          <span className="absolute bottom-[15%] left-[15%] -translate-x-1/2 translate-y-1/2 text-primary text-xs lg:text-sm">✦</span>
+          <span className="absolute bottom-[15%] right-[15%] translate-x-1/2 translate-y-1/2 text-gold text-xs lg:text-sm">✦</span>
         </div>
 
         {/* Large Order Now button — 30% smaller on mobile */}
