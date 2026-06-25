@@ -20,15 +20,15 @@ const statusConfig: Record<
   },
   READY: {
     label: "Ready for Pick-up",
-    className: "bg-amber-100 text-amber-700 border-amber-200",
+    className: "bg-yellow-100 text-yellow-700 border-yellow-200",
   },
   OUT_FOR_DELIVERY: {
     label: "Out for Delivery",
-    className: "bg-indigo-100 text-indigo-700 border-indigo-200",
+    className: "bg-yellow-100 text-yellow-700 border-yellow-200",
   },
   FULFILLED: {
     label: "Fulfilled",
-    className: "bg-green-100 text-green-700 border-green-200",
+    className: "bg-emerald-600 text-white border-emerald-700",
   },
   CANCELLED: {
     label: "Cancelled",
@@ -86,11 +86,11 @@ export function getStatusColor(status: string): string {
     case "ACCEPTED":
       return "bg-blue-500";
     case "READY":
-      return "bg-amber-500";
+      return "bg-yellow-500";
     case "OUT_FOR_DELIVERY":
-      return "bg-indigo-500";
+      return "bg-yellow-500";
     case "FULFILLED":
-      return "bg-green-500";
+      return "bg-emerald-600";
     case "CANCELLED":
       return "bg-red-500";
     case "REFUNDED":
