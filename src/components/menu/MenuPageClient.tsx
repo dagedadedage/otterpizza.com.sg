@@ -53,14 +53,14 @@ export function MenuPageClient({ categories, rightSlot }: MenuPageClientProps) {
   return (
     <div>
       {/* Category filter tabs + right slot (cart) */}
-      <div className="flex items-center gap-2 mb-10">
-        <div className="flex flex-1 flex-wrap justify-center gap-2">
+      <div className="flex items-center gap-1.5 mb-3 sm:mb-5">
+        <div className="flex flex-1 flex-nowrap overflow-x-auto justify-start sm:justify-center gap-1 sm:gap-2 pb-1">
           {tabs.map((tab) => (
             <button
               key={tab.slug}
               type="button"
               onClick={() => setActiveCategory(tab.slug)}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer ${
+              className={`shrink-0 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
                 activeCategory === tab.slug
                   ? "bg-primary text-white shadow-sm"
                   : "bg-cream text-muted hover:bg-primary-light hover:text-primary"

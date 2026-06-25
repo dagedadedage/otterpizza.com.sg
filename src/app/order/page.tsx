@@ -80,14 +80,14 @@ export default async function OrderPage() {
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl font-black text-dark tracking-tight">
+        <div className="text-center mb-2 sm:mb-4">
+          <h1 className="text-2xl sm:text-3xl font-black text-dark tracking-tight">
             Online Ordering
           </h1>
         </div>
 
         <PromoBanner />
-        <div className="mt-6">
+        <div className="mt-1 sm:mt-3">
           <MenuPageClient categories={categories} rightSlot={<OrderSideCart />} />
         </div>
       </div>

@@ -57,7 +57,7 @@ export function PromoBanner() {
 
   return (
     <div className="bg-gold overflow-hidden">
-      <div className="py-2 sm:py-3 whitespace-nowrap">
+      <div className="py-1 sm:py-2 whitespace-nowrap">
         <div className="animate-marquee inline-block">
           <p className="inline text-sm sm:text-base font-bold text-dark tracking-wide">
             {marqueeText}
