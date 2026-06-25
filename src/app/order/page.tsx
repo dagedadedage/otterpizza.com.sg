@@ -64,6 +64,8 @@ async function getMenuData(): Promise<SerializedCategory[]> {
   }
 }
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Online Ordering",
   description:
