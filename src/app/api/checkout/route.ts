@@ -86,14 +86,14 @@ export async function POST(request: Request) {
 
     const promo = calculatePromotions(cartItems);
 
-    // Override delivery fee from DB setting if not free
-    let deliveryFee = promo.deliveryFee;
-    try {
-      const deliverySetting = await prisma.deliverySetting.findFirst();
-      if (deliverySetting && promo.deliveryFee > 0) {
-        deliveryFee = deliverySetting.fee;
-      }
-    } catch (e) { console.warn("[checkout] Delivery setting fetch failed:", e); }
+    // Delivery fee: 0 if promo applies, otherwise from DB setting
+    let deliveryFee = 0;
+    if (promo.type === "none") {
+      try {
+        const deliverySetting = await prisma.deliverySetting.findFirst();
+        if (deliverySetting) deliveryFee = deliverySetting.fee;
+      } catch (e) { console.warn("[checkout] Delivery setting fetch failed:", e); }
+    }
 
     const baseAmount = subtotal - promo.discountAmount;
 

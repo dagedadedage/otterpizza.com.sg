@@ -18,12 +18,9 @@ export default function CartSummary({ items }: CartSummaryProps) {
 
   const [gstRate, setGstRate] = useState(GST_DEFAULTS.rate);
   const [gstMode, setGstMode] = useState<"INCLUSIVE" | "EXCLUSIVE">(GST_DEFAULTS.mode);
-  // Delivery fee: promo override (free delivery thresholds) takes priority, else fetch from DB
+  // Delivery fee from DB (fetched once). Promo overrides to 0 at $50/$150/$250.
   const [dbDeliveryFee, setDbDeliveryFee] = useState(0);
-  const deliveryFee = promo.deliveryFee > 0 ? promo.deliveryFee : 0;
-  // When promo gives free delivery, use 0. Otherwise use the promo-calculated fee
-  // which will be overwritten by DB fetch if promo has a positive deliveryFee.
-  const displayFee = promo.type !== "none" ? 0 : (dbDeliveryFee > 0 ? dbDeliveryFee : promo.deliveryFee);
+  const displayFee = promo.type !== "none" ? 0 : dbDeliveryFee;
 
   useEffect(() => {
     fetch("/api/gst")
@@ -69,15 +66,16 @@ export default function CartSummary({ items }: CartSummaryProps) {
           </div>
         )}
 
-        {/* Free delivery promotion banner (no discount amount) */}
-        {promo.type === "free_delivery" && promo.description && (
-          <div className="flex items-center justify-between text-green-700">
-            <span>{promo.description}</span>
-            <span>{formatPrice(0)}</span>
+        {/* Progress nudge to next tier */}
+        {promo.nextTier && (
+          <div className="rounded-lg bg-gold/15 border border-gold/30 px-3 py-2 text-center">
+            <span className="text-xs text-dark font-medium">
+              🎯 Add <strong>{formatPrice(promo.nextTier.amount)}</strong> more for <strong>{promo.nextTier.label}</strong>
+            </span>
           </div>
         )}
 
-        {/* Delivery fee */}
+        {/* Active promo */}
         <div className="flex items-center justify-between text-muted">
           <span>Delivery Fee</span>
           <span>

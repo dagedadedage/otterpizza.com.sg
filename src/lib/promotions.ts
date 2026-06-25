@@ -8,42 +8,42 @@ export interface AppliedPromo {
   deliveryFee: number;
 }
 
-const DELIVERY_FEE = 5.0;
+export interface AppliedPromo {
+  type: "percentage" | "free_delivery" | "none";
+  description: string;
+  discountAmount: number;
+  deliveryFee: number;
+  nextTier?: { amount: number; label: string };
+}
+
+const TIERS = [
+  { threshold: 250, type: "percentage" as const, discount: 0.10, label: "10% OFF + FREE DELIVERY" },
+  { threshold: 150, type: "percentage" as const, discount: 0.05, label: "5% OFF + FREE DELIVERY" },
+  { threshold: 50,  type: "free_delivery" as const, discount: 0, label: "FREE DELIVERY" },
+];
 
 export function calculatePromotions(items: CartItem[]): AppliedPromo {
   const subtotal = getSubtotal(items);
 
-  if (subtotal >= 500) {
-    return {
-      type: "percentage",
-      description: "15% OFF + FREE DELIVERY",
-      discountAmount: subtotal * 0.15,
-      deliveryFee: 0,
-    };
+  for (const tier of TIERS) {
+    if (subtotal >= tier.threshold) {
+      return {
+        type: tier.type,
+        description: tier.label,
+        discountAmount: subtotal * tier.discount,
+        deliveryFee: 0,
+        nextTier: undefined,
+      };
+    }
   }
 
-  if (subtotal >= 200) {
-    return {
-      type: "percentage",
-      description: "10% OFF + FREE DELIVERY",
-      discountAmount: subtotal * 0.1,
-      deliveryFee: 0,
-    };
-  }
-
-  if (subtotal >= 60) {
-    return {
-      type: "free_delivery",
-      description: "FREE DELIVERY",
-      discountAmount: 0,
-      deliveryFee: 0,
-    };
-  }
-
+  // No promo yet: find the next tier to nudge toward
+  const next = TIERS.findLast((t) => subtotal < t.threshold);
   return {
     type: "none",
     description: "",
     discountAmount: 0,
-    deliveryFee: DELIVERY_FEE,
+    deliveryFee: 0, // DB delivery fee will be applied by CartSummary
+    nextTier: next ? { amount: next.threshold - subtotal, label: next.label } : undefined,
   };
 }
