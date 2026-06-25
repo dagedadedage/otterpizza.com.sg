@@ -25,9 +25,10 @@ interface CategoryData {
 
 interface MenuPageClientProps {
   categories: CategoryData[];
+  rightSlot?: React.ReactNode;
 }
 
-export function MenuPageClient({ categories }: MenuPageClientProps) {
+export function MenuPageClient({ categories, rightSlot }: MenuPageClientProps) {
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const tabs = useMemo(
@@ -51,22 +52,25 @@ export function MenuPageClient({ categories }: MenuPageClientProps) {
 
   return (
     <div>
-      {/* Category filter tabs */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10">
-        {tabs.map((tab) => (
-          <button
-            key={tab.slug}
-            type="button"
-            onClick={() => setActiveCategory(tab.slug)}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer ${
-              activeCategory === tab.slug
-                ? "bg-primary text-white shadow-sm"
-                : "bg-cream text-muted hover:bg-primary-light hover:text-primary"
-            }`}
-          >
-            {tab.name}
-          </button>
-        ))}
+      {/* Category filter tabs + right slot (cart) */}
+      <div className="flex items-center gap-2 mb-10">
+        <div className="flex flex-1 flex-wrap justify-center gap-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.slug}
+              type="button"
+              onClick={() => setActiveCategory(tab.slug)}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer ${
+                activeCategory === tab.slug
+                  ? "bg-primary text-white shadow-sm"
+                  : "bg-cream text-muted hover:bg-primary-light hover:text-primary"
+              }`}
+            >
+              {tab.name}
+            </button>
+          ))}
+        </div>
+        {rightSlot}
       </div>
 
       {/* Product grid */}

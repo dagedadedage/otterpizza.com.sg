@@ -87,11 +87,8 @@ export default async function OrderPage() {
         </div>
 
         <PromoBanner />
-        <div className="mt-6 flex gap-6">
-          <div className="flex-1 min-w-0">
-            <MenuPageClient categories={categories} />
-          </div>
-          <OrderSideCart />
+        <div className="mt-6">
+          <MenuPageClient categories={categories} rightSlot={<OrderSideCart />} />
         </div>
       </div>
     </div>
