@@ -52,6 +52,8 @@ async function getFeaturedProducts(): Promise<FeaturedProduct[]> {
   }
 }
 
+export const revalidate = 60; // refresh featured products every 60s
+
 export default async function HomePage() {
   const featured = await getFeaturedProducts();
 

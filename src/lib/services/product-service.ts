@@ -161,18 +161,30 @@ export class ProductService {
     const product = await prisma.product.findUnique({ where: { id } });
     if (!product) throw new Error("Product not found");
 
-    // Check if product is referenced in any orders
-    const orderItemCount = await prisma.orderItem.count({ where: { productId: id } });
-    if (orderItemCount > 0) {
-      // Soft delete: product has order history, hide but preserve
-      return prisma.product.update({
-        where: { id },
-        data: { inStock: false, isFeatured: false, sortOrder: 9999 },
+    // Find or create Obsolete category
+    let obsoleteCategory = await prisma.category.findFirst({
+      where: { slug: "obsolete" },
+    });
+    if (!obsoleteCategory) {
+      obsoleteCategory = await prisma.category.create({
+        data: {
+          name: "Obsolete",
+          slug: "obsolete",
+          sortOrder: 9999,
+        },
       });
     }
 
-    // Hard delete: no order history, safe to remove
-    return prisma.product.delete({ where: { id } });
+    // Soft delete: move to obsolete, hide from public, preserve order history
+    return prisma.product.update({
+      where: { id },
+      data: {
+        inStock: false,
+        isFeatured: false,
+        sortOrder: 9999,
+        categoryId: obsoleteCategory.id,
+      },
+    });
   }
 
   static async bulkUpdatePrice(
