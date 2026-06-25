@@ -9,25 +9,23 @@ const AUTH_COOKIES = [
 ];
 
 export async function GET() {
-  const response = NextResponse.redirect(new URL("/admin/login", process.env.NEXT_PUBLIC_APP_URL || "https://otterpizza.com"));
+  const redirectUrl = process.env.NEXT_PUBLIC_APP_URL
+    ? `${process.env.NEXT_PUBLIC_APP_URL}/admin/login`
+    : "/admin/login";
 
-  // Clear all possible auth cookies
+  // Use a standard Response so we can set multiple Set-Cookie headers properly
+  const response = NextResponse.redirect(redirectUrl);
+
+  // Clear all auth cookies (both secure and non-secure variants)
   for (const name of AUTH_COOKIES) {
-    response.cookies.set(name, "", {
-      path: "/",
-      maxAge: 0,
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-    });
-    // Also try without secure for dev
-    response.cookies.set(name, "", {
-      path: "/",
-      maxAge: 0,
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-    });
+    response.headers.append(
+      "Set-Cookie",
+      `${name}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax`
+    );
+    response.headers.append(
+      "Set-Cookie",
+      `${name}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax; Secure`
+    );
   }
 
   return response;
