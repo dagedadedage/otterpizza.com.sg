@@ -100,19 +100,23 @@ export function verifyWebhookSignature(
   rawBody: string,
   signature: string
 ): boolean {
-  const computed = crypto
-    .createHmac("sha256", HITPAY_WEBHOOK_SALT)
-    .update(rawBody)
-    .digest("hex");
+  // Try both salts: webhook salt and API key (HitPay uses different salts for different webhook types)
+  const salts = [HITPAY_WEBHOOK_SALT, HITPAY_API_KEY].filter(Boolean);
+  for (const salt of salts) {
+    const computed = crypto
+      .createHmac("sha256", salt)
+      .update(rawBody)
+      .digest("hex");
 
-  try {
-    return crypto.timingSafeEqual(
-      Buffer.from(computed),
-      Buffer.from(signature)
-    );
-  } catch {
-    return false;
+    try {
+      if (crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(signature))) {
+        return true;
+      }
+    } catch {
+      // Buffer length mismatch — continue to next salt
+    }
   }
+  return false;
 }
 
 /**

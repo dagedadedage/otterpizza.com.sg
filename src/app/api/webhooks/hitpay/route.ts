@@ -5,33 +5,55 @@ import { sendOrderConfirmation, sendOrderCancelled } from "@/lib/email";
 
 /**
  * HitPay webhook handler.
- * HitPay sends POST with JSON body containing payment status updates.
- * We verify the HMAC signature (hmac-sha256 header) then process the event.
+ *
+ * HitPay sends TWO types of webhooks to the same endpoint:
+ * 1. Payment-request callback (set via "webhook" param on create):
+ *    - HMAC in JSON body "hmac" field, signed with API key as salt
+ * 2. Event webhook (registered in HitPay dashboard):
+ *    - HMAC in "hitpay-signature" header, signed with per-webhook secret
+ *
+ * We try header signature first, then body hmac field.
  */
 export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text();
-    const signature = request.headers.get("hitpay-signature") ||
-      request.headers.get("hmac-sha256") ||
-      request.headers.get("x-signature") || "";
 
-    // Verify HMAC signature — required for all webhook requests
-    if (!signature) {
-      console.warn("[webhook] Missing HMAC signature — rejecting");
-      return NextResponse.json({ error: "Missing signature" }, { status: 401 });
-    }
-    const isValid = verifyWebhookSignature(rawBody, signature);
-    if (!isValid) {
-      console.warn("[webhook] Invalid HMAC signature");
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-    }
-
-    // Parse payload
+    // Parse payload first (needed for both verification and processing)
     let payload: Record<string, unknown>;
     try {
       payload = JSON.parse(rawBody) as Record<string, unknown>;
     } catch {
       return NextResponse.json({ received: true });
+    }
+
+    // Try to verify signature from header (event webhook) or body hmac (payment-request callback)
+    const headerSig = request.headers.get("hitpay-signature") || "";
+    const bodyHmac = (payload.hmac as string) || "";
+    let verified = false;
+
+    if (headerSig) {
+      // Event webhook: signature in header, signed with webhook salt
+      verified = verifyWebhookSignature(rawBody, headerSig);
+      if (verified) {
+        console.log("[webhook] Verified via hitpay-signature header");
+      } else {
+        console.warn("[webhook] Invalid hitpay-signature header");
+      }
+    }
+
+    if (!verified && bodyHmac) {
+      // Payment-request callback: hmac in body, signed with API key
+      verified = verifyWebhookSignature(rawBody, bodyHmac);
+      if (verified) {
+        console.log("[webhook] Verified via body hmac field");
+      } else {
+        console.warn("[webhook] Invalid body hmac field");
+      }
+    }
+
+    if (!verified) {
+      console.warn("[webhook] HMAC verification failed — rejecting");
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
     const paymentId = (payload.payment_request_id as string) || (payload.id as string) || "";
