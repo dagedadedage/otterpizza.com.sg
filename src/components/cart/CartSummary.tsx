@@ -18,12 +18,12 @@ export default function CartSummary({ items }: CartSummaryProps) {
 
   const [gstRate, setGstRate] = useState(GST_DEFAULTS.rate);
   const [gstMode, setGstMode] = useState<"INCLUSIVE" | "EXCLUSIVE">(GST_DEFAULTS.mode);
-  const [deliveryFee, setDeliveryFee] = useState(promo.deliveryFee);
-
-  // Sync delivery fee when promo changes (e.g., crossing $60/$200/$500 thresholds)
-  useEffect(() => {
-    setDeliveryFee(promo.deliveryFee);
-  }, [promo.deliveryFee]);
+  // Delivery fee: promo override (free delivery thresholds) takes priority, else fetch from DB
+  const [dbDeliveryFee, setDbDeliveryFee] = useState(0);
+  const deliveryFee = promo.deliveryFee > 0 ? promo.deliveryFee : 0;
+  // When promo gives free delivery, use 0. Otherwise use the promo-calculated fee
+  // which will be overwritten by DB fetch if promo has a positive deliveryFee.
+  const displayFee = promo.type !== "none" ? 0 : (dbDeliveryFee > 0 ? dbDeliveryFee : promo.deliveryFee);
 
   useEffect(() => {
     fetch("/api/gst")
@@ -36,15 +36,15 @@ export default function CartSummary({ items }: CartSummaryProps) {
     fetch("/api/delivery")
       .then((res) => res.json())
       .then((data) => {
-        if (data.fee !== undefined && promo.deliveryFee > 0) setDeliveryFee(data.fee);
+        if (data.fee !== undefined) setDbDeliveryFee(data.fee);
       })
       .catch(() => {});
-  }, [promo.deliveryFee]);
+  }, []);
 
   const gstAmount = calculateGst(baseAmount, gstRate, gstMode);
   // INCLUSIVE: GST already in prices, don't add to total. EXCLUSIVE: add GST on top.
   const gstAddon = gstMode === "EXCLUSIVE" ? gstAmount : 0;
-  const finalTotal = baseAmount + deliveryFee + gstAddon;
+  const finalTotal = baseAmount + displayFee + gstAddon;
 
   if (items.length === 0) {
     return null;
@@ -81,10 +81,10 @@ export default function CartSummary({ items }: CartSummaryProps) {
         <div className="flex items-center justify-between text-muted">
           <span>Delivery Fee</span>
           <span>
-            {deliveryFee === 0 && promo.type !== "none" ? (
+            {displayFee === 0 ? (
               <span className="text-green-700">FREE</span>
             ) : (
-              formatPrice(deliveryFee)
+              formatPrice(displayFee)
             )}
           </span>
         </div>
