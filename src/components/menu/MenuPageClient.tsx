@@ -71,23 +71,54 @@ export function MenuPageClient({ categories }: MenuPageClientProps) {
 
       {/* Product grid */}
       {displayedProducts.length > 0 ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-          {displayedProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              sku={product.sku}
-              name={product.name}
-              slug={product.slug}
-              description={product.description}
-              price={product.price}
-              salePrice={product.salePrice}
-              imageUrl={product.imageUrl}
-              tags={product.tags}
-              inStock={product.inStock}
-            />
-          ))}
-        </div>
+        activeCategory === "all" ? (
+          /* Group by category with dividers */
+          <div className="space-y-10">
+            {categories.map((cat) => (
+              <section key={cat.id}>
+                <div className="flex items-center gap-3 mb-5">
+                  <h2 className="text-lg font-bold text-dark shrink-0">{cat.name}</h2>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+                  {cat.products.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      sku={product.sku}
+                      name={product.name}
+                      slug={product.slug}
+                      description={product.description}
+                      price={product.price}
+                      salePrice={product.salePrice}
+                      imageUrl={product.imageUrl}
+                      tags={product.tags}
+                      inStock={product.inStock}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+            {displayedProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                sku={product.sku}
+                name={product.name}
+                slug={product.slug}
+                description={product.description}
+                price={product.price}
+                salePrice={product.salePrice}
+                imageUrl={product.imageUrl}
+                tags={product.tags}
+                inStock={product.inStock}
+              />
+            ))}
+          </div>
+        )
       ) : (
         <div className="text-center py-16">
           <p className="text-muted text-lg">No products found in this category.</p>

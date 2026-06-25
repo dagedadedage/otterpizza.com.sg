@@ -80,9 +80,6 @@ export default async function OrderPage() {
           <h1 className="text-3xl sm:text-4xl font-black text-dark tracking-tight">
             Online Ordering
           </h1>
-          <p className="mt-3 text-muted max-w-xl mx-auto">
-            Browse our menu and order your favourites. Fresh, handcrafted pizzas delivered to your door.
-          </p>
         </div>
 
         <PromoBanner />
