@@ -79,13 +79,16 @@ export default function CartSummary({ items }: CartSummaryProps) {
           </div>
         )}
 
-        {/* Progress nudge to next tier */}
+        {/* Progress nudge to next tier — clickable, scrolls to suggestions */}
         {promo.nextTier && (
-          <div className="rounded-lg bg-gold/15 border border-gold/30 px-3 py-2 text-center">
+          <a
+            href="#cart-upsell"
+            className="block rounded-lg bg-gold/15 border border-gold/30 px-3 py-2 text-center hover:bg-gold/25 transition-colors cursor-pointer no-underline"
+          >
             <span className="text-xs text-dark font-medium">
               🎯 Add <strong>{formatPrice(promo.nextTier.amount)}</strong> more for <strong>{promo.nextTier.label}</strong>
             </span>
-          </div>
+          </a>
         )}
 
         {/* Active promo */}

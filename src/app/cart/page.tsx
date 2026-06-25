@@ -5,6 +5,7 @@ import { ShoppingBag, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CartItemComponent from "@/components/cart/CartItem";
 import CartSummary from "@/components/cart/CartSummary";
+import { CartUpsell } from "@/components/cart/CartUpsell";
 import { useCart } from "@/store/cart-context";
 
 export default function CartPage() {
@@ -71,6 +72,11 @@ export default function CartPage() {
             </Button>
           </Link>
         </div>
+      </div>
+
+      {/* Suggested products */}
+      <div className="mt-8">
+        <CartUpsell />
       </div>
     </div>
   );
