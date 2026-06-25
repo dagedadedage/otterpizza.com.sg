@@ -27,7 +27,7 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://otterpizza.com.sg.sg"),
+  metadataBase: new URL("https://otterpizza.com.sg"),
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "48x48" },
