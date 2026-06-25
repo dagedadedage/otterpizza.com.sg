@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { parseTags } from "@/lib/utils";
 import { MenuPageClient } from "@/components/menu/MenuPageClient";
+import { OrderSideCart } from "@/components/menu/OrderSideCart";
 import { PromoBanner } from "@/components/home/PromoBanner";
 
 type SerializedProduct = {
@@ -86,8 +87,11 @@ export default async function OrderPage() {
         </div>
 
         <PromoBanner />
-        <div className="mt-6">
-          <MenuPageClient categories={categories} />
+        <div className="mt-6 flex gap-6">
+          <div className="flex-1 min-w-0">
+            <MenuPageClient categories={categories} />
+          </div>
+          <OrderSideCart />
         </div>
       </div>
     </div>
