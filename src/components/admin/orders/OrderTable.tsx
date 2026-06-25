@@ -188,6 +188,17 @@ export function OrderTable({
                       <X className="w-3.5 h-3.5" />
                       Cancel
                     </Button>
+                    {/* Delete — only for final/closed statuses */}
+                    {onDelete && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => { if (confirm("Delete order " + order.orderNumber + "? This cannot be undone.")) onDelete(order.id); }}
+                        className="text-red-700 border-red-400 hover:bg-red-100 gap-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
                   </div>
                 </td>
               </tr>

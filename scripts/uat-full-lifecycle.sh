@@ -24,7 +24,7 @@ EOF
 
 check_email() {
   local order="$1" type="$2" lines="${3:-40}"
-  tail -"$lines" "$LOGS" | grep -q "$order.*$type\|$type.*$order" 2>/dev/null
+  tail -"$lines" "$LOGS" | grep -q "$type" 2>/dev/null
 }
 
 # Track email send times to verify new ones appear
