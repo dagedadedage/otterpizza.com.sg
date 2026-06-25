@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendContactNotification } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -59,6 +60,14 @@ export async function POST(request: Request) {
         message: message.trim(),
       },
     });
+
+    // Notify admin email (non-blocking)
+    sendContactNotification({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim(),
+      message: message.trim(),
+    }).catch((err) => console.error("[contact] Email notification failed:", err));
 
     return NextResponse.json(
       { id: submission.id, message: "Thank you for your message!" },

@@ -177,6 +177,33 @@ export async function sendOrderRefunded(data: OrderEmailData) {
   return sendEmail(data.customerEmail, `💰 Order Refunded — ${data.orderNumber}`, buildHtml(data, "💰 Order Refunded", "Your payment has been refunded. Please allow 5-10 business days for the refund to appear."));
 }
 
+export interface ContactNotificationData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  message: string;
+}
+
+export async function sendContactNotification(data: ContactNotificationData) {
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;background:#FEFBF7">
+    <div style="background:#FDD000;padding:24px 20px;text-align:center;border-radius:12px 12px 0 0">
+      <img src="https://otterpizza.com/images/logo.png" alt="Otter Pizza" style="height:48px;width:auto" />
+    </div>
+    <div style="background:white;border:1px solid #E8D5C4;border-top:none;border-radius:0 0 12px 12px;padding:20px">
+      <h2 style="color:#2D1B14;margin:0 0 16px 0;font-size:18px">📬 New Contact Form Submission</h2>
+      <table style="width:100%;border-collapse:collapse">
+        <tr><td style="padding:6px 8px;font-size:13px;color:#8B7355;width:80px">Name</td><td style="padding:6px 8px;font-size:13px;color:#2D1B14;font-weight:600">${data.firstName} ${data.lastName}</td></tr>
+        <tr><td style="padding:6px 8px;font-size:13px;color:#8B7355">Email</td><td style="padding:6px 8px;font-size:13px;color:#2D1B14"><a href="mailto:${data.email}" style="color:#E85D2C">${data.email}</a></td></tr>
+        <tr><td style="padding:6px 8px;font-size:13px;color:#8B7355;vertical-align:top">Message</td><td style="padding:6px 8px;font-size:13px;color:#2D1B14">${data.message.replace(/\n/g, "<br/>")}</td></tr>
+      </table>
+    </div>
+    <p style="color:#8B7355;font-size:11px;text-align:center;margin:20px 0">View all messages in the <a href="https://otterpizza.com/admin/contacts" style="color:#E85D2C">Admin Dashboard</a></p>
+  </body></html>`;
+
+  // Send to admin email only (not to the submitter)
+  await sendEmail(ADMIN_EMAIL, `📬 Contact: ${data.firstName} ${data.lastName}`, html);
+}
+
 export async function sendOutForDelivery(data: OrderEmailData, trackingUrl?: string) {
   const extraInfo = trackingUrl
     ? `Track your delivery: <a href="${trackingUrl}" style="color:#E85D2C">${trackingUrl}</a>`
