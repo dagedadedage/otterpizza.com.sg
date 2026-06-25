@@ -75,8 +75,9 @@ function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): st
   </body></html>`;
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
+async function sendEmail(to: string, subject: string, html: string, replyTo?: string) {
   const recipients = [to, ADMIN_EMAIL];
+  const replyToAddr = replyTo || gmailFrom;
 
   // Try Gmail SMTP first (works immediately, no DNS needed)
   if (useGmail) {
@@ -89,7 +90,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       });
       await transporter.sendMail({
         from: `"${FROM_NAME}" <${gmailFrom}>`,
-        replyTo: gmailFrom,
+        replyTo: replyToAddr,
         to: recipients.join(", "),
         subject,
         html,
@@ -106,6 +107,7 @@ async function sendEmail(to: string, subject: string, html: string) {
     try {
       const { error } = await resend.emails.send({
         from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+        replyTo: replyToAddr,
         to: recipients,
         subject,
         html,
@@ -200,8 +202,8 @@ export async function sendContactNotification(data: ContactNotificationData) {
     <p style="color:#8B7355;font-size:11px;text-align:center;margin:20px 0">View all messages in the <a href="https://otterpizza.com/admin/contacts" style="color:#E85D2C">Admin Dashboard</a></p>
   </body></html>`;
 
-  // Send to admin email only (not to the submitter)
-  await sendEmail(ADMIN_EMAIL, `📬 Contact: ${data.firstName} ${data.lastName}`, html);
+  // Send to admin email with Reply-To set to the customer's email
+  await sendEmail(ADMIN_EMAIL, `📬 Contact: ${data.firstName} ${data.lastName}`, html, data.email);
 }
 
 export async function sendOutForDelivery(data: OrderEmailData, trackingUrl?: string) {
