@@ -117,6 +117,7 @@ export async function POST(request: NextRequest) {
         data: {
           status: "PAID",
           paymentStatus: "completed",
+          paymentMethod: "PayNow / Card via HitPay",
         },
         include: {
           items: { include: { product: true } },

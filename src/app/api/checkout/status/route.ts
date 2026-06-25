@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
           // Webhook missed — update order now
           const fullOrder = await prisma.order.update({
             where: { id: order.id },
-            data: { status: "PAID", paymentStatus: "completed" },
+            data: { status: "PAID", paymentStatus: "completed", paymentMethod: "PayNow / Card via HitPay" },
             include: { items: { include: { product: true } } },
           });
           await prisma.orderStatusLog.create({

@@ -183,7 +183,7 @@ export async function sendOrderCancelled(data: OrderEmailData, reason?: string) 
 }
 
 export async function sendOrderRefunded(data: OrderEmailData) {
-  return sendEmail(data.customerEmail, `💰 Order Refunded — ${data.orderNumber}`, buildHtml(data, "💰 Order Refunded", "Your payment has been refunded. Please allow 5-10 business days for the refund to appear."));
+  return sendEmail(data.customerEmail, `💰 Order Refunded — ${data.orderNumber}`, buildHtml(data, "💰 Order Refunded", "Your payment has been refunded. Please allow 1-2 business days for the refund to appear."));
 }
 
 export interface ContactNotificationData {
