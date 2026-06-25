@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyWebhookSignature } from "@/lib/hitpay";
+import { verifyWebhookSignature, getPaymentStatus } from "@/lib/hitpay";
 import { sendOrderConfirmation, sendOrderCancelled } from "@/lib/email";
 
 /**
@@ -48,6 +48,25 @@ export async function POST(request: NextRequest) {
         console.log("[webhook] Verified via body hmac field");
       } else {
         console.warn("[webhook] Invalid body hmac field");
+      }
+    }
+
+    // Fallback: if HMAC verification fails but payload has payment data,
+    // verify by calling HitPay API directly
+    if (!verified) {
+      const fallbackId = (payload.payment_request_id as string) || (payload.id as string) || "";
+      if (fallbackId && payload.status === "completed") {
+        try {
+          const hitpayStatus = await getPaymentStatus(fallbackId);
+          if (["completed", "succeeded", "paid"].includes(hitpayStatus.status)) {
+            console.log("[webhook] HMAC failed but HitPay API confirms payment completed");
+            verified = true;
+          } else {
+            console.warn("[webhook] HMAC failed and HitPay API status is", hitpayStatus.status);
+          }
+        } catch (e) {
+          console.warn("[webhook] HMAC failed and HitPay API call failed:", e);
+        }
       }
     }
 
