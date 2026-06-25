@@ -21,7 +21,7 @@ export interface OrderEmailData {
   orderNumber: string;
   customerName: string;
   customerEmail: string;
-  items: { name: string; quantity: number; unitPrice: number; totalPrice: number }[];
+  items: { sku: string; name: string; quantity: number; unitPrice: number; totalPrice: number }[];
   subtotal: number;
   deliveryFee: number;
   discount: number;
@@ -66,8 +66,8 @@ function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): st
         <p style="color:#166534;margin:0;font-size:13px">${data.paymentMethod}${data.paymentNote ? ` — ${data.paymentNote}` : ""}</p>
       </div>` : ""}
       <table style="width:100%;border-collapse:collapse">
-        <tr style="border-bottom:1px solid #E8D5C4"><th style="text-align:left;padding:8px;font-size:12px;color:#8B7355">Item</th><th style="text-align:center;padding:8px;font-size:12px;color:#8B7355">Qty</th><th style="text-align:right;padding:8px;font-size:12px;color:#8B7355">Price</th></tr>
-        ${data.items.map(i => `<tr style="border-bottom:1px solid #E8D5C4"><td style="padding:8px;font-size:13px;color:#2D1B14">${i.name}</td><td style="text-align:center;padding:8px;font-size:13px;color:#2D1B14">${i.quantity}</td><td style="text-align:right;padding:8px;font-size:13px;color:#2D1B14">${formatPrice(i.totalPrice)}</td></tr>`).join("")}
+        <tr style="border-bottom:1px solid #E8D5C4"><th style="text-align:left;padding:8px;font-size:12px;color:#8B7355;width:28px">#</th><th style="text-align:left;padding:8px;font-size:12px;color:#8B7355;width:60px">SKU</th><th style="text-align:left;padding:8px;font-size:12px;color:#8B7355">Item</th><th style="text-align:center;padding:8px;font-size:12px;color:#8B7355">Qty</th><th style="text-align:right;padding:8px;font-size:12px;color:#8B7355">Price</th></tr>
+        ${data.items.map((i, idx) => `<tr style="border-bottom:1px solid #E8D5C4"><td style="padding:8px;font-size:11px;color:#8B7355">${idx + 1}</td><td style="padding:8px;font-size:11px;color:#8B7355;font-family:monospace">${i.sku}</td><td style="padding:8px;font-size:13px;color:#2D1B14">${i.name}</td><td style="text-align:center;padding:8px;font-size:13px;color:#2D1B14">${i.quantity}</td><td style="text-align:right;padding:8px;font-size:13px;color:#2D1B14">${formatPrice(i.totalPrice)}</td></tr>`).join("")}
       </table>
       <table style="width:100%;margin-top:16px;border-top:1px solid #E8D5C4;padding-top:12px">
         <tr><td style="text-align:right;padding:2px 0;font-size:13px;color:#8B7355">Subtotal</td><td style="width:80px;text-align:right;padding:2px 0;font-size:13px;color:#8B7355">${formatPrice(data.subtotal)}</td></tr>

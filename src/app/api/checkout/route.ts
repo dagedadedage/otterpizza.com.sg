@@ -228,7 +228,7 @@ export async function POST(request: Request) {
       customerName: order.customerName,
       customerEmail: order.customerEmail,
       paymentUrl,
-      items: order.items.map((i: any) => ({ name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),
+      items: order.items.map((i: any) => ({ sku: i.product?.sku || "", name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),
       subtotal: order.subtotal,
       deliveryFee: order.deliveryFee,
       discount: order.discount,

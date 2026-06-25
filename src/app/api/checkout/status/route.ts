@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
             orderNumber: fullOrder.orderNumber,
             customerName: fullOrder.customerName,
             customerEmail: fullOrder.customerEmail,
-            items: fullOrder.items.map((i: any) => ({ name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),
+            items: fullOrder.items.map((i: any) => ({ sku: i.product?.sku || "", name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),
             subtotal: fullOrder.subtotal,
             deliveryFee: fullOrder.deliveryFee,
             discount: fullOrder.discount,

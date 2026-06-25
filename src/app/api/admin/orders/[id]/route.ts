@@ -126,7 +126,7 @@ export async function PATCH(
             orderNumber: fullOrder.orderNumber,
             customerName: fullOrder.customerName,
             customerEmail: fullOrder.customerEmail,
-            items: (fullOrder as any).items?.map((i: any) => ({ name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })) || [],
+            items: (fullOrder as any).items?.map((i: any) => ({ sku: i.product?.sku || "", name: i.product?.name || "Item", quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })) || [],
             subtotal: fullOrder.subtotal, deliveryFee: fullOrder.deliveryFee, discount: fullOrder.discount,
             gstAmount: fullOrder.gstAmount, total: fullOrder.total,
             deliveryType: fullOrder.deliveryType, deliveryDate: fullOrder.deliveryDate,

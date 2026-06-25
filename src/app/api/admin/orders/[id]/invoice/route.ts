@@ -136,6 +136,7 @@ ${isDelivery ? `
   <thead>
     <tr>
       <th>#</th>
+      <th>SKU</th>
       <th>Product</th>
       <th class="text-center">Qty</th>
       <th class="text-right">Unit Price</th>
@@ -143,9 +144,10 @@ ${isDelivery ? `
     </tr>
   </thead>
   <tbody>
-    ${order.items.map((item, i) => `
+    ${[...order.items].sort((a, b) => (a.product.sku || "").localeCompare(b.product.sku || "")).map((item, i) => `
     <tr>
       <td>${i + 1}</td>
+      <td style="font-family:monospace;font-size:11px;color:#8B7355">${item.product.sku}</td>
       <td>${item.product.name}</td>
       <td class="text-center">${item.quantity}</td>
       <td class="text-right">${formatPrice(Number(item.unitPrice))}</td>
