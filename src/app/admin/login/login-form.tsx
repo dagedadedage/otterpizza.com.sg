@@ -99,11 +99,14 @@ export function AdminLoginForm() {
           </p>
         </div>
 
-        <p className="text-center text-xs text-muted/60 mt-6">
+        <div className="text-center mt-6">
+          <a href="/" className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm text-muted hover:text-dark hover:border-muted transition-colors">
+            ← Back to Otter Pizza
+          </a>
+        </div>
+        <p className="text-center text-xs text-muted/40 mt-4">
           Otter Pizza Pte Ltd &middot;{" "}
           <a href="/privacy" className="underline hover:text-muted">Privacy Policy</a>
-          {" "}&middot;{" "}
-          <a href="/" className="underline hover:text-muted">Back to Site</a>
         </p>
       </div>
     </div>
