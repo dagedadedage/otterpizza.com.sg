@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { OrderStatusBadge } from "./OrderStatusBadge";
-import { Eye, ChevronLeft, ChevronRight, Check, X, Trash2 } from "lucide-react";
+import { Eye, ChevronLeft, ChevronRight, Check, X, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarkAsPaidDialog, type PaymentInfo } from "./MarkAsPaidDialog";
+
+type SortField = "createdAt" | "orderNumber" | "customerName" | "total" | "status" | "deliveryType";
+type SortDir = "asc" | "desc";
 
 interface Order {
   id: number;
@@ -44,11 +47,58 @@ export function OrderTable({
   showStore = true,
 }: OrderTableProps) {
   const [paymentDialogOrder, setPaymentDialogOrder] = useState<{ id: number; status: string } | null>(null);
+  const [sortField, setSortField] = useState<SortField>("createdAt");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  const sortedOrders = useMemo(() => {
+    return [...orders].sort((a, b) => {
+      let va: string | number = "";
+      let vb: string | number = "";
+      switch (sortField) {
+        case "createdAt": va = a.createdAt; vb = b.createdAt; break;
+        case "orderNumber": va = a.orderNumber; vb = b.orderNumber; break;
+        case "customerName": va = a.customerName.toLowerCase(); vb = b.customerName.toLowerCase(); break;
+        case "total": va = Number(a.total); vb = Number(b.total); break;
+        case "status": va = a.status; vb = b.status; break;
+        case "deliveryType": va = a.deliveryType || ""; vb = b.deliveryType || ""; break;
+      }
+      if (va < vb) return sortDir === "asc" ? -1 : 1;
+      if (va > vb) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [orders, sortField, sortDir]);
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) setSortDir(d => d === "asc" ? "desc" : "asc");
+    else { setSortField(field); setSortDir("asc"); }
+  };
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <ArrowUpDown className="w-3 h-3 opacity-30" />;
+    return sortDir === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />;
+  };
+
+  const Th = ({ field, children, className }: { field?: SortField; children: React.ReactNode; className?: string }) => (
+    <th className={`${className || "text-left"} px-4 py-3 font-semibold text-dark ${field ? "cursor-pointer select-none hover:bg-primary-light/30" : ""}`} onClick={() => field && handleSort(field)}>
+      <div className="flex items-center gap-1">{children}{field && <SortIcon field={field} />}</div>
+    </th>
+  );
 
   if (orders.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-muted">No orders found.</p>
+      </div>
+    );
+  }
+
+  const colSpan = showStore ? 8 : 7;
+  if (orders.length === 0) {
+    return (
+      <div className="overflow-x-auto rounded-lg border border-border">
+        <table className="w-full text-sm">
+          <tbody><tr><td colSpan={colSpan} className="text-center py-12 text-muted">No orders found.</td></tr></tbody>
+        </table>
       </div>
     );
   }
@@ -59,42 +109,32 @@ export function OrderTable({
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-cream border-b border-border">
-              <th className="text-left px-4 py-3 font-semibold text-dark">
-                Date
-              </th>
-              <th className="text-left px-4 py-3 font-semibold text-dark">
-                Order #
-              </th>
-              <th className="text-left px-4 py-3 font-semibold text-dark">
-                Customer
-              </th>
-              {showStore && (
-                <th className="text-left px-4 py-3 font-semibold text-dark">
-                  Type
-                </th>
-              )}
-              <th className="text-right px-4 py-3 font-semibold text-dark">
-                Total
-              </th>
-              <th className="text-center px-4 py-3 font-semibold text-dark">
-                Status
-              </th>
-              <th className="text-center px-4 py-3 font-semibold text-dark">
-                Actions
-              </th>
+              <Th className="text-center w-10">#</Th>
+              <Th field="createdAt">Date</Th>
+              <Th field="orderNumber">Order #</Th>
+              <Th field="customerName">Customer</Th>
+              {showStore && <Th field="deliveryType">Type</Th>}
+              <Th field="total" className="text-right">Total</Th>
+              <Th field="status" className="text-center">Status</Th>
+              <th className="text-center px-4 py-3 font-semibold text-dark">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {orders.map((order) => (
+            {sortedOrders.map((order, idx) => (
               <tr
                 key={order.id}
                 className="hover:bg-warm-white/50 transition-colors"
               >
+                <td className="px-4 py-3 text-xs text-muted text-center">
+                  {(page - 1) * 50 + idx + 1}
+                </td>
                 <td className="px-4 py-3 text-sm text-muted whitespace-nowrap">
-                  {new Date(order.createdAt).toLocaleDateString("en-SG", {
+                  {new Date(order.createdAt).toLocaleString("en-SG", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
                   })}
                 </td>
                 <td className="px-4 py-3 font-mono text-sm font-medium">
