@@ -6,12 +6,18 @@ import { sendOrderConfirmation, sendOrderCancelled } from "@/lib/email";
 /**
  * HitPay webhook handler.
  * HitPay sends POST with JSON body containing payment status updates.
- * We verify the HMAC signature (X-Signature header) then process the event.
+ * We verify the HMAC signature (hmac-sha256 header) then process the event.
  */
 export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text();
-    const signature = request.headers.get("x-signature") || "";
+    const signature = request.headers.get("hmac-sha256") ||
+      request.headers.get("x-signature") || "";
+
+    // Log all headers for debugging (remove after confirmed working)
+    const headerList: string[] = [];
+    request.headers.forEach((val, key) => { if (key.startsWith("h") || key.startsWith("x")) headerList.push(`${key}: ${val.substring(0, 30)}`); });
+    console.log("[webhook] Headers:", headerList.join(", "));
 
     // Verify HMAC signature — required for all webhook requests
     if (!signature) {
