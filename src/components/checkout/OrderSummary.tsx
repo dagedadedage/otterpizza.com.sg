@@ -13,9 +13,9 @@ interface OrderSummaryProps {
 }
 
 const FALLBACK_TIERS: PromoTier[] = [
-  { type: "FREE_DELIVERY", minAmount: 50, value: 0, name: "Free Delivery", description: "FREE DELIVERY" },
-  { type: "PERCENTAGE_DISCOUNT", minAmount: 150, value: 5, name: "5% Off", description: "5% OFF + FREE DELIVERY" },
-  { type: "PERCENTAGE_DISCOUNT", minAmount: 250, value: 10, name: "10% Off", description: "10% OFF + FREE DELIVERY" },
+  { type: "FREE_DELIVERY", minAmount: 60, value: 0, name: "Free Delivery", description: "FREE DELIVERY" },
+  { type: "PERCENTAGE_DISCOUNT", minAmount: 120, value: 5, name: "5% Off", description: "5% OFF" },
+  { type: "PERCENTAGE_DISCOUNT", minAmount: 200, value: 10, name: "10% Off", description: "10% OFF" },
 ];
 
 export default function OrderSummary({ items }: OrderSummaryProps) {

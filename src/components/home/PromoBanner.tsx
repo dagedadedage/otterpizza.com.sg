@@ -12,9 +12,9 @@ interface Promo {
 }
 
 const DEFAULT_PROMOS = [
-  { label: "FREE DELIVERY (ABOVE $50)", emoji: "🙃" },
-  { label: "5% OFF + FREE DELIVERY (ABOVE $150)", emoji: "🙃" },
-  { label: "10% OFF + FREE DELIVERY (ABOVE $250)", emoji: "🙃" },
+  { label: "FREE DELIVERY (ABOVE $60)", emoji: "🙃" },
+  { label: "5% OFF (ABOVE $120)", emoji: "🙃" },
+  { label: "10% OFF (ABOVE $200)", emoji: "🙃" },
 ];
 
 export function PromoBanner() {

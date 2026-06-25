@@ -19,9 +19,9 @@ export interface PromoTier {
 
 function formatLabel(tier: PromoTier): string {
   if (tier.type === "PERCENTAGE_DISCOUNT") {
-    return `${tier.value}% OFF + FREE DELIVERY`;
+    return `${tier.value}% OFF`;
   }
-  return tier.description || tier.name || "FREE DELIVERY";
+  return "FREE DELIVERY";
 }
 
 /**
