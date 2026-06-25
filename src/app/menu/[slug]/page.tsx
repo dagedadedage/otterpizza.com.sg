@@ -172,6 +172,7 @@ export default async function ProductDetailPage({
                 imageUrl={product.imageUrl}
                 showQuantity
                 size="lg"
+                inStock={product.inStock}
               />
             </div>
           </div>

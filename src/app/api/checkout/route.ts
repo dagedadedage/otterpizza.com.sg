@@ -59,11 +59,21 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate each item has valid fields
+    // Validate each item has valid fields and is in stock
     for (const item of body.items) {
       if (!item.productId || item.quantity < 1 || item.unitPrice < 0) {
         return NextResponse.json(
           { error: "Invalid item data" },
+          { status: 400 },
+        );
+      }
+      const product = await prisma.product.findUnique({
+        where: { id: item.productId },
+        select: { inStock: true, name: true },
+      });
+      if (!product || !product.inStock) {
+        return NextResponse.json(
+          { error: `${product?.name || "Item"} is currently out of stock` },
           { status: 400 },
         );
       }

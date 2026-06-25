@@ -16,6 +16,7 @@ interface AddToCartButtonProps {
   className?: string;
   showQuantity?: boolean;
   size?: "sm" | "md" | "lg";
+  inStock?: boolean;
 }
 
 export function AddToCartButton({
@@ -28,12 +29,14 @@ export function AddToCartButton({
   className,
   showQuantity = false,
   size = "md",
+  inStock = true,
 }: AddToCartButtonProps) {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
 
   const handleAdd = () => {
+    if (!inStock) return;
     addItem({
       productId,
       sku: sku ?? String(productId),
@@ -86,9 +89,10 @@ export function AddToCartButton({
           size={size}
           onClick={handleAdd}
           className="flex-1"
+          disabled={!inStock}
         >
           <ShoppingCart className="h-4 w-4" />
-          {added ? "Added!" : "Add to Cart"}
+          {inStock ? (added ? "Added!" : "Add to Cart") : "Out of Stock"}
         </Button>
       </div>
     );
@@ -100,9 +104,10 @@ export function AddToCartButton({
       size={size}
       onClick={handleAdd}
       className={cn("w-full", className)}
+      disabled={!inStock}
     >
       <ShoppingCart className="h-4 w-4" />
-      {added ? "Added!" : "Add to Cart"}
+      {inStock ? (added ? "Added!" : "Add to Cart") : "Out of Stock"}
     </Button>
   );
 }
