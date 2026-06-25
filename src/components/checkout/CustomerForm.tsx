@@ -41,7 +41,7 @@ interface ValidationErrors {
   deliveryTimeslot?: string;
 }
 
-function generateTimeslots(selectedDate: string): string[] {
+function generateTimeslots(selectedDate: string, deliveryType: "delivery" | "pickup"): string[] {
   const slots: string[] = [];
   const now = new Date();
   const today = now.toISOString().split("T")[0];
@@ -51,9 +51,13 @@ function generateTimeslots(selectedDate: string): string[] {
   const openTimeMinutes = 10 * 60; // 10am
   const closeTimeMinutes = 22 * 60; // 10pm
 
+  const isDelivery = deliveryType === "delivery";
+  const asapLabel = isDelivery ? "ASAP (~30-45 min)" : "ASAP (~30 min)";
+  const minAdvanceMinutes = isDelivery ? 60 : 30;
+
   // Add ASAP option for today (only within operating hours: 10am to 9:30pm)
   if (isToday && currentTimeMinutes >= openTimeMinutes && currentTimeMinutes < closeTimeMinutes - 30) {
-    slots.push("ASAP (~30-45 min)");
+    slots.push(asapLabel);
   }
 
   // Operating hours: 10am to 10pm (last slot at 10:00pm), 30-min increments
@@ -65,8 +69,8 @@ function generateTimeslots(selectedDate: string): string[] {
       const slotTime = new Date(selectedDate + "T00:00:00");
       slotTime.setHours(h, m, 0, 0);
 
-      // For today: skip slots less than 60 min from now
-      if (isToday && slotTime.getTime() < now.getTime() + 60 * 60 * 1000) {
+      // For today: skip slots too close to now (delivery: 60 min, pickup: 30 min)
+      if (isToday && slotTime.getTime() < now.getTime() + minAdvanceMinutes * 60 * 1000) {
         continue;
       }
 
@@ -112,7 +116,7 @@ export default function CustomerForm({
   const [deliveryPostalCode, setDeliveryPostalCode] = useState("");
   const [deliveryDate, setDeliveryDate] = useState(() => {
     const todayStr = new Date().toISOString().split("T")[0];
-    const todaySlots = generateTimeslots(todayStr);
+    const todaySlots = generateTimeslots(todayStr, "delivery");
     if (todaySlots.length > 0) return todayStr;
     // No slots today — use tomorrow
     const tomorrow = new Date();
@@ -126,7 +130,7 @@ export default function CustomerForm({
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
   const dateOptions = useMemo(() => generateDateOptions(), []);
-  const timeslots = useMemo(() => generateTimeslots(deliveryDate), [deliveryDate]);
+  const timeslots = useMemo(() => generateTimeslots(deliveryDate, deliveryType), [deliveryDate, deliveryType]);
 
   useEffect(() => {
     async function fetchStores() {
@@ -153,13 +157,13 @@ export default function CustomerForm({
       setDeliveryTimeslot("");
       // If today has no slots, jump to the first date that does
       for (const d of dateOptions) {
-        if (generateTimeslots(d.value).length > 0) {
+        if (generateTimeslots(d.value, deliveryType).length > 0) {
           setDeliveryDate(d.value);
           break;
         }
       }
     }
-  }, [timeslots, dateOptions]);
+  }, [timeslots, dateOptions, deliveryType]);
 
   function validate(): boolean {
     const errors: ValidationErrors = {};
