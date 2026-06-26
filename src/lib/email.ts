@@ -5,6 +5,8 @@ import { formatPrice } from "@/lib/utils";
 const FROM_NAME = "Otter Pizza";
 const FROM_EMAIL = "orders@otterpizza.com.sg";
 const ADMIN_EMAIL = "orders@otterpizza.com.sg";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://otterpizza.com.sg";
+const LOGO_URL = `${APP_URL}/images/logo.png`;
 
 // Resend client (works once DNS is verified)
 const resend = process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "your_resend_api_key"
@@ -50,7 +52,7 @@ function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): st
   return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;background:#FEFBF7">
     <!-- Gold header strip with logo -->
     <div style="background:#FDD000;padding:24px 20px;text-align:center;border-radius:12px 12px 0 0">
-      <img src="https://otterpizza.com/images/logo.png" alt="Otter Pizza" style="height:48px;width:auto" />
+      <img src="${LOGO_URL}" alt="Otter Pizza" style="height:48px;width:auto" />
     </div>
     <!-- Status banner -->
     <div style="background:#FFF8F0;border-left:1px solid #E8D5C4;border-right:1px solid #E8D5C4;padding:24px;text-align:center">
@@ -134,8 +136,7 @@ async function sendEmail(to: string, subject: string, html: string, replyTo?: st
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://otterpizza.com";
-  const invoiceUrl = data.publicToken ? `${appUrl}/api/invoice/${data.publicToken}` : null;
+  const invoiceUrl = data.publicToken ? `${APP_URL}/api/invoice/${data.publicToken}` : null;
   const invoiceButton = invoiceUrl
     ? `<div style="text-align:center;margin:24px 0">
         <a href="${invoiceUrl}" style="display:inline-block;background:#2D1B14;color:white;padding:12px 28px;border-radius:24px;text-decoration:none;font-weight:600;font-size:14px">📄 Download Invoice</a>
@@ -196,7 +197,7 @@ export interface ContactNotificationData {
 export async function sendContactNotification(data: ContactNotificationData) {
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;background:#FEFBF7">
     <div style="background:#FDD000;padding:24px 20px;text-align:center;border-radius:12px 12px 0 0">
-      <img src="https://otterpizza.com/images/logo.png" alt="Otter Pizza" style="height:48px;width:auto" />
+      <img src="${LOGO_URL}" alt="Otter Pizza" style="height:48px;width:auto" />
     </div>
     <div style="background:white;border:1px solid #E8D5C4;border-top:none;border-radius:0 0 12px 12px;padding:20px">
       <h2 style="color:#2D1B14;margin:0 0 16px 0;font-size:18px">📬 New Contact Form Submission</h2>
@@ -206,7 +207,7 @@ export async function sendContactNotification(data: ContactNotificationData) {
         <tr><td style="padding:6px 8px;font-size:13px;color:#8B7355;vertical-align:top">Message</td><td style="padding:6px 8px;font-size:13px;color:#2D1B14">${data.message.replace(/\n/g, "<br/>")}</td></tr>
       </table>
     </div>
-    <p style="color:#8B7355;font-size:11px;text-align:center;margin:20px 0">View all messages in the <a href="https://otterpizza.com/admin/contacts" style="color:#E85D2C">Admin Dashboard</a></p>
+    <p style="color:#8B7355;font-size:11px;text-align:center;margin:20px 0">View all messages in the <a href="${APP_URL}/admin/contacts" style="color:#E85D2C">Admin Dashboard</a></p>
   </body></html>`;
 
   // Send to admin email with Reply-To set to the customer's email
