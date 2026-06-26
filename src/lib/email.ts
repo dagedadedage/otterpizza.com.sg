@@ -146,8 +146,8 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
 }
 
 export async function sendPendingPaymentReminder(data: OrderEmailData) {
-  // Wait 1 minute, then check if order is still PENDING before sending
-  const PAYMENT_WINDOW_MS = 1 * 60 * 1000;
+  // Wait 30 seconds, then check if order is still PENDING before sending
+  const PAYMENT_WINDOW_MS = 30 * 1000;
   await new Promise((resolve) => setTimeout(resolve, PAYMENT_WINDOW_MS));
 
   // Check if payment was completed during the window
