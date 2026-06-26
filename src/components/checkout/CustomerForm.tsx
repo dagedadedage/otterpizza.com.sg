@@ -128,6 +128,7 @@ export default function CustomerForm({
   const [stores, setStores] = useState<Store[]>([]);
   const [storesLoading, setStoresLoading] = useState(true);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [fetchingAddress, setFetchingAddress] = useState(false);
 
   const dateOptions = useMemo(() => generateDateOptions(), []);
   const timeslots = useMemo(() => generateTimeslots(deliveryDate, deliveryType), [deliveryDate, deliveryType]);
@@ -334,6 +335,38 @@ export default function CustomerForm({
       {/* Delivery: address */}
       {deliveryType === "delivery" && (
         <>
+          <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
+            <Input
+              label="Postal Code *"
+              id="delivery-postal"
+              placeholder="123456"
+              value={deliveryPostalCode}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, "").slice(0, 6);
+                setDeliveryPostalCode(v);
+                if (v.length === 6) {
+                  setFetchingAddress(true);
+                  fetch(`https://developers.onemap.sg/commonapi/search?searchVal=${v}&returnGeom=N&getAddrDetails=Y`)
+                    .then(r => r.json())
+                    .then(data => {
+                      if (data.results && data.results.length > 0) {
+                        const r = data.results[0];
+                        setDeliveryAddress(`${r.BLOCK || ""} ${r.ROAD_NAME || ""}`.trim());
+                        setDeliveryPostalCode(v);
+                      }
+                    })
+                    .catch(() => {})
+                    .finally(() => setFetchingAddress(false));
+                }
+              }}
+              error={validationErrors.deliveryPostalCode}
+              disabled={isSubmitting}
+            />
+            {fetchingAddress && (
+              <span className="text-xs text-muted pb-2 animate-pulse">🔍 Looking up...</span>
+            )}
+          </div>
+
           <Input
             label="Delivery Address *"
             id="delivery-address"
@@ -344,25 +377,14 @@ export default function CustomerForm({
             disabled={isSubmitting}
           />
 
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="Unit"
-              id="delivery-unit"
-              placeholder="#01-23"
-              value={deliveryUnit}
-              onChange={(e) => setDeliveryUnit(e.target.value)}
-              disabled={isSubmitting}
-            />
-            <Input
-              label="Postal Code *"
-              id="delivery-postal"
-              placeholder="123456"
-              value={deliveryPostalCode}
-              onChange={(e) => setDeliveryPostalCode(e.target.value)}
-              error={validationErrors.deliveryPostalCode}
-              disabled={isSubmitting}
-            />
-          </div>
+          <Input
+            label="Unit"
+            id="delivery-unit"
+            placeholder="#01-23"
+            value={deliveryUnit}
+            onChange={(e) => setDeliveryUnit(e.target.value)}
+            disabled={isSubmitting}
+          />
         </>
       )}
 
