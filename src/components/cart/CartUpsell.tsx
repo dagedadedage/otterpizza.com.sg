@@ -47,6 +47,9 @@ export function CartUpsell() {
 
   useEffect(() => { fetchProducts(1); }, [fetchProducts]);
 
+  const displayPrice = (p: Product) => p.salePrice != null && p.salePrice < p.price ? p.salePrice : p.price;
+  const hasSale = (p: Product) => p.salePrice != null && p.salePrice < p.price;
+
   const handleAdd = (p: Product) => {
     addItem({ productId: p.id, sku: p.slug, name: p.name, price: p.price, salePrice: p.salePrice, quantity: 1, imageUrl: p.imageUrl });
     showCartToast(p.name);
@@ -71,7 +74,10 @@ export function CartUpsell() {
               <p className="text-[11px] font-semibold text-dark leading-tight line-clamp-2">{p.name}</p>
               <p className="text-[10px] text-muted font-mono">{p.sku}</p>
               <div className="mt-auto pt-1 flex items-center justify-between">
-                <span className="text-xs font-bold text-dark">{formatPrice(p.price)}</span>
+                <div className="flex items-baseline gap-1">
+                  <span className={`text-xs font-bold ${hasSale(p) ? "text-primary" : "text-dark"}`}>{formatPrice(displayPrice(p))}</span>
+                  {hasSale(p) && <span className="text-[10px] text-muted line-through">{formatPrice(p.price)}</span>}
+                </div>
                 <button
                   onClick={() => handleAdd(p)}
                   className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white hover:bg-primary/80 transition-colors cursor-pointer shrink-0"
