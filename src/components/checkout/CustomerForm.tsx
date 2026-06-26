@@ -346,7 +346,7 @@ export default function CustomerForm({
                 setDeliveryPostalCode(v);
                 if (v.length === 6) {
                   setFetchingAddress(true);
-                  fetch(`https://developers.onemap.sg/commonapi/search?searchVal=${v}&returnGeom=N&getAddrDetails=Y`)
+                  fetch(`/api/postal?code=${v}`)
                     .then(r => r.json())
                     .then(data => {
                       if (data.results && data.results.length > 0) {
