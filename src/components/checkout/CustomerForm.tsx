@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Truck, Store } from "lucide-react";
+import { AddressAutocomplete } from "./AddressAutocomplete";
 
 interface Store {
   id: number;
@@ -128,7 +129,6 @@ export default function CustomerForm({
   const [stores, setStores] = useState<Store[]>([]);
   const [storesLoading, setStoresLoading] = useState(true);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
-  const [fetchingAddress, setFetchingAddress] = useState(false);
 
   const dateOptions = useMemo(() => generateDateOptions(), []);
   const timeslots = useMemo(() => generateTimeslots(deliveryDate, deliveryType), [deliveryDate, deliveryType]);
@@ -332,47 +332,13 @@ export default function CustomerForm({
         </div>
       </div>
 
-      {/* Delivery: address */}
+      {/* Delivery: address autocomplete */}
       {deliveryType === "delivery" && (
         <>
-          <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
-            <Input
-              label="Postal Code *"
-              id="delivery-postal"
-              placeholder="123456"
-              value={deliveryPostalCode}
-              onChange={(e) => {
-                const v = e.target.value.replace(/\D/g, "").slice(0, 6);
-                setDeliveryPostalCode(v);
-                if (v.length === 6) {
-                  setFetchingAddress(true);
-                  fetch(`/api/postal?code=${v}`)
-                    .then(r => r.json())
-                    .then(data => {
-                      if (data.results && data.results.length > 0) {
-                        const r = data.results[0];
-                        setDeliveryAddress(`${r.BLOCK || ""} ${r.ROAD_NAME || ""}`.trim());
-                        setDeliveryPostalCode(v);
-                      }
-                    })
-                    .catch(() => {})
-                    .finally(() => setFetchingAddress(false));
-                }
-              }}
-              error={validationErrors.deliveryPostalCode}
-              disabled={isSubmitting}
-            />
-            {fetchingAddress && (
-              <span className="text-xs text-muted pb-2 animate-pulse">🔍 Looking up...</span>
-            )}
-          </div>
-
-          <Input
-            label="Delivery Address *"
-            id="delivery-address"
-            placeholder="Block/Street name"
+          <AddressAutocomplete
             value={deliveryAddress}
-            onChange={(e) => setDeliveryAddress(e.target.value)}
+            postalCode={deliveryPostalCode}
+            onChange={(addr, pc) => { setDeliveryAddress(addr); setDeliveryPostalCode(pc); }}
             error={validationErrors.deliveryAddress}
             disabled={isSubmitting}
           />
