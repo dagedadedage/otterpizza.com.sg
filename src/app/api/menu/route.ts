@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       include: {
         products: {
           where: { inStock: true },
-          orderBy: { sortOrder: "asc" },
+          orderBy: { sku: "asc" },
         },
       },
       orderBy: { sortOrder: "asc" },

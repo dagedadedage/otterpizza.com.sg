@@ -39,7 +39,7 @@ async function getMenuData(): Promise<SerializedCategory[]> {
       where: { slug: { not: "obsolete" } },
       include: {
         products: {
-          orderBy: { sortOrder: "asc" },
+          orderBy: { sku: "asc" },
         },
       },
       orderBy: { sortOrder: "asc" },
