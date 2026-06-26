@@ -186,9 +186,6 @@ export default function CustomerForm({
       if (!deliveryAddress.trim()) {
         errors.deliveryAddress = "Delivery address is required";
       }
-      if (!deliveryPostalCode.trim()) {
-        errors.deliveryPostalCode = "Postal code is required";
-      }
     }
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
