@@ -11,6 +11,9 @@ interface Store {
   id: number;
   name: string;
   address: string;
+  unit: string;
+  building: string;
+  postalCode: string;
 }
 
 export interface CustomerFormData {
@@ -369,7 +372,7 @@ export default function CustomerForm({
             </option>
             {stores.map((store) => (
               <option key={store.id} value={store.id}>
-                {store.name} — {store.address}
+                {store.name} — {store.address}{store.unit ? ` ${store.unit}` : ""}, {store.building}, Singapore {store.postalCode}
               </option>
             ))}
           </select>
