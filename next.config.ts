@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "static.wixstatic.com" },
@@ -66,6 +67,22 @@ const nextConfig: NextConfig = {
 
       // --- Legacy PDF files ---
       { source: "/_files/ugd/:path*", destination: "/menu", permanent: true },
+
+      // --- Domain consolidation (otterpizza.com → otterpizza.com.sg) ---
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "otterpizza.com" }],
+        destination: "https://otterpizza.com.sg/:path*",
+        permanent: true,
+      },
+
+      // --- www → non-www (consolidate to canonical domain) ---
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.otterpizza.com.sg" }],
+        destination: "https://otterpizza.com.sg/:path*",
+        permanent: true,
+      },
     ];
   },
 };

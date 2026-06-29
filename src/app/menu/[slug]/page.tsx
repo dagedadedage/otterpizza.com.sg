@@ -41,6 +41,9 @@ export async function generateMetadata({ params }: ProductDetailPageProps) {
   return {
     title: product.name,
     description: product.description || `${product.name} — Otter Pizza`,
+    alternates: {
+      canonical: `/menu/${slug}`,
+    },
     openGraph: {
       title: product.name,
       description: product.description || `${product.name} — Otter Pizza`,
@@ -198,6 +201,36 @@ export default async function ProductDetailPage({
                 ? "https://schema.org/InStock"
                 : "https://schema.org/OutOfStock",
             },
+          }),
+        }}
+      />
+
+      {/* BreadcrumbList structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: "https://otterpizza.com.sg",
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Menu",
+                item: "https://otterpizza.com.sg/order",
+              },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: product.name,
+              },
+            ],
           }),
         }}
       />

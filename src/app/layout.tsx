@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/store/cart-context";
 import { CartToast } from "@/components/cart/CartToast";
 import { SessionProvider } from "@/components/auth/SessionProvider";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import "./globals.css";
 
 const inter = Inter({
@@ -64,10 +65,10 @@ export const metadata: Metadata = {
     url: "https://otterpizza.com.sg",
     images: [
       {
-        url: "https://otterpizza.com.sg/images/logo.png",
-        width: 800,
-        height: 600,
-        alt: "Otter Pizza",
+        url: "https://otterpizza.com.sg/images/og-default.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Otter Pizza — Singapore's Neighbourhood Pizzeria",
       },
     ],
   },
@@ -76,7 +77,13 @@ export const metadata: Metadata = {
     title: "Singapore Neighbourhood Pizzeria | Otter Pizza",
     description:
       "Fresh, handcrafted pizzas for delivery and pickup. Order online now!",
-    images: ["https://otterpizza.com.sg/images/logo.png"],
+    images: ["https://otterpizza.com.sg/images/og-default.jpg"],
+  },
+  alternates: {
+    canonical: "/",
+  },
+  verification: {
+    google: "Bu2fjhVcoR5qLUdvbR8SJGaqfUKJuRQTewwkGBMTVaA",
   },
 };
 
@@ -99,6 +106,7 @@ export default function RootLayout({
             <CartToast />
           </CartProvider>
         </SessionProvider>
+        <GoogleAnalytics />
       </body>
     </html>
   );

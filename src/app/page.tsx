@@ -1,10 +1,27 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { parseTags } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/menu/ProductCard";
 import { ScooterHero } from "@/components/home/ScooterHero";
+
+export const metadata: Metadata = {
+  title: "Singapore Neighbourhood Pizzeria | Otter Pizza",
+  description:
+    "Fresh, handcrafted pizzas for delivery and pickup in Singapore. Browse our menu, order online, and enjoy neighbourhood pizza at its best.",
+  openGraph: {
+    images: [
+      {
+        url: "/images/og-default.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Otter Pizza — Singapore's Neighbourhood Pizzeria",
+      },
+    ],
+  },
+};
 
 function serializeDecimal(value: unknown): number {
   if (typeof value === "number") return value;

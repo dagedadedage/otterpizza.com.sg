@@ -62,7 +62,7 @@ export async function createPaymentRequest(
   }
 
   // Set webhook URL for automatic payment status updates
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://otterpizza.com";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://otterpizza.com.sg";
   body.append("webhook", `${appUrl}/api/webhooks/hitpay`);
 
   const res = await fetch(`${HITPAY_BASE_URL}/payment-requests`, {
