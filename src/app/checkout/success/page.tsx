@@ -9,21 +9,22 @@ import { CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("order");
-  const urlStatus = searchParams.get("status");
-  const [status, setStatus] = useState<string>(urlStatus === "completed" ? "completed" : "pending");
-  const [checking, setChecking] = useState(urlStatus !== "completed");
+  const [status, setStatus] = useState<string>("pending");
+  const [checking, setChecking] = useState(true);
 
-  // Poll for payment status confirmation
+  // Always verify payment status with backend (never trust URL param)
   useEffect(() => {
-    if (!orderNumber || urlStatus === "completed") {
+    if (!orderNumber) {
       setChecking(false);
       return;
     }
 
     let attempts = 0;
-    const maxAttempts = 5;
+    const maxAttempts = 10;
+    let stopped = false;
 
     const checkStatus = async () => {
+      if (stopped) return;
       try {
         const res = await fetch(`/api/checkout/status?order=${orderNumber}`);
         if (res.ok) {
@@ -31,6 +32,7 @@ function SuccessContent() {
           if (data.status === "PAID" || data.status === "CONFIRMED" || data.paymentStatus === "completed") {
             setStatus("completed");
             setChecking(false);
+            stopped = true;
             return;
           }
         }
@@ -39,10 +41,11 @@ function SuccessContent() {
       attempts++;
       if (attempts >= maxAttempts) {
         setChecking(false);
+        stopped = true;
       }
     };
 
-    // Check immediately, then every 2 seconds
+    // Check immediately, then every 2 seconds (up to 20s total)
     checkStatus();
     const interval = setInterval(() => {
       if (attempts >= maxAttempts) {
@@ -53,7 +56,10 @@ function SuccessContent() {
       checkStatus();
     }, 2000);
 
-    return () => clearInterval(interval);
+    return () => {
+      stopped = true;
+      clearInterval(interval);
+    };
   }, [orderNumber]);
 
   const isCompleted = status === "completed";

@@ -5,7 +5,7 @@ import { formatPrice } from "@/lib/utils";
 const FROM_NAME = "Otter Pizza";
 const FROM_EMAIL = "orders@otterpizza.com.sg";
 const ADMIN_EMAIL = "orders@otterpizza.com.sg";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://otterpizza.com.sg";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.otterpizza.com.sg";
 const LOGO_URL = `${APP_URL}/images/logo.png`;
 
 // Resend client (works once DNS is verified)
