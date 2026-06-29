@@ -191,7 +191,7 @@ export default async function ProductDetailPage({
             "@type": "Product",
             name: product.name,
             description: product.description || "",
-            image: product.imageUrl || "https://otterpizza.com.sg/images/logo.png",
+            image: product.imageUrl || "https://www.otterpizza.com.sg/images/logo.png",
             sku: product.sku,
             offers: {
               "@type": "Offer",
@@ -217,13 +217,13 @@ export default async function ProductDetailPage({
                 "@type": "ListItem",
                 position: 1,
                 name: "Home",
-                item: "https://otterpizza.com.sg",
+                item: "https://www.otterpizza.com.sg",
               },
               {
                 "@type": "ListItem",
                 position: 2,
                 name: "Menu",
-                item: "https://otterpizza.com.sg/order",
+                item: "https://www.otterpizza.com.sg/order",
               },
               {
                 "@type": "ListItem",

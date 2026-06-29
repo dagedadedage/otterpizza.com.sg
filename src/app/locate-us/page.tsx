@@ -190,7 +190,7 @@ export default async function LocateUsPage() {
                 "@type": "LocalBusiness",
                 name: `Otter Pizza | ${store.name}`,
                 description: "Neighbourhood pizzeria serving fresh, handcrafted pizzas",
-                image: "https://otterpizza.com.sg/images/logo.png",
+                image: "https://www.otterpizza.com.sg/images/logo.png",
                 address: {
                   "@type": "PostalAddress",
                   streetAddress: `${store.address}${store.unit ? ", " + store.unit : ""}`,

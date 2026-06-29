@@ -28,7 +28,7 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://otterpizza.com.sg"),
+  metadataBase: new URL("https://www.otterpizza.com.sg"),
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "48x48" },
@@ -68,10 +68,10 @@ export const metadata: Metadata = {
     title: "Singapore Neighbourhood Pizzeria | Otter Pizza",
     description:
       "Fresh, handcrafted pizzas for delivery and pickup. Order online now!",
-    url: "https://otterpizza.com.sg",
+    url: "https://www.otterpizza.com.sg",
     images: [
       {
-        url: "https://otterpizza.com.sg/images/og-default.jpg",
+        url: "https://www.otterpizza.com.sg/images/og-default.jpg",
         width: 1200,
         height: 630,
         alt: "Otter Pizza — Singapore's Neighbourhood Pizzeria",
@@ -83,7 +83,7 @@ export const metadata: Metadata = {
     title: "Singapore Neighbourhood Pizzeria | Otter Pizza",
     description:
       "Fresh, handcrafted pizzas for delivery and pickup. Order online now!",
-    images: ["https://otterpizza.com.sg/images/og-default.jpg"],
+    images: ["https://www.otterpizza.com.sg/images/og-default.jpg"],
   },
   alternates: {
     canonical: "/",

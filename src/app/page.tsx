@@ -152,9 +152,9 @@ export default async function HomePage() {
             name: "Otter Pizza",
             description:
               "Singapore's neighbourhood pizzeria — fresh, handcrafted pizzas for delivery and pickup.",
-            url: "https://otterpizza.com.sg",
-            logo: "https://otterpizza.com.sg/images/logo.png",
-            image: "https://otterpizza.com.sg/images/logo.png",
+            url: "https://www.otterpizza.com.sg",
+            logo: "https://www.otterpizza.com.sg/images/logo.png",
+            image: "https://www.otterpizza.com.sg/images/logo.png",
             servesCuisine: "Pizza",
             priceRange: "$$",
             address: {

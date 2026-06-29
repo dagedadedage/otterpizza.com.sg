@@ -68,19 +68,19 @@ const nextConfig: NextConfig = {
       // --- Legacy PDF files ---
       { source: "/_files/ugd/:path*", destination: "/menu", permanent: true },
 
-      // --- Domain consolidation (otterpizza.com → otterpizza.com.sg) ---
+      // --- Domain consolidation (otterpizza.com → www.otterpizza.com.sg) ---
       {
         source: "/:path*",
         has: [{ type: "host", value: "otterpizza.com" }],
-        destination: "https://otterpizza.com.sg/:path*",
+        destination: "https://www.otterpizza.com.sg/:path*",
         permanent: true,
       },
 
-      // --- www → non-www (consolidate to canonical domain) ---
+      // --- non-www → www (consolidate to canonical domain) ---
       {
         source: "/:path*",
-        has: [{ type: "host", value: "www.otterpizza.com.sg" }],
-        destination: "https://otterpizza.com.sg/:path*",
+        has: [{ type: "host", value: "otterpizza.com.sg" }],
+        destination: "https://www.otterpizza.com.sg/:path*",
         permanent: true,
       },
     ];

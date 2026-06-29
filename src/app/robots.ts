@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin/", "/api/", "/cart", "/checkout", "/login"],
     },
-    sitemap: "https://otterpizza.com.sg/sitemap.xml",
+    sitemap: "https://www.otterpizza.com.sg/sitemap.xml",
   };
 }
