@@ -86,9 +86,30 @@ function buildHtml(data: OrderEmailData, status: string, extraInfo?: string): st
 
 async function sendEmail(to: string, subject: string, html: string, replyTo?: string) {
   const recipients = [to, ADMIN_EMAIL];
-  const replyToAddr = replyTo || gmailFrom;
+  const replyToAddr = replyTo || FROM_EMAIL;
 
-  // Try Gmail SMTP first (works immediately, no DNS needed)
+  // Try Resend first (from orders@otterpizza.com.sg — no Gmail Sent folder)
+  if (resend) {
+    try {
+      const { error } = await resend.emails.send({
+        from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+        replyTo: replyToAddr,
+        to: recipients,
+        subject,
+        html,
+      });
+      if (error) {
+        console.error(`[email] Resend failed: ${error.message}`);
+      } else {
+        console.log(`[email] Sent via Resend: ${subject} to ${to}`);
+        return;
+      }
+    } catch (err: any) {
+      console.error(`[email] Resend failed: ${err.message}`);
+    }
+  }
+
+  // Fall back to Gmail SMTP only if Resend is unavailable
   if (useGmail) {
     try {
       const transporter = nodemailer.createTransport({
@@ -111,28 +132,7 @@ async function sendEmail(to: string, subject: string, html: string, replyTo?: st
     }
   }
 
-  // Fall back to Resend (works once DNS is verified)
-  if (resend) {
-    try {
-      const { error } = await resend.emails.send({
-        from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
-        replyTo: replyToAddr,
-        to: recipients,
-        subject,
-        html,
-      });
-      if (error) {
-        console.error(`[email] Resend failed: ${error.message}`);
-      } else {
-        console.log(`[email] Sent via Resend: ${subject} to ${to}`);
-      }
-      return;
-    } catch (err: any) {
-      console.error(`[email] Resend failed: ${err.message}`);
-    }
-  }
-
-  console.error(`[email] ALERT: All transports failed for "${subject}" to ${to}. Neither Gmail nor Resend is working.`);
+  console.error(`[email] ALERT: All transports failed for "${subject}" to ${to}. Neither Resend nor Gmail is working.`);
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
