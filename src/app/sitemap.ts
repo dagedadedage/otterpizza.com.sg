@@ -20,13 +20,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { inStock: true },
       select: { slug: true, updatedAt: true, imageUrl: true, name: true },
     });
-    productPages = products.map((p) => ({
-      url: `${baseUrl}/menu/${p.slug}`,
-      lastModified: p.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-      images: p.imageUrl ? [p.imageUrl] : undefined,
-    }));
+    productPages = products
+      .filter((p) => p.slug !== "testing-05") // exclude test products
+      .map((p) => ({
+        url: `${baseUrl}/menu/${p.slug}`,
+        lastModified: p.updatedAt,
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+        images: p.imageUrl
+          ? [`${baseUrl}${encodeURI(p.imageUrl)}`]
+          : undefined,
+      }));
   } catch {
     // Sitemap generation should never break the build
   }
